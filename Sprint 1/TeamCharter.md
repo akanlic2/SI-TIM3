@@ -24,22 +24,29 @@
 Nakon završetka taskova za jedan sprint, održat ćemo sastanak gdje će svako prezentovati odrađeno.
 
 ### Radna pravila tima: 
-Svaki član tima je dužan redovno pratiti komunikaciju (Viber grupa).
+- Svaki član tima je dužan redovno pratiti komunikaciju (Viber grupa).
 
-Zadaci se dijele ravnomjerno između članova tima.
+- Zadaci se dijele ravnomjerno između članova tima.
 
-Svaki član je odgovoran za svoj dio zadatka i dužan ga je završiti u dogovorenom roku.
+- Svaki član je odgovoran za svoj dio zadatka i dužan ga je završiti u dogovorenom roku.
 
-Kod nejasnoća ili problema, član je obavezan na vrijeme obavijestiti ostatak tima.
+- Kod nejasnoća ili problema, član je obavezan na vrijeme obavijestiti ostatak tima.
 
-Svi članovi trebaju poštovati mišljenja drugih.
+- Svi članovi trebaju poštovati mišljenja drugih.
 
-Promjene u zadacima ili planu rada moraju biti dogovorene sa timom.
+- Promjene u zadacima ili planu rada moraju biti dogovorene sa timom.
+
+### Početne odgovornosti
+- Koordinacija sprinta:
+- Backlog i zahtjevi:
+- Arhitektura i tehničke odluke:
+- Testiranje i kvalitet:
+- Dokumentacija i evidencije:
 
 ### Pravila u slučaju neispunjavanja obaveza:
-Ako član ne ispuni zadatak u roku, dužan je obavijestiti tim kako bi se dogovorili o ispunjenju istog.
+- Ako član ne ispuni zadatak u roku, dužan je obavijestiti tim kako bi se dogovorili o ispunjenju istog.
 
-Ako član ne učestvuje u radu tima bez opravdanog razloga, to će biti prijavljeno predmetnom asistentu/profesoru.
+- Ako član ne učestvuje u radu tima bez opravdanog razloga, to će biti prijavljeno predmetnom asistentu/profesoru.
 
-Tim zajednički odlučuje o daljim koracima u slučaju neodgovornog ponašanja člana tima.
+- Tim zajednički odlučuje o daljim koracima u slučaju neodgovornog ponašanja člana tima.
 
