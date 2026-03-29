@@ -5,13 +5,13 @@
 ## Članovi tima
 | Ime    | Prezime      | Indeks | Kontakt                 |
 |--------|--------------|--------|-------------------------|
-| Ajra   | Kerla        |        | akerla3@etf.unsa.ba     |
+| Ajra   | Kerla        | 19442  | akerla3@etf.unsa.ba     |
 | Ajdin  | Kanlić       | 19607  | akanlic2@etf.unsa.ba    |
-| Emira  | Kurtović     |        | ekurtovic5@etf.unsa.ba  |
+| Emira  | Kurtović     | 19344  | ekurtovic5@etf.unsa.ba  |
 | Enela  | Pirija       | 19709  | epirija2@etf.unsa.ba    |
 | Hamza  | Kovač        | 19805  | hkovac2@etf.unsa.ba     |
 | Lamija | Dženetić     | 19708  | ldzenetic1@etf.unsa.ba  |
-| Nejra  | Hodžić       |        | nhodzic1@etf.unsa.ba    |
+| Nejra  | Hodžić       | 19260  | nhodzic1@etf.unsa.ba    |
 | Tarik  | Babahmetović |        | tbabahmeto1@etf.unsa.ba |
 
 ## Način komunikacije
