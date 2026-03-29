@@ -32,6 +32,16 @@ Sistem treba omogućiti:
 - Online praćenje konferencije
 
 ### Ključna ograničenja i pretpostavke 
+#### Ograničenja
+- Nema integracije sa eksternim servisima (e-mail, sistemi za plaćanje, kalendari)
+- Dizajn nije responzivan (prilagođeno samo desktop uređajima)
+- Sistem ne podržava offline režim rada
+- Nema podrške za višejezičnost 
 
-
+#### Pretpostavke
+- Korisnici unose ispravne podatke prilikom kreiranja konferencije
+- Korisnici redovno provjeravaju obavijesti 
+- Podaci o konferenciji se ne mijenjaju mnogo nakon objave 
+- Svi termini i resursi su unaprijed poznati
+- Sistem neće biti izložen značajnom opterećenju (ogroman broj korisnika u isto vrijeme)
 
