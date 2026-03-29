@@ -1,4 +1,4 @@
-## Sprint Restrospective Summary
+## Sprint Retrospective Summary
 
 ### **Šta je išlo dobro?**
 - Tim je uspostavio efikasnu i jasnu komunikaciju tokom cijelog sprinta.
