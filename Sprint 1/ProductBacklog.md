@@ -16,3 +16,7 @@
 | S14   | Obavijesti predavačima | Predavači na konferencijama dobijaju obavijest o uspješnom ili neuspješnom zakazivanju konferencije, te eventualnim promjenama. | Feature    | Medium    | 50min                   | To Do  | 8               |   -      |
 | S15   | Obavijesti prijavljenim na konferenciju | Korisnici koji su prijavili prisustvo na određenu konferenciju dobijaju obavijesti o njenom eventualnom otkazivanju ili odgađanju. | Feature    | Medium    | 50min                   | To Do  | 8               |   -      |
 | S16   | Odobravanje zahtjeva za konferencije | Oragnizatori imaju mogućnost odobriti ili odbiti zahtjev za konferenciju.                                 | Feature    | High      | 20min                | To Do  | 6               |   -      |
+  S17            |  Team Charter | Osnovne informacije o timu. | Documentation | High | 15min | Done | 1 | - |
+  S18            | Stakeholder Map | Lista ljudi koji imaju direktnu ili indirektnu korist od sistema. | Documentation | High | 15min | Done | 1 | - |
+  S19            | Product Vision | Namjena proizvoda. | Documentation | High | 15min | Done | 1 | - | 
+  S20            | Product Backlog | Početna lista stavki. | Documentation | High | 20min | Done | 1 | - |
