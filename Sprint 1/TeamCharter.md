@@ -12,7 +12,7 @@
 | Hamza  | Kovač        | 19805  | hkovac2@etf.unsa.ba     |
 | Lamija | Dženetić     | 19708  | ldzenetic1@etf.unsa.ba  |
 | Nejra  | Hodžić       | 19260  | nhodzic1@etf.unsa.ba    |
-| Tarik  | Babahmetović |        | tbabahmeto1@etf.unsa.ba |
+| Tarik  | Babahmetović | 19727  | tbabahmeto1@etf.unsa.ba |
 
 ## Način komunikacije
 
