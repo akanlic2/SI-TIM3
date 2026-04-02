@@ -19,12 +19,27 @@ Sistem za organizaciju konferencija predstavlja platformu koja objedinjuje sve p
 
 ### Scope MVP verzije 
 Sistem treba omogućiti: 
-- Prijava učesnika
-- Kreiranje konferencija
-- Upravljanje sesijama
+- Prijava učesnika 
+- Unos naziva i opisa konferencije
+- Definisanje datuma i vremena održavanja
+- Odabir lokacije
+- Odabir kategorije konferencije (tehnička, akademska...)
+- Definisanje kategorija i iznosa kotizacije
+- Postavljanje maksimalnog broja učesnika
+- Brisanje konferencije
+- Kreiranje sesija unutar konferencije
+- Definisanje termina i trajanja sesije
+- Dodjela predavača sesiji
+- Prijava učesnika na konkretnu sesiju 
+- Otkazivanje sesije
+- Pretraga konferencija po nazivu
+- Pregled detalja pojedinačne konferencije
 - Pregled zakazanih konferencija
+- Lista učesnika po konferenciji
+- Odjava sa konferencije
+- Pregled popunjenosti kapaciteta
 - Izvještaji za organizatore
-- Osnovne obavijesti za učesnike
+- Osnovne obavijesti za učesnike (potvrda o prijavi, promjena termina, otkazivanje sesije...)
 
 ### Šta ne ulazi u MVP 
 - Online plaćanje
