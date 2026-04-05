@@ -6,7 +6,7 @@
 | NFR-04 | Sigurnost | Sistem mora omogućiti autentifikaciju i autorizaciju korisnika | Testiranje pristupa (različite uloge korisnika) | Visok | Uloge uključuju admina, učesnika, organizatora i slično |
 | NFR-05 | Upotrebljivost | Korisnik mora moći izvršiti prijavu na konferenciju u maksimalno 3 koraka | Testiranje korisničkog interfejsa | Srednji | Fokus je na jednostavnosti korištenja |
 | NFR-06 | Pouzdanost | Garantovana dostupnost sistema iznosi 99% ili više | Praćenje uptime vremena sistema | Visok | Planirano održavanje mora biti najavljeno korisnicima unaprijed |
-| NFR-07 | Pouzadnost | Sistem mora praviti backup podataka jednom dnevno | Provjera backup logova | Visok | Podaci se čuvaju minimum 30 dana |
+| NFR-07 | Pouzdanost | Sistem mora praviti backup podataka jednom dnevno | Provjera backup logova | Visok | Podaci se čuvaju minimum 30 dana |
 | NFR-08 | Kompatibilnost | Sistem mora raditi na modernim web preglednicima (Chrome, Firefox, Edge) | Testiranje na različitim browserima | Srednji | Testiranje se provodi na posljednjim stabilnim verzijama browsera |
 | NFR-09 | Održivost | Kod sistema mora biti modularan i dokumentovan | Pregled koda i dokumentacije | Srednji | Olakšava budući razvoj |
 | NFR-10 | Privatnost | Sistem mora zaštititi lične podatke korisnika | Analiza pristupa podacima | Visok | U skladu sa GDPR principima |
