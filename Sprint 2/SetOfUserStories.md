@@ -618,6 +618,7 @@ Kreiranje i pregled konferencija je centralna svrha platforme. Organizatori treb
   - Sistem mora
  
 ---
+
 ### S49 — Materijali za konferenciju i sesije
 
 - **ID storyja:** US25
