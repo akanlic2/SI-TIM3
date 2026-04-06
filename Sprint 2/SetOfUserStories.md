@@ -412,7 +412,7 @@ Kreiranje i pregled konferencija je centralna svrha platforme. Organizatori treb
   - Sistem ne smije dozvoliti duplikate  
   - Korisnik treba dobiti potvrdu o uspješnoj prijavi  
 
-  ---
+---
 
 ### S39 - Odjava učesnika sa konferencije
 
