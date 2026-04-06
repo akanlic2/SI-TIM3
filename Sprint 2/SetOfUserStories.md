@@ -364,12 +364,13 @@ Upravljanje prostorijama i terminima osigurava da nema konflikata i da se konfer
 
 ---
 
-## Grupa 7: Učesnici (S38)
+## Grupa 7: Učesnici (S38, S39, S40, S41, S42)
 
 **Poslovna vrijednost grupe:**
-Prijava učesnika omogućava stvarnu upotrebu sistema i predstavlja ključnu funkcionalnost konferencijskog sistema.
+Funkcionalnosti vezane za učesnike omogućavaju stvarnu upotrebu sistema. Učesnici mogu pregledati konferencije, prijaviti se, pratiti dostupnost mjesta i učestvovati u sesijama, dok organizatori imaju uvid u prijavljene korisnike.
 
 ---
+
 
 ### S38 — Prijava učesnika na konferenciju
 
@@ -387,6 +388,8 @@ Prijava učesnika omogućava stvarnu upotrebu sistema i predstavlja ključnu fun
   - Sistem ne smije dozvoliti višestruku prijavu na istu konferenciju
   - Sistem mora evidentirati prijavu korisnika
 
+
+---
 
 
 
