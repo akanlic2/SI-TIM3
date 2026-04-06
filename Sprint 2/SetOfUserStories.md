@@ -178,125 +178,150 @@ Kreiranje i pregled konferencija je centralna svrha platforme. Organizatori treb
 ## Grupa 4: Upravljanje konferencijom (S28, S29, S30, S31)
 
 **Poslovna vrijednost grupe:**
-Nakon što je konferencija kreirana, organizatori trebaju imati mogućnost upravljanja njenim podacima, dok korisnici trebaju imati pristup detaljima i mogućnost pretrage. Ove funkcionalnosti omogućavaju fleksibilnost i bolju organizaciju konferencija.
+Omogućava korisnicima i organizatorima potpunu kontrolu i pregled konferencija.
 
 ---
 
 ### S28 — Detalji konferencije
 
-- **Opis:** Kao korisnik sistema, želim vidjeti detalje pojedinačne konferencije, kako bih dobio sve potrebne informacije prije prijave.
-- **Prioritet:** High
-- **Tip:** Feature
-- **Sprint:** 6–10
+- **ID storyja:** US-08  
+- **Naziv storyja:** Pregled detalja konferencije  
+- **Opis:** Kao korisnik sistema, želim vidjeti detalje pojedinačne konferencije, kako bih dobio sve potrebne informacije prije prijave.  
+- **Poslovna vrijednost:** Omogućava korisnicima donošenje odluke o učešću na osnovu potpunih informacija.  
+- **Prioritet:** High  
+
 - **Pretpostavke i otvorena pitanja:**
-  - Konferencija je već kreirana u sistemu
-  - Koje informacije se prikazuju (opis, datum, lokacija, predavači)?
-- **Veza sa drugim storyjima ili zavisnostima:**
-  - Zavisi od S26 (Kreiranje konferencije)
-  - Povezano sa S27 (Pregled konferencija)
+  - Konferencija je već kreirana u sistemu  
+  - Da li svi korisnici imaju pristup svim detaljima konferencije?  
+
+- **Veze:**
+  - Kreiranje konferencije (US-26)  
+  - Pregled konferencija (US-27)  
+
 - **Acceptance criteria:**
-  - Sistem mora prikazati naziv, datum, lokaciju i opis konferencije
-  - Kada korisnik klikne na konferenciju, treba biti preusmjeren na stranicu sa detaljima
-  - Sistem ne smije prikazivati nepostojeće ili obrisane konferencije
-  - Sistem mora omogućiti jasan prikaz svih informacija o konferenciji
+  - Kada korisnik klikne na konferenciju, ako konferencija postoji, tada vidi sve detalje  
+  - Sistem mora prikazati naziv, datum, lokaciju i opis  
+  - Sistem ne smije prikazivati nepostojeće konferencije  
+  - Korisnik treba dobiti jasan i pregledan prikaz informacija  
 
 ---
 
 ### S29 — Uređivanje konferencije
 
-- **Opis:** Kao organizator, želim izmijeniti podatke postojeće konferencije, kako bih ažurirao informacije.
-- **Prioritet:** High
-- **Tip:** Feature
-- **Sprint:** 6–10
+- **ID storyja:** US-09  
+- **Naziv storyja:** Uređivanje konferencije  
+- **Opis:** Kao organizator, želim izmijeniti podatke postojeće konferencije, kako bih ažurirao informacije.  
+- **Poslovna vrijednost:** Omogućava održavanje tačnih i ažurnih podataka.  
+- **Prioritet:** High  
+
 - **Pretpostavke i otvorena pitanja:**
-  - Korisnik ima rolu organizatora
-  - Koje podatke je moguće izmijeniti?
-- **Veza sa drugim storyjima ili zavisnostima:**
-  - Zavisi od S26 (Kreiranje konferencije)
+  - Korisnik ima rolu organizatora  
+  - Koja polja je dozvoljeno mijenjati?  
+
+- **Veze:**
+  - Kreiranje konferencije (US-26)  
+
 - **Acceptance criteria:**
-  - Sistem mora omogućiti izmjenu osnovnih podataka konferencije
-  - Kada organizator sačuva izmjene, treba dobiti potvrdu o uspješnoj izmjeni
-  - Sistem ne smije dozvoliti izmjene korisnicima bez rola organizatora
-  - Sistem ne smije dozvoliti spremanje praznih obaveznih polja
+  - Kada organizator izmijeni podatke, ako su svi obavezni podaci uneseni, tada se promjene spremaju  
+  - Sistem mora omogućiti izmjenu osnovnih podataka  
+  - Sistem ne smije dozvoliti izmjene neovlaštenim korisnicima  
+  - Korisnik treba dobiti potvrdu o uspješnoj izmjeni  
 
 ---
 
 ### S30 — Brisanje konferencije
 
-- **Opis:** Kao organizator, želim obrisati konferenciju, kako bih uklonio nevažeće ili otkazane događaje.
-- **Prioritet:** Medium
-- **Tip:** Feature
-- **Sprint:** 6–10
+- **ID storyja:** US-10  
+- **Naziv storyja:** Brisanje konferencije  
+- **Opis:** Kao organizator, želim obrisati konferenciju, kako bih uklonio nevažeće događaje.  
+- **Poslovna vrijednost:** Omogućava uklanjanje zastarjelih ili otkazanih konferencija.  
+- **Prioritet:** Medium  
+
 - **Pretpostavke i otvorena pitanja:**
-  - Da li je potrebno potvrditi brisanje?
-- **Veza sa drugim storyjima ili zavisnostima:**
-  - Zavisi od S26 (Kreiranje konferencije)
+  - Konferencija postoji  
+  - Da li je moguće vratiti obrisanu konferenciju?  
+
+- **Veze:**
+  - Kreiranje konferencije (US-26)  
+
 - **Acceptance criteria:**
-  - Sistem mora omogućiti organizatoru brisanje konferencije
-  - Kada organizator potvrdi brisanje, konferencija treba biti uklonjena iz sistema
-  - Sistem ne smije prikazivati obrisane konferencije
-  - Sistem mora tražiti potvrdu prije brisanja
+  - Kada organizator klikne na brisanje, ako potvrdi akciju, tada se konferencija briše  
+  - Sistem mora tražiti potvrdu prije brisanja  
+  - Sistem ne smije prikazivati obrisane konferencije  
+  - Korisnik treba dobiti informaciju da je brisanje uspješno  
 
 ---
 
 ### S31 — Pretraga konferencija
 
-- **Opis:** Kao korisnik, želim pretraživati konferencije po nazivu, kako bih brzo pronašao željenu konferenciju.
-- **Prioritet:** Medium
-- **Tip:** Feature
-- **Sprint:** 6–10
+- **ID storyja:** US-11  
+- **Naziv storyja:** Pretraga konferencija  
+- **Opis:** Kao korisnik, želim pretraživati konferencije, kako bih brzo pronašao željenu konferenciju.  
+- **Poslovna vrijednost:** Povećava efikasnost i brzinu pronalaska konferencija.  
+- **Prioritet:** Medium  
+
 - **Pretpostavke i otvorena pitanja:**
-  - Da li pretraga podržava djelimičan unos?
-- **Veza sa drugim storyjima ili zavisnostima:**
-  - Povezano sa S27 (Pregled konferencija)
+  - Sistem podržava unos teksta  
+  - Da li pretraga podržava djelimičan unos?  
+
+- **Veze:**
+  - Pregled konferencija (US-27)  
+
 - **Acceptance criteria:**
-  - Sistem mora omogućiti unos naziva za pretragu
-  - Kada korisnik unese pojam, treba dobiti listu odgovarajućih konferencija
-  - Sistem mora prikazati poruku ako nema rezultata
-  - Sistem ne smije prikazivati neaktivne konferencije
+  - Kada korisnik unese pojam, ako postoje rezultati, tada sistem prikazuje odgovarajuće konferencije  
+  - Sistem mora omogućiti unos teksta za pretragu  
+  - Kada nema rezultata, sistem treba prikazati poruku  
+  - Sistem mora prikazati samo relevantne konferencije  
 
 ---
 
 ## Grupa 5: Sesije i raspored (S32, S33, S34)
 
-**Poslovna vrijednost grupe:**
-Sesije predstavljaju osnovnu strukturu konferencije. Njihovo upravljanje omogućava organizaciju sadržaja konferencije i povezivanje predavača sa terminima.
-
 ---
 
 ### S32 — Upravljanje sesijama
 
-- **Opis:** Kao organizator, želim upravljati sesijama unutar konferencije, kako bih organizovao sadržaj događaja.
-- **Prioritet:** High
-- **Tip:** Feature
-- **Sprint:** 6–10
+- **ID storyja:** US-12  
+- **Naziv storyja:** Upravljanje sesijama  
+- **Opis:** Kao organizator, želim upravljati sesijama, kako bih organizovao sadržaj konferencije.  
+- **Poslovna vrijednost:** Omogućava organizaciju programa konferencije.  
+- **Prioritet:** High  
+
 - **Pretpostavke i otvorena pitanja:**
-  - Koji podaci čine sesiju?
-- **Veza sa drugim storyjima ili zavisnostima:**
-  - Zavisi od S26 (Kreiranje konferencije)
+  - Konferencija postoji  
+  - Koji podaci su obavezni za sesiju?  
+
+- **Veze:**
+  - Kreiranje konferencije (US-26)  
+
 - **Acceptance criteria:**
-  - Sistem mora omogućiti kreiranje, izmjenu i brisanje sesija
-  - Kada organizator kreira sesiju, ona treba biti povezana sa konferencijom
-  - Sistem ne smije dozvoliti kreiranje sesije bez osnovnih podataka
-  - Sistem mora omogućiti pregled svih sesija unutar konferencije
+  - Kada organizator kreira sesiju, ako su podaci validni, tada se sesija sprema  
+  - Sistem mora omogućiti kreiranje, izmjenu i brisanje sesija  
+  - Sesije moraju biti povezane sa konferencijom  
+  - Sistem ne smije dozvoliti kreiranje bez osnovnih podataka  
 
 ---
 
 ### S33 — Dodjela predavača sesiji
 
-- **Opis:** Kao organizator, želim dodijeliti predavača sesiji, kako bih definisao ko vodi određenu sesiju.
-- **Prioritet:** High
-- **Tip:** Feature
-- **Sprint:** 6–10
+- **ID storyja:** US-13  
+- **Naziv storyja:** Dodjela predavača  
+- **Opis:** Kao organizator, želim dodijeliti predavača sesiji, kako bih definisao ko vodi sesiju.  
+- **Poslovna vrijednost:** Omogućava jasnu organizaciju i odgovornost.  
+- **Prioritet:** High  
+
 - **Pretpostavke i otvorena pitanja:**
-  - Da li predavač mora imati nalog?
-- **Veza sa drugim storyjima ili zavisnostima:**
-  - Zavisi od S32 (Upravljanje sesijama)
+  - Predavač postoji u sistemu  
+  - Da li jedan predavač može imati više sesija?  
+
+- **Veze:**
+  - Upravljanje sesijama (US-12)  
+
 - **Acceptance criteria:**
-  - Sistem mora omogućiti izbor predavača za sesiju
-  - Kada se predavač dodijeli, treba biti vidljiv u detaljima sesije
-  - Sistem ne smije dozvoliti dodjelu nepostojećeg korisnika
-  - Sistem mora omogućiti izmjenu dodijeljenog predavača
+  - Kada organizator dodijeli predavača, ako predavač postoji, tada se prikazuje u sesiji  
+  - Sistem mora omogućiti izbor predavača  
+  - Sistem ne smije dozvoliti dodjelu nepostojećeg korisnika  
+  - Korisnik treba vidjeti dodijeljenog predavača  
 
 ---
 
