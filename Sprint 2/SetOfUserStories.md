@@ -175,10 +175,6 @@ Kreiranje i pregled konferencija je centralna svrha platforme. Organizatori treb
 
 ---
 
-## Grupa 4: Upravljanje konferencijom (S28, S29, S30, S31)
-
----
-
 ### S28 — Detalji konferencije
 
 - **ID storyja:** US-08  
@@ -260,10 +256,6 @@ Kreiranje i pregled konferencija je centralna svrha platforme. Organizatori treb
 
 ---
 
-## Grupa 5: Sesije i raspored (S32, S33, S34)
-
----
-
 ### S32 — Upravljanje sesijama
 
 - **ID storyja:** US-12  
@@ -277,12 +269,89 @@ Kreiranje i pregled konferencija je centralna svrha platforme. Organizatori treb
 - **Veze sa drugim storyjima ili zavisnostima:**
   - Kreiranje konferencije (US-26)  
 - **Acceptance criteria:**
-  - Kada organizator kreira sesiju, ako su podaci validni, tada se sesija sprema  
-  - Sistem mora omogućiti kreiranje, izmjenu i brisanje sesija  
+  - Sistem mora omogućiti upravljanje sesijama  
   - Sesije moraju biti povezane sa konferencijom  
   - Sistem ne smije dozvoliti kreiranje bez osnovnih podataka  
+  - Promjene nad sesijama moraju biti odmah vidljive  
 
 ---
+
+### S32.1 — Pregled sesija konferencije
+
+- **ID storyja:** US-12.1  
+- **Naziv storyja:** Pregled sesija konferencije  
+- **Opis:** Kao organizator, želim vidjeti sve sesije unutar odabrane konferencije, kako bih imao jasan pregled programa konferencije.  
+- **Poslovna vrijednost:** Omogućava bolju organizaciju i pregled sadržaja konferencije.  
+- **Prioritet:** High  
+- **Pretpostavke i otvorena pitanja:**
+  - Konferencija je kreirana  
+  - Organizator je prijavljen  
+- **Veze sa drugim storyjima ili zavisnostima:**
+  - Upravljanje sesijama (US-12)  
+- **Acceptance criteria:**
+  - Kada organizator otvori sesije, tada vidi listu svih sesija za konferenciju  
+  - Sistem mora prikazati osnovne podatke o sesiji  
+  - Kada nema sesija, tada sistem prikazuje odgovarajuću poruku  
+
+---
+
+### S32.2 — Kreiranje sesije
+
+- **ID storyja:** US-12.2  
+- **Naziv storyja:** Kreiranje sesije  
+- **Opis:** Kao organizator, želim kreirati novu sesiju, kako bih definisao sadržaj konferencije.  
+- **Poslovna vrijednost:** Omogućava izgradnju programa konferencije.  
+- **Prioritet:** High  
+- **Pretpostavke i otvorena pitanja:**
+  - Organizator je prijavljen  
+  - Konferencija postoji  
+- **Veze sa drugim storyjima ili zavisnostima:**
+  - Upravljanje sesijama (US-12)  
+- **Acceptance criteria:**
+  - Kada organizator unese validne podatke, tada sistem sprema sesiju  
+  - Sistem mora omogućiti unos osnovnih podataka  
+  - Sistem ne smije dozvoliti kreiranje bez obaveznih podataka  
+  - Sistem ne smije dozvoliti kreiranje sesije sa istim terminom u istoj konferenciji  
+  - Nova sesija mora biti vidljiva u listi  
+
+---
+
+### S32.3 — Uređivanje sesije
+
+- **ID storyja:** US-12.3  
+- **Naziv storyja:** Uređivanje sesije  
+- **Opis:** Kao organizator, želim izmijeniti postojeću sesiju, kako bih ažurirao program konferencije.  
+- **Poslovna vrijednost:** Omogućava ažurnost podataka.  
+- **Prioritet:** High  
+- **Pretpostavke i otvorena pitanja:**
+  - Sesija postoji  
+- **Veze sa drugim storyjima ili zavisnostima:**
+  - Upravljanje sesijama (US-12)  
+- **Acceptance criteria:**
+  - Kada organizator izmijeni podatke, tada sistem sprema promjene  
+  - Sistem mora omogućiti izmjenu podataka  
+  - Sistem ne smije dozvoliti nevalidne izmjene  
+  - Promjene moraju biti odmah vidljive  
+
+---
+
+### S32.4 — Brisanje sesije
+
+- **ID storyja:** US-12.4  
+- **Naziv storyja:** Brisanje sesije  
+- **Opis:** Kao organizator, želim obrisati sesiju, kako bih uklonio nevažeći sadržaj.  
+- **Poslovna vrijednost:** Održava preglednost programa konferencije.  
+- **Prioritet:** Medium  
+- **Pretpostavke i otvorena pitanja:**
+  - Sesija postoji  
+- **Veze sa drugim storyjima ili zavisnostima:**
+  - Upravljanje sesijama (US-12)  
+- **Acceptance criteria:**
+  - Kada organizator izvrši brisanje sesije, tada se ona uklanja iz sistema  
+  - Sistem mora tražiti potvrdu prije brisanja  
+  - Obrisana sesija se ne smije prikazivati  
+
+--- 
 
 ### S33 — Dodjela predavača sesiji
 
@@ -324,16 +393,12 @@ Kreiranje i pregled konferencija je centralna svrha platforme. Organizatori treb
 
 ---
 
-## Grupa 6: Prostor i validacija (S35, S36, S37)
-
----
-
 ### S35 — Upravljanje dvoranama
 
 - **ID storyja:** US-15  
 - **Naziv storyja:** Upravljanje dvoranama  
-- **Opis:** Kao organizator, želim upravljati dvoranama, kako bih organizovao prostor.  
-- **Poslovna vrijednost:** Omogućava pravilno upravljanje prostorima.  
+- **Opis:** Kao organizator, želim upravljati dvoranama, kako bih organizovao prostor konferencije.  
+- **Poslovna vrijednost:** Omogućava pravilno upravljanje prostorima i raspored sesija.  
 - **Prioritet:** High  
 - **Pretpostavke i otvorena pitanja:**
   - Sistem podržava unos dvorana  
@@ -341,12 +406,92 @@ Kreiranje i pregled konferencija je centralna svrha platforme. Organizatori treb
 - **Veze sa drugim storyjima ili zavisnostima:**
   - Dodjela dvorane (US-16)  
 - **Acceptance criteria:**
-  - Kada organizator doda dvoranu, ako podaci nisu duplikat, tada se sprema  
-  - Sistem mora omogućiti dodavanje i izmjenu dvorana  
-  - Sistem ne smije dozvoliti duplikate  
-  - Sistem mora omogućiti pregled svih dvorana  
+  - Sistem mora omogućiti upravljanje dvoranama  
+  - Sistem ne smije dozvoliti duplikate dvorana  
+  - Sve dvorane moraju biti dostupne za dodjelu sesijama  
+  - Promjene nad dvoranama moraju biti odmah vidljive  
 
 ---
+
+### S35.1 — Pregled dvorana
+
+- **ID storyja:** US-15.1  
+- **Naziv storyja:** Pregled dvorana  
+- **Opis:** Kao organizator, želim vidjeti sve dvorane, kako bih imao pregled raspoloživih prostora za održavanje sesija.  
+- **Poslovna vrijednost:** Omogućava lakše planiranje rasporeda sesija.  
+- **Prioritet:** High  
+- **Pretpostavke i otvorena pitanja:**
+  - Organizator je prijavljen  
+- **Veze sa drugim storyjima ili zavisnostima:**
+  - Upravljanje dvoranama (US-15)  
+- **Acceptance criteria:**
+  - Kada organizator otvori dvorane, tada vidi listu svih dvorana  
+  - Sistem mora prikazati osnovne podatke o dvorani  
+  - Kada nema dvorana, tada sistem prikazuje odgovarajuću poruku  
+
+---
+
+### S35.2 — Dodavanje dvorane
+
+- **ID storyja:** US-15.2  
+- **Naziv storyja:** Dodavanje dvorane  
+- **Opis:** Kao organizator, želim dodati novu dvoranu, kako bih omogućio raspoređivanje sesija u odgovarajući prostor.  
+- **Poslovna vrijednost:** Povećava mogućnost organizacije konferencije i raspodjele prostora.  
+- **Prioritet:** High  
+- **Pretpostavke i otvorena pitanja:**
+  - Organizator je prijavljen  
+- **Veze sa drugim storyjima ili zavisnostima:**
+  - Upravljanje dvoranama (US-15)  
+- **Acceptance criteria:**
+  - Kada organizator unese validne podatke, tada sistem sprema dvoranu  
+  - Sistem mora omogućiti unos osnovnih podataka o dvorani  
+  - Sistem ne smije dozvoliti unos duplikata dvorane  
+  - Nova dvorana mora biti prikazana u listi  
+  - Organizator treba dobiti potvrdu o uspješnom dodavanju  
+
+---
+
+### S35.3 — Uređivanje dvorane
+
+- **ID storyja:** US-15.3  
+- **Naziv storyja:** Uređivanje dvorane  
+- **Opis:** Kao organizator, želim izmijeniti podatke postojeće dvorane, kako bih održavao tačne informacije o prostoru.  
+- **Poslovna vrijednost:** Omogućava ažurnost i tačnost podataka.  
+- **Prioritet:** High  
+- **Pretpostavke i otvorena pitanja:**
+  - Dvorana postoji  
+- **Veze sa drugim storyjima ili zavisnostima:**
+  - Upravljanje dvoranama (US-15)  
+- **Acceptance criteria:**
+  - Kada organizator izmijeni podatke, tada sistem sprema promjene  
+  - Sistem mora omogućiti izmjenu podataka o dvorani  
+  - Sistem ne smije dozvoliti izmjenu koja stvara duplikat  
+  - Promjene moraju biti odmah vidljive  
+  - Organizator treba dobiti potvrdu o uspješnoj izmjeni  
+
+---
+
+### S35.4 — Brisanje dvorane
+
+- **ID storyja:** US-15.4  
+- **Naziv storyja:** Brisanje dvorane  
+- **Opis:** Kao organizator, želim obrisati dvoranu, kako bih uklonio prostor koji više nije dostupan za korištenje.  
+- **Poslovna vrijednost:** Omogućava održavanje tačne evidencije prostora i uklanjanje nevažećih podataka.  
+- **Prioritet:** Medium  
+- **Pretpostavke i otvorena pitanja:**
+  - Dvorana postoji  
+  - Da li se dvorana može obrisati ako je već dodijeljena sesiji?  
+- **Veze sa drugim storyjima ili zavisnostima:**
+  - Upravljanje dvoranama (US-15)  
+  - Dodjela dvorane (US-16)  
+- **Acceptance criteria:**
+  - Kada organizator izvrši brisanje dvorane, tada se dvorana uklanja iz sistema  
+  - Sistem mora tražiti potvrdu prije brisanja  
+  - Sistem ne smije dozvoliti brisanje dvorane koja je dodijeljena aktivnoj sesiji  
+  - Obrisana dvorana se ne smije prikazivati u listi  
+  - Organizator treba dobiti potvrdu o uspješnom brisanju  
+
+---  
 
 ### S36 — Dodjela dvorane sesiji
 
@@ -366,31 +511,6 @@ Kreiranje i pregled konferencija je centralna svrha platforme. Organizatori treb
   - Sistem mora omogućiti izbor dvorane  
   - Sistem ne smije dozvoliti nepostojeću dvoranu  
   - Dvorana mora biti prikazana u sesiji  
-
----
-
-### S37 — Validacija konflikata
-
-- **ID storyja:** US-17  
-- **Naziv storyja:** Validacija konflikata  
-- **Opis:** Kao sistem, želim spriječiti preklapanje termina i prostora, kako bi se izbjegli konflikti.  
-- **Poslovna vrijednost:** Sprječava greške i poboljšava organizaciju.  
-- **Prioritet:** High  
-- **Pretpostavke i otvorena pitanja:**
-  - Postoji raspored sesija  
-  - Da li sistem treba automatski predložiti drugi termin?  
-- **Veze sa drugim storyjima ili zavisnostima:**
-  - Upravljanje sesijama (US-12)  
-  - Dodjela dvorane (US-16) 
-- **Acceptance criteria:**
-  - Kada postoji konflikt termina, tada sistem blokira akciju  
-  - Sistem mora upozoriti korisnika na konflikt  
-  - Sistem ne smije dozvoliti preklapanje sesija u istoj dvorani  
-  - Sistem mora osigurati validan raspored  
-
----
-
-## Grupa 7: Učesnici (S38, S39, S40, S41, S42)
 
 ---
 
