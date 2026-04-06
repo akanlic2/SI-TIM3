@@ -1,7 +1,7 @@
 | ID | Kategorija | Opis zahtjeva | Kako će se provjeravati | Prioritet | Napomena |
 |----------|----------|----------|----------|----------|----------|
 | NFR-01 | Performanse | Sistem mora učitati glavnu stranicu u roku od maksimalno 2 sekunde | Mjerenjem vremena učitavanja pomoću alata, npr. browser developer tools | Visok | Odnosi se na standardne uslove mreže |
-| NFR-02 | Performanse | Sistem treba podržati najmanje 100 istovremenih korisnika bez pada performansi | Load testiranje (simulacija korisnika) | Visok | Važno za veće konferencije |
+| NFR-02 | Performanse | Sistem treba podržati najmanje 10000 istovremenih korisnika bez pada performansi | Load testiranje (simulacija korisnika) | Visok | Važno za veće konferencije |
 | NFR-03 | Sigurnost | Lozinke korisnika moraju biti kriptovane u bazi podataka | Pregled implementacije (hash funkcije) | Visok | Koristiti sigurne hash algoritme, bez čuvanja lozinki u čistom tekstu  |
 | NFR-04 | Sigurnost | Sistem mora omogućiti autentifikaciju i autorizaciju korisnika | Testiranje pristupa (različite uloge korisnika) | Visok | Uloge uključuju admina, učesnika, organizatora i slično |
 | NFR-05 | Upotrebljivost | Korisnik mora moći izvršiti prijavu na konferenciju u maksimalno 3 koraka | Testiranje korisničkog interfejsa | Srednji | Fokus je na jednostavnosti korištenja |
