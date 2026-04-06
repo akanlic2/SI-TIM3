@@ -568,41 +568,44 @@ Kreiranje i pregled konferencija je centralna svrha platforme. Organizatori treb
 
 ---
 
-### S46 — Materijali za konferenciju i sesije
+### S46 — Upravljanje logističkim aktivnostima
 
-- **ID storyja:** US25
-- **Naziv storyja:** Pregled materijala za konferenciju i sesije
-- **Opis:** Kao korisnik, želim .
-- **Poslovna vrijednost:** .
-- **Prioritet:** 
+- **ID storyja:** US27
+- **Naziv storyja:** Upravljanje logističkim aktivnostima
+- **Opis:** Kao organizator, želim upravljati (kreirati, uređivati, brisati, imati pregled) logističkih aktivnosti konferencije.
+- **Poslovna vrijednost:** Omogućava upravljanje pratećim aktivnostima konferencije.
+- **Prioritet:** Medium
 - **Pretpostavke i otvorena pitanja:**
-  - Korisnik je prijavljen na sistem
+  - Korisnik je prijavljen na sistem sa rolom organizatora
+  - Postoji najmanje jedna aktivna konferencija
+  - Da li staviti sve aktivnosti zajedno ili neke izdvojiti?
 - **Veza sa drugim storyjima ili zavisnostima:**
-  - Zavisi od
-  - Povezano sa
+  - Povezano sa S29 (Uređivanje konferencija)
 - **Acceptance criteria:**
-  - Sistem mora
+  - Sistem mora omogućiti osnovne CRUD operacije nad logističkim aktivnostima
+  - Sistem nudi korisniku listu logističkih aktivnosti za odabir kod kreiranja
  
 ---
 
-### S47 — Materijali za konferenciju i sesije
+### S47 — Upravljanje opremom
 
-- **ID storyja:** US25
-- **Naziv storyja:** Pregled materijala za konferenciju i sesije
-- **Opis:** Kao korisnik, želim .
-- **Poslovna vrijednost:** .
-- **Prioritet:** 
+- **ID storyja:** US28
+- **Naziv storyja:** Upravljanje tehničkom opremom
+- **Opis:** Kao organizator, želim mogućnost upravljanja tehničkom opremom te dodjele iste konferencijama.
+- **Poslovna vrijednost:** Olakšava upravljanje resursima.
+- **Prioritet:** Medium
 - **Pretpostavke i otvorena pitanja:**
-  - Korisnik je prijavljen na sistem
+  - Korisnik je prijavljen na sistem sa rolom organizatora
+  - Da li omogućiti i uređivanje opreme ili je dovoljno dodavanje/brisanje?
 - **Veza sa drugim storyjima ili zavisnostima:**
-  - Zavisi od
-  - Povezano sa
+  - Povezano sa S45 (Materijali za konferenciju i sesije)
 - **Acceptance criteria:**
-  - Sistem mora
+  - Sistem mora omogućiti kreiranje i brisanje tehničke opreme te dodjelu iste konferencijama
+  - Sistem dodaje odabranu opremu na listu tehničke opreme konferencije
  
 ---
 
-### S48 — Materijali za konferenciju i sesije
+### S48 — Q&A za sesije
 
 - **ID storyja:** US25
 - **Naziv storyja:** Pregled materijala za konferenciju i sesije
@@ -612,24 +615,24 @@ Kreiranje i pregled konferencija je centralna svrha platforme. Organizatori treb
 - **Pretpostavke i otvorena pitanja:**
   - Korisnik je prijavljen na sistem
 - **Veza sa drugim storyjima ili zavisnostima:**
-  - Zavisi od
-  - Povezano sa
+  - Povezano sa S26 (Kreiranje konferencije)
 - **Acceptance criteria:**
-  - Sistem mora
+  - Sistem šalje izvještaje o prijavama, kapacitetima, kotizacijama i drugim relevantnim stavkama organizatorima konferencije
+  - Organizator može pregledati izvještaj i preuzeti ga
  
 ---
 
-### S49 — Materijali za konferenciju i sesije
+### S49 — Izvještaji za organizatore
 
-- **ID storyja:** US25
-- **Naziv storyja:** Pregled materijala za konferenciju i sesije
-- **Opis:** Kao korisnik, želim .
-- **Poslovna vrijednost:** .
-- **Prioritet:** 
+- **ID storyja:** US30
+- **Naziv storyja:** Izvještaji za organizatore
+- **Opis:** Kao organizator, želim dobiti izvještaje o konferenciji sa njenom statistikom.
+- **Poslovna vrijednost:** Daje povratnu informaciju organizatoru.
+- **Prioritet:** Medium
 - **Pretpostavke i otvorena pitanja:**
-  - Korisnik je prijavljen na sistem
+  - Korisnik je prijavljen na sistem sa rolom organizatora
 - **Veza sa drugim storyjima ili zavisnostima:**
-  - Zavisi od
-  - Povezano sa
+  - Povezano sa S26 (Kreiranje konferencije)
 - **Acceptance criteria:**
-  - Sistem mora
+  - Sistem šalje izvještaje o prijavama, kapacitetima, kotizacijama i drugim relevantnim stavkama organizatorima konferencije
+  - Organizator može pregledati izvještaj i preuzeti ga
