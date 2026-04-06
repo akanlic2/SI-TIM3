@@ -331,6 +331,11 @@ Upravljanje prostorijama i terminima osigurava da nema konflikata i da se konfer
 - **Prioritet:** High
 - **Tip:** Feature
 - **Sprint:** 6–10
+- **Pretpostavke i otvorena pitanja:**
+  - Da li dvorana ima ograničen kapacitet?
+  - Koje podatke dvorana treba sadržavati (naziv, kapacitet)?
+- **Veza sa drugim storyjima ili zavisnostima:**
+  - Povezano sa S36 (Dodjela dvorane sesiji)
 - **Acceptance criteria:**
   - Sistem mora omogućiti dodavanje i pregled dvorana
   - Sistem mora omogućiti izmjenu podataka dvorane
@@ -344,6 +349,11 @@ Upravljanje prostorijama i terminima osigurava da nema konflikata i da se konfer
 - **Prioritet:** High
 - **Tip:** Feature
 - **Sprint:** 6–10
+- **Pretpostavke i otvorena pitanja:**
+  - Dvorane su prethodno definisane u sistemu
+- **Veza sa drugim storyjima ili zavisnostima:**
+  - Zavisi od S35 (Upravljanje dvoranama)
+  - Zavisi od S32 (Upravljanje sesijama)
 - **Acceptance criteria:**
   - Sistem mora omogućiti izbor dvorane za sesiju
   - Kada se dvorana dodijeli, treba biti vidljiva u sesiji
@@ -357,6 +367,11 @@ Upravljanje prostorijama i terminima osigurava da nema konflikata i da se konfer
 - **Prioritet:** High
 - **Tip:** Technical Task
 - **Sprint:** 6–10
+- **Pretpostavke i otvorena pitanja:**
+  - Postoji definisan raspored sesija i dvorana
+- **Veza sa drugim storyjima ili zavisnostima:**
+  - Zavisi od S32 (Upravljanje sesijama)
+  - Zavisi od S36 (Dodjela dvorane)
 - **Acceptance criteria:**
   - Sistem ne smije dozvoliti preklapanje sesija u istoj dvorani
   - Sistem ne smije dozvoliti preklapanje termina za istu sesiju
