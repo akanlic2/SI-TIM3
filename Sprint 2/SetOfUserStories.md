@@ -300,7 +300,94 @@ Sesije predstavljaju osnovnu strukturu konferencije. Njihovo upravljanje omoguć
 
 ---
 
+### S34 — Pregled rasporeda konferencije
 
+- Opis: Kao korisnik, želim vidjeti raspored sesija, kako bih znao kada se šta dešava.
+- Prioritet: High
+- Tip: Feature
+- Sprint: 6–10
+- Pretpostavke i otvorena pitanja:
+  - Kako će raspored biti prikazan?
+- Veza sa drugim storyjima ili zavisnostima:
+  - Zavisi od S32 (Upravljanje sesijama)
+- Acceptance criteria:
+  - Sistem mora prikazati raspored sesija po vremenu
+  - Kada korisnik otvori raspored, treba vidjeti sve sesije
+  - Sistem ne smije prikazivati nepostojeće sesije
+  - Sistem mora jasno prikazati vrijeme i naziv sesije
+
+---
+
+## Grupa 6: Prostor i validacija (S35, S36, S37)
+
+Poslovna vrijednost grupe:
+Upravljanje prostorijama i terminima osigurava da nema konflikata i da se konferencije odvijaju bez problema.
+
+---
+
+### S35 — Upravljanje dvoranama
+
+- Opis: Kao organizator, želim upravljati dvoranama, kako bih organizovao prostor za konferencije.
+- Prioritet: High
+- Tip: Feature
+- Sprint: 6–10
+- Acceptance criteria:
+  - Sistem mora omogućiti dodavanje i pregled dvorana
+  - Sistem mora omogućiti izmjenu podataka dvorane
+  - Sistem ne smije dozvoliti duplikate dvorana
+
+---
+
+### S36 — Dodjela dvorane sesiji
+
+- Opis: Kao organizator, želim dodijeliti dvoranu sesiji, kako bih osigurao prostor za održavanje.
+- Prioritet: High
+- Tip: Feature
+- Sprint: 6–10
+- Acceptance criteria:
+  - Sistem mora omogućiti izbor dvorane za sesiju
+  - Kada se dvorana dodijeli, treba biti vidljiva u sesiji
+  - Sistem ne smije dozvoliti dodjelu nepostojeće dvorane
+
+---
+
+### S37 — Validacija konflikta termina i prostora
+
+- Opis: Kao sistem, želim spriječiti preklapanje termina i prostora, kako bi se izbjegli konflikti.
+- Prioritet: High
+- Tip: Technical Task
+- Sprint: 6–10
+- Acceptance criteria:
+  - Sistem ne smije dozvoliti preklapanje sesija u istoj dvorani
+  - Sistem ne smije dozvoliti preklapanje termina za istu sesiju
+  - Kada postoji konflikt, korisnik treba dobiti upozorenje
+
+---
+
+## Grupa 7: Učesnici (S38)
+
+Poslovna vrijednost grupe:
+Prijava učesnika omogućava stvarnu upotrebu sistema i predstavlja ključnu funkcionalnost konferencijskog sistema.
+
+---
+
+### S38 — Prijava učesnika na konferenciju
+
+- Opis: Kao učesnik, želim se prijaviti na konferenciju, kako bih mogao učestvovati.
+- Prioritet: High
+- Tip: Feature
+- Sprint: 6–10
+- Pretpostavke i otvorena pitanja:
+  - Korisnik je prijavljen na sistem
+- Veza sa drugim storyjima ili zavisnostima:
+  - Zavisi od S22 (Sign in)
+- Acceptance criteria:
+  - Sistem mora omogućiti prijavu na konferenciju
+  - Kada se korisnik prijavi, treba dobiti potvrdu
+  - Sistem ne smije dozvoliti višestruku prijavu na istu konferenciju
+  - Sistem mora evidentirati prijavu korisnika
+
+  ---
 
 
 
