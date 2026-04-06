@@ -558,6 +558,116 @@ Funkcionalnosti vezane za učesnike omogućavaju stvarnu upotrebu sistema. Učes
   - Korisnik treba imati mogućnost pregleda prethodnih obavijesti
 
 
+---
 
 
+### S45 — Materijali za konferenciju i sesije
 
+- **ID storyja:** US25
+- **Naziv storyja:** Pregled materijala za konferenciju i sesije
+- **Opis:** Kao organizator, želim mogućnost pregleda dodanih materijala za određenu konferenciju/sesiju.
+- **Poslovna vrijednost:** Olakšava planiranje i organizaciju.
+- **Prioritet:** Medium
+- **Pretpostavke i otvorena pitanja:**
+  - Korisnik je prijavljen na sistem sa rolom organizatora
+  - Postoji najmanje jedna aktivna konferencija
+- **Veza sa drugim storyjima ili zavisnostima:**
+  - Povezano sa S29 (Uređivanje konferencija)
+  - Povezano sa S32 (Uređivanje sesija)
+- **Acceptance criteria:**
+  - Sistem mora prikazati sve trenutno dodane materijale za odabranu konferenciju/sesiju
+  - Mogućnost pretrage, filtriranja, sortiranja
+  - Klikom na neki od materijala se prikazuje više detalja
+ 
+
+- **ID storyja:** US26
+- **Naziv storyja:** Dodavanje materijala za konferenciju i sesije
+- **Opis:** Kao organizator, želim dodati nove materijale za određenu konferenciju/sesiju.
+- **Poslovna vrijednost:** Omogućava organizaciju konferencije.
+- **Prioritet:** High
+- **Pretpostavke i otvorena pitanja:**
+  - Korisnik je prijavljen na sistem sa rolom organizatora
+  - Postoji najmanje jedna aktivna konferencija
+  - Da li omogućiti dodavanje istog materijala za više konferencija?
+- **Veza sa drugim storyjima ili zavisnostima:**
+  - Povezano sa S29 (Uređivanje konferencija)
+  - Povezano sa S32 (Uređivanje sesija)
+- **Acceptance criteria:**
+  - Sistem mora omogućiti dodavanje novog materijala konferenciji/sesiji
+  - Novi materijal se prikazuje na spisku dodanih materijala konferencije/sesije
+
+
+---
+
+
+### S46 — Materijali za konferenciju i sesije
+
+- **ID storyja:** US25
+- **Naziv storyja:** Pregled materijala za konferenciju i sesije
+- **Opis:** Kao korisnik, želim .
+- **Poslovna vrijednost:** .
+- **Prioritet:** 
+- **Pretpostavke i otvorena pitanja:**
+  - Korisnik je prijavljen na sistem
+- **Veza sa drugim storyjima ili zavisnostima:**
+  - Zavisi od
+  - Povezano sa
+- **Acceptance criteria:**
+  - Sistem mora
+ 
+
+---
+
+
+### S47 — Materijali za konferenciju i sesije
+
+- **ID storyja:** US25
+- **Naziv storyja:** Pregled materijala za konferenciju i sesije
+- **Opis:** Kao korisnik, želim .
+- **Poslovna vrijednost:** .
+- **Prioritet:** 
+- **Pretpostavke i otvorena pitanja:**
+  - Korisnik je prijavljen na sistem
+- **Veza sa drugim storyjima ili zavisnostima:**
+  - Zavisi od
+  - Povezano sa
+- **Acceptance criteria:**
+  - Sistem mora
+ 
+
+---
+
+
+### S48 — Materijali za konferenciju i sesije
+
+- **ID storyja:** US25
+- **Naziv storyja:** Pregled materijala za konferenciju i sesije
+- **Opis:** Kao korisnik, želim .
+- **Poslovna vrijednost:** .
+- **Prioritet:** 
+- **Pretpostavke i otvorena pitanja:**
+  - Korisnik je prijavljen na sistem
+- **Veza sa drugim storyjima ili zavisnostima:**
+  - Zavisi od
+  - Povezano sa
+- **Acceptance criteria:**
+  - Sistem mora
+ 
+
+---
+
+
+### S49 — Materijali za konferenciju i sesije
+
+- **ID storyja:** US25
+- **Naziv storyja:** Pregled materijala za konferenciju i sesije
+- **Opis:** Kao korisnik, želim .
+- **Poslovna vrijednost:** .
+- **Prioritet:** 
+- **Pretpostavke i otvorena pitanja:**
+  - Korisnik je prijavljen na sistem
+- **Veza sa drugim storyjima ili zavisnostima:**
+  - Zavisi od
+  - Povezano sa
+- **Acceptance criteria:**
+  - Sistem mora
