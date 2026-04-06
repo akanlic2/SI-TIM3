@@ -548,7 +548,8 @@ Kreiranje i pregled konferencija je centralna svrha platforme. Organizatori treb
   - Sistem mora prikazati sve trenutno dodane materijale za odabranu konferenciju/sesiju
   - Mogućnost pretrage, filtriranja, sortiranja
   - Klikom na neki od materijala se prikazuje više detalja
- 
+
+&nbsp;
 
 - **ID storyja:** US26
 - **Naziv storyja:** Dodavanje materijala za konferenciju i sesije
