@@ -15,7 +15,7 @@
 | NFR-13 | Dostupnost | U slučaju djelimičnog kvara, ključne funkcije (pregled rasporeda, check-in) moraju ostati dostupne  | Simulacija kvara  | Visok | Kvar jedne komponente ne bi trebao uticati na rad osnovnih funkcionalnosti |
 | NFR-14 | Upotrebljivost | Sistem mora imati konzistentan dizajn kroz sve stranice  | UI/UX evaluacija | Srednji | Konzistentnost u bojama, fontovima i rasporedu elemenata kroz cijeli sistem  |
 | NFR-15 | Sigurnost | Sistem mora automatski odjaviti korisnika nakon perioda neaktivnosti (npr. 15 minuta)  | Testiranje sesija  | Srednji  | Spriječava zloupotrebu korisničkog računa  |
-| NFR-16 | Integracija | Sistem mora omogućiti integraciju sa eksternim servisima (npr. email servis, servis za plaćanje)  | Testranje API integracija  | Srednji  | Servisi moraju biti pouzdani i podržavati stabilnu komunikaciju sa sistemom |
+| NFR-16 | Integracija | Sistem mora omogućiti integraciju sa eksternim servisima (npr. email servis)  | Testranje API integracija  | Srednji  | Servisi moraju biti pouzdani i podržavati stabilnu komunikaciju sa sistemom |
 | NFR-17 | Lokalizacija | Sistem treba podržavati više jezika  | Promjena jezika u interfejsu | Nizak | Minimalno BHS i engleski jezik |
 | NFR-18 | Skalabilnost  | Sistem mora podržavati dodavanje novih modula bez uticaja na postojeće  | Analiza arhitekture sistema | Srednji  | Novi moduli se mogu dodavati bez izmjene postojećeg koda |
 | NFR-19 | Performanse  | Pretraga konferencija mora vratiti rezultate u roku od maksimalno 2 sekunde  | Mjerenje vremena odziva | Visok |  Moguće korištenje keširanja za ubrzanje rezultata pretrage |
