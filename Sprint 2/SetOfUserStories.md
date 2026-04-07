@@ -553,7 +553,7 @@
 
 ### S39 - Odjava učesnika sa konferencije
 
-- **ID storyja:** US19
+- **ID storyja:** US-19
 - **Naziv storyja:** Odjava učesnika sa konferencije
 - **Opis:** Kao učesnik, želim se odjaviti sa konferencije, kako bih oslobodio svoje mjesto.
 - **Poslovna vrijednost:** Omogućava preciznu evidenciju dolazaka i automatsko oslobađanje resursa.
@@ -563,7 +563,7 @@
   - Da li postoji rok za odjavu?
   - Da li se vrši povrat novca nakon odjave?
 - **Veze sa drugim storyjima ili zavisnostima:**
-  - 
+  - Zavisi od: Signin (US-02), Prijava učesnika (US-18)
 - **Acceptance criteria:**
   - Sistem mora omogućiti odjavu sa konferencije.
   - Sistem mora promijeniti status prijave u 'Otkazano'.
@@ -574,15 +574,16 @@
 
 ### S40 - Prijava učesnika na sesiju
 
-- **ID storyja:** US20
+- **ID storyja:** US-20
 - **Naziv storyja:** Prijava učesnika na sesiju
 - **Opis:** Kao učesnik, želim se prijaviti na pojedinačne sesije konferencije, kako bih prisustvovao temama koje me zanimaju.
 - **Poslovna vrijednost:** Omogućava bolju organizaciju sesija.
 - **Prioritet:** High
 - **Pretpostavke i otvorena pitanja:** 
-  - Korisnik je prethodno prijavljen na konferenciju i sesije su već definisane.
+  - Korisnik je prethodno prijavljen na konferenciju i sesije su definisane.
+  - Da li korisnik vidi sesije koje su već popunjene ili su one skrivene/onemogućene za klik?
 - **Veze sa drugim storyjima ili zavisnostima:**
-  - 
+  - Zavisi od: Sign in(US-02), Prijava učesnika (US-18), Kreiranje sesije (US-12.2)
 - **Acceptance criteria:**
   - Kada postoji slobodno mjesto, ako se korisnik prijavi, tada se registruje na sesiju.
   - Sistem mora smanjiti broj dostupnih mjesta.
@@ -594,15 +595,15 @@
 
 ### S41 - Pregled popunjenosti kapaciteta
 
-- **ID storyja:** US21
+- **ID storyja:** US-21
 - **Naziv storyja:** Pregled popunjenosti kapaciteta
-- **Opis:** Kao organizator ili učesnik, želim vidjeti broj prijavljenih u odnosu na kapacitet, kako bih imao uvid u dostupnost mjesta.
+- **Opis:** Kao organizator, želim vidjeti broj prijavljenih u odnosu na kapacitet, kako bih imao uvid u dostupnost mjesta.
 - **Poslovna vrijednost:** Pomaže u boljem upravljanju resursima.
 - **Prioritet:** High
 - **Pretpostavke i otvorena pitanja:** 
-  - Da li je ovaj pregled javan ili samo za administratore/organizatore doagađaja?
+  - Da li je ovaj pregled javan ili samo za administratore/organizatore događaja?
 - **Veze sa drugim storyjima ili zavisnostima:**
-  - 
+  - Kreiranje konferenicje (US-06), Dodavanje dvoranje (US-15.2), Prijava učesnika (US-20)
 - **Acceptance criteria:**
   - Kada postoji konferencija ili sesija, sistem mora prikazati broj prijavljenih.
   - Sistem mora prikazati maksimalni kapacitet.
@@ -613,15 +614,16 @@
 
 ### S42 - Lista učesnika po konferenciji
 
-- **ID storyja:** US22
+- **ID storyja:** US-22
 - **Naziv storyja:** Lista učesnika po konferenciji
 - **Opis:** Kao organizator, želim vidjeti listu prijavljenih učesnika, kako bih imao pregled i mogao upravljati događajem.
 - **Poslovna vrijednost:** Omogućava lakšu organizaciju i administraciju konferencije.
 - **Prioritet:** Medium
 - **Pretpostavke i otvorena pitanja:** 
   - Koje informacije o učesnicima su vidljive?
+  - Da li lista treba biti sortirana po abecedi, vremenu prijave ili tipu kotizacije?
 - **Veze sa drugim storyjima ili zavisnostima:**
-  - 
+  - Sign in (US-02), Prijava učesnika (US-20), 
 - **Acceptance criteria:**
   - Kada organizator otvori konferenciju, sistem mora prikazati listu učesnika
   - Sistem mora prikazati osnovne podatke (ime, email, ...)
@@ -632,26 +634,43 @@
 
 ### S43 - Upravljanje kotizacijama
 
-- **ID storyja:** US23
-- **Naziv storyja:** Upravljanje kotizacijama
-- **Opis:** Kao organizator, želim definisati kategorije i iznose kotizacija, kako bih upravljao naplatom učešća.
-- **Poslovna vrijednost:** Omogućava kontrolu plaćanja.
+- **ID storyja:** US-23.1
+- **Naziv storyja:** Upravljanje kategorijama kotizacija
+- **Opis:** Kao organizator, želim definisati kategorije, kako bih omogućio različite vrste kotizacija.
+- **Poslovna vrijednost:** Omogućava definisanje tipova kotizacija.
 - **Prioritet:** High
 - **Pretpostavke i otvorena pitanja:** 
-  - 
+  - Koje kategorije postoje?
 - **Veze sa drugim storyjima ili zavisnostima:**
-  - 
+  - Kreiranje konferencije (US-06)
 - **Acceptance criteria:**
   - Sistem mora omogućiti kreiranje kategorija kotizacija
-  - Sistem mora omogućiti unos iznosa
-  - Sistem mora evidentirati status (plaćeno / neplaćeno)
-  - Sistem mora omogućiti izmjenu i brisanje kotizacija
+  - Sistem mora omogućiti izmjenu kategorija
+  - Sistem mora omogućiti brisanje kategorija
+  - Sistem mora prikazati listu svih kategorija
 
 ---
 
+  - **ID storyja:** US-23.2
+  - **Naziv storyja:** Upravljanje iznosima kotizacija
+  - **Opis:** Kao organizator, želim definisati iznose kotizacija, kako bih upravljao naplatom učešća.
+  - **Poslovna vrijednost:** Omogućava kontrolu plaćanja.
+  - **Prioritet:** High
+  - **Pretpostavke i otvorena pitanja:** 
+    - Da li postoji mogućnost unosa popusta ili promo kodova?
+    - Da li sistem podržava više valuta ili samo jednu?
+  - **Veze sa drugim storyjima ili zavisnostima:**
+    - Zavisi od: Upravljanje kategorijama kotizacija (US-23.1)
+  - **Acceptance criteria:**
+    - Sistem mora omogućiti unos iznosa kotizacije
+    - Sistem mora povezati iznos sa kategorijom
+    - Sistem mora omogućiti izmjenu iznosa
+    - Sistem mora evidentirati status (plaćeno / neplaćeno)
+    - Sistem mora omogućiti brisanje kotizacija
+
 ### S44 - Obavijesti za korisnike
 
-- **ID storyja:** US24
+- **ID storyja:** US-24
 - **Naziv storyja:** Obavijesti za korisnike
 - **Opis:** Kao korisnik, želim primati obavijesti iz sistema, kako bih bio informisan o važnim događajima.
 - **Poslovna vrijednost:** Povećava informisanost i poboljšava korisničko iskustvo.
@@ -659,7 +678,7 @@
 - **Pretpostavke i otvorena pitanja:** 
   - Da li su obavijesti samo u aplikaciji ili i email?
 - **Veze sa drugim storyjima ili zavisnostima:**
-  - 
+  - Zavisi od: Sign up (US-01)
 - **Acceptance criteria:**
   - Kada se desi važan događaj, sistem mora poslati obavijest
   - Sistem mora prikazati obavijesti u korisničkom interfejsu
