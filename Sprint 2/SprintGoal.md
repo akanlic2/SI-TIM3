@@ -22,4 +22,3 @@ Cilj ovog sprinta je da razradimo početni product backlog, jasnije definišemo 
 ### Zavisnosti
 - Dobro definisan Product Vision i početni Product Backlog iz prethodnog sprinta
 - Dobra komunikacija i usaglašavanje unutar tima
-- Pravovremena raspodjela zadataka među članovima
