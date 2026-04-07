@@ -722,7 +722,9 @@
   - Povezano sa S29 (Uređivanje konferencija)
   - Povezano sa S32 (Uređivanje sesija)
 - **Acceptance criteria:**
-  - Sistem mora omogućiti dodavanje novog materijala konferenciji/sesiji
+  - Sistem mora omogućiti dodavanje materijala konferenciji/sesiji
+  - Sistem traži unos podataka o novom materijalu
+  - Obavezna polja moraju biti popunjena
   - Novi materijal se prikazuje na spisku dodanih materijala konferencije/sesije
 
 ---
@@ -731,8 +733,8 @@
 
 - **ID storyja:** US27.1
 - **Naziv storyja:** Pregled logističkih aktivnosti
-- **Opis:** Kao organizator, želim upravljati imati pregled logističkih aktivnosti konferencije.
-- **Poslovna vrijednost:** Olakšava upravljanje pratećim aktivnostima konferencije.
+- **Opis:** Kao organizator, želim imati pregled logističkih aktivnosti konferencije.
+- **Poslovna vrijednost:** Olakšava upravljanje pratećih aktivnosti konferencije.
 - **Prioritet:** Medium
 - **Pretpostavke i otvorena pitanja:**
   - Korisnik je prijavljen na sistem sa rolom organizatora
@@ -743,6 +745,7 @@
 - **Acceptance criteria:**
   - Sistem mora omogućiti pregled svih logističkih aktivnosti povezanih sa određenom konferencijom
   - Omogućiti filtriranje po tipu aktivnosti (catering, ručak, video sadržaj i dr.)
+  - Klikom na neku od aktivnosti se prikazuje više detalja
  
 ---
 
@@ -750,65 +753,91 @@
 
 - **ID storyja:** US27.2
 - **Naziv storyja:** Dodavanje logističkih aktivnosti
-- **Opis:** Kao organizator, želim upravljati imati pregled logističkih aktivnosti konferencije.
-- **Poslovna vrijednost:** Olakšava upravljanje pratećim aktivnostima konferencije.
+- **Opis:** Kao organizator, želim dodati novu logističku aktivnost konferenciji.
+- **Poslovna vrijednost:** Omogućava upravljanje pratećih aktivnosti konferencije.
 - **Prioritet:** Medium
 - **Pretpostavke i otvorena pitanja:**
   - Korisnik je prijavljen na sistem sa rolom organizatora
   - Postoji najmanje jedna aktivna konferencija
-  - Da li staviti sve aktivnosti zajedno ili neke izdvojiti?
+  - Da li staviti sve vrste aktivnosti zajedno pri kreiranju ili neke izdvojiti?
+  - Da li omogućiti kreiranje logističke aktivnosti za više konferencija istovremeno?
 - **Veza sa drugim storyjima ili zavisnostima:**
   - Povezano sa S29 (Uređivanje konferencija)
+  - Povezano sa S46.2 (Pregled logističkih aktivnosti)
 - **Acceptance criteria:**
-  - Sistem mora omogućiti pregled svih logističkih aktivnosti povezanih sa određenom konferencijom
-  - Omogućiti filtriranje po tipu aktivnosti (catering, ručak, video sadržaj i dr.)
+  - Sistem mora omogućiti kreiranje nove logističke aktivnosti za odabranu konferenciju
+  - Sistem daje mogućnost odabira vrste aktivnosti iz liste opcija pri kreiranju
+  - Obavezna polja moraju biti popunjena
+  - Nova aktivnost se prikazuje u pregledu logističkih aktivnosti za tu konferenciju
  
 ---
 
-### S46.3 — Pregled logističkih aktivnosti
+### S46.3 — Uređivanje logističkih aktivnosti
 
 - **ID storyja:** US27.3
-- **Naziv storyja:** Pregled logističkih aktivnosti
-- **Opis:** Kao organizator, želim upravljati imati pregled logističkih aktivnosti konferencije.
-- **Poslovna vrijednost:** Olakšava upravljanje pratećim aktivnostima konferencije.
+- **Naziv storyja:** Uređivanje logističkih aktivnosti
+- **Opis:** Kao organizator, želim imati mogućnost uređivanja logističkih aktivnosti konferencije.
+- **Poslovna vrijednost:** Omogućava upravljanje pratećih aktivnosti konferencije.
 - **Prioritet:** Medium
 - **Pretpostavke i otvorena pitanja:**
   - Korisnik je prijavljen na sistem sa rolom organizatora
   - Postoji najmanje jedna aktivna konferencija
-  - Da li staviti sve aktivnosti zajedno ili neke izdvojiti?
+  - Da li omogućiti organizatoru da promijeni kojoj konferenciji je aktivnost dodijeljena?
 - **Veza sa drugim storyjima ili zavisnostima:**
   - Povezano sa S29 (Uređivanje konferencija)
+  - Povezano sa S46.2 (Pregled logističkih aktivnosti)
 - **Acceptance criteria:**
-  - Sistem mora omogućiti pregled svih logističkih aktivnosti povezanih sa određenom konferencijom
-  - Omogućiti filtriranje po tipu aktivnosti (catering, ručak, video sadržaj i dr.)
- 
+  - Organizator može unijeti nove podatke za ona polja koja želi modificirati   
+  - Sistem mora uspješno ažurirati logističku aktivnost
+  - Sistem mora spriječiti konflikte pri uređivanju aktivnosti od strane više organizatora
+
 ---
 
-### S46.4 — Pregled logističkih aktivnosti
+### S46.4 — Brisanje logističkih aktivnosti
 
 - **ID storyja:** US27.4
-- **Naziv storyja:** Pregled logističkih aktivnosti
-- **Opis:** Kao organizator, želim upravljati imati pregled logističkih aktivnosti konferencije.
-- **Poslovna vrijednost:** Olakšava upravljanje pratećim aktivnostima konferencije.
+- **Naziv storyja:** Brisanje logističkih aktivnosti
+- **Opis:** Kao organizator, želim imati mogućnost brisanja logističkih aktivnosti konferencije.
+- **Poslovna vrijednost:** Omogućava upravljanje pratećih aktivnosti konferencije.
 - **Prioritet:** Medium
 - **Pretpostavke i otvorena pitanja:**
   - Korisnik je prijavljen na sistem sa rolom organizatora
   - Postoji najmanje jedna aktivna konferencija
-  - Da li staviti sve aktivnosti zajedno ili neke izdvojiti?
 - **Veza sa drugim storyjima ili zavisnostima:**
   - Povezano sa S29 (Uređivanje konferencija)
+  - Povezano sa S46.2 (Pregled logističkih aktivnosti)
+  - Povezano sa S46.3 (Uređivanje logističkih aktivnosti)
 - **Acceptance criteria:**
-  - Sistem mora omogućiti pregled svih logističkih aktivnosti povezanih sa određenom konferencijom
-  - Omogućiti filtriranje po tipu aktivnosti (catering, ručak, video sadržaj i dr.)
+  - Sistem mora omogućiti brisanje logističkih aktivnosti povezanih sa određenom konferencijom
+  - Sistem mora tražiti potvrdu prije brisanja   
+  - Organizator treba dobiti informaciju da je brisanje uspješno 
  
 ---
 
-### S47 — Upravljanje opremom
+### S47.1 — Pregled opreme
 
-- **ID storyja:** US28
-- **Naziv storyja:** Upravljanje tehničkom opremom
-- **Opis:** Kao organizator, želim mogućnost upravljanja tehničkom opremom te dodjele iste konferencijama.
+- **ID storyja:** US28.1
+- **Naziv storyja:** Pregled tehničke opreme
+- **Opis:** Kao organizator, želim mogućnost pregleda tehničke opreme.
 - **Poslovna vrijednost:** Olakšava upravljanje resursima.
+- **Prioritet:** Medium
+- **Pretpostavke i otvorena pitanja:**
+  - Korisnik je prijavljen na sistem sa rolom organizatora
+- **Veza sa drugim storyjima ili zavisnostima:**
+  - Povezano sa S45 (Materijali za konferenciju i sesije)
+- **Acceptance criteria:**
+  - Sistem mora omogućiti pregled trenutno dostupne teničke opreme
+  - Sistem mora omogućiti pregled sve opreme kao i one dodijeljene određenoj konferenciji
+  - Klikom na jednu stavku opreme se prikazuje više detalja
+ 
+---
+
+### S47.2 — Kreiranje opreme
+
+- **ID storyja:** US28.2
+- **Naziv storyja:** Kreiranje tehničke opreme
+- **Opis:** Kao organizator, želim mogućnost kreiranja nove tehničke opreme kako bih imao/la evidenciju inventara.
+- **Poslovna vrijednost:** Omogućava upravljanje resursima.
 - **Prioritet:** Medium
 - **Pretpostavke i otvorena pitanja:**
   - Korisnik je prijavljen na sistem sa rolom organizatora
@@ -816,25 +845,91 @@
 - **Veza sa drugim storyjima ili zavisnostima:**
   - Povezano sa S45 (Materijali za konferenciju i sesije)
 - **Acceptance criteria:**
-  - Sistem mora omogućiti kreiranje i brisanje tehničke opreme te dodjelu iste konferencijama
+  - Sistem mora omogućiti kreiranje tehničke opreme
+  - Organizator navodi koliko odabrane opreme je trenutno dostupno
+  - Organizator može povećati dostupan broj odabrane opreme
+  - Obavezna polja moraju biti popunjena
+  - Sistem dodaje novokreiranu opremu na listu sve tehničke opreme koju organizatori imaju na raspolaganju
+ 
+---
+
+### S47.3 — Brisanje opreme
+
+- **ID storyja:** US28.3
+- **Naziv storyja:** Brisanje tehničke opreme
+- **Opis:** Kao organizator, želim mogućnost brisanja tehničke opreme koja više nije na raspolaganju.
+- **Poslovna vrijednost:** Omogućava upravljanje resursima.
+- **Prioritet:** Medium
+- **Pretpostavke i otvorena pitanja:**
+  - Korisnik je prijavljen na sistem sa rolom organizatora
+  - Da li omogućiti i uređivanje opreme ili je dovoljno dodavanje/brisanje?
+- **Veza sa drugim storyjima ili zavisnostima:**
+  - Povezano sa S45 (Materijali za konferenciju i sesije)
+- **Acceptance criteria:**
+  - Sistem mora omogućiti brisanje tehničke opreme
+  - Sistem mora tražiti potvrdu prije brisanja
+  - Organizator može smanjiti dostupan broj odabrane opreme
+  - Organizator treba dobiti informaciju da je brisanje uspješno
+ 
+---
+
+### S47.4 — Dodjela opreme konferenciji
+
+- **ID storyja:** US28.4
+- **Naziv storyja:** Dodjela tehničke opreme konferenciji
+- **Opis:** Kao organizator, želim mogućnost dodjele tehničke opreme konferencijama kako bih pojednostavio pripremu za konferenciju.
+- **Poslovna vrijednost:** Olakšava upravljanje resursima.
+- **Prioritet:** Medium
+- **Pretpostavke i otvorena pitanja:**
+  - Korisnik je prijavljen na sistem sa rolom organizatora
+  - Postoji najmanje jedna aktivna konferencija
+  - Mora postojati najmanje jedna dostupna jedinica opreme koju je moguće dodijeliti konferenciji
+- **Veza sa drugim storyjima ili zavisnostima:**
+  - Povezano sa S45 (Materijali za konferenciju i sesije)
+  - Zavisi od S29 (Uređivanje konferencija)
+- **Acceptance criteria:**
+  - Sistem mora omogućiti dodjelu tehničke opreme konferencijama
+  - Moguće je dodijeliti onoliko opreme konferenciji koliko je dostupno
   - Sistem dodaje odabranu opremu na listu tehničke opreme konferencije
  
 ---
 
-### S48 — Q&A za sesije
+### S48.1 — Postavljanje pitanja za Q&A sesiju
 
-- **ID storyja:** US25
-- **Naziv storyja:** Pregled materijala za konferenciju i sesije
-- **Opis:** Kao korisnik, želim .
-- **Poslovna vrijednost:** .
-- **Prioritet:** 
+- **ID storyja:** US29.1
+- **Naziv storyja:** Postavljanje pitanja za Q&A sesiju
+- **Opis:** Kao korisnik, želim imati mogućnost slanja pitanja za predavača u toku njegove/njene prezentacije bez ometanja predavača.
+- **Poslovna vrijednost:** Omogućava i olakšava interakciju između predavača i učesnika.
+- **Prioritet:** Medium
 - **Pretpostavke i otvorena pitanja:**
   - Korisnik je prijavljen na sistem
+  - Korisnik je prisutan na predavanju
+  - Da li dodati filter koji će spriječiti da zlonamjerna pitanja dođu do predavača?
+  - Da li dodati limit za broj pitanja po učesniku?
 - **Veza sa drugim storyjima ili zavisnostima:**
-  - Povezano sa S26 (Kreiranje konferencije)
+  - Povezano sa S40 (Prijava učesnika na sesiju)
 - **Acceptance criteria:**
-  - Sistem šalje izvještaje o prijavama, kapacitetima, kotizacijama i drugim relevantnim stavkama organizatorima konferencije
-  - Organizator može pregledati izvještaj i preuzeti ga
+  - Sistem omogućava da učesnici na predavanju mogu postavljati pitanja bez prekidanja predavača
+  - Sistem daje link preko kojeg prisutni na predavanju mogu postavljati svoja pitanja
+  - Pitanja mogu postaviti samo prisutni na predavanju
+ 
+---
+
+### S48.2 — Prikaz pitanja predavaču
+
+- **ID storyja:** US29.1
+- **Naziv storyja:** Prikaz pitanja predavaču
+- **Opis:** Kao predavač, želim imati prikaz postavljnih pitanja na koja ću odgovoriti pri završetku predavanju.
+- **Poslovna vrijednost:** Omogućava i olakšava interakciju između predavača i učesnika.
+- **Prioritet:** Medium
+- **Pretpostavke i otvorena pitanja:**
+  - Da li pitanja stižu direktno predavaču ili organizatoru koji ih pokaže predavaču?
+  - Da li predavač mora biti prijavljen na sistem?
+- **Veza sa drugim storyjima ili zavisnostima:**
+  - Povezano sa S48.1 (Postavljanje pitanja za Q&A sesiju)
+- **Acceptance criteria:**
+  - Sistem omogućava prikaz svih postavljenih pitanja
+  - Predavač može označiti pitanja kao odgovorena, čime se uklanjaju iz liste
  
 ---
 
