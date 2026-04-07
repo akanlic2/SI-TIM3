@@ -651,7 +651,7 @@ Kreiranje i pregled konferencija je centralna svrha platforme. Organizatori treb
 
 ---
 
-### S45 — Materijali za konferenciju i sesije
+### S45.1 — Pregled materijala za konferenciju i sesije
 
 - **ID storyja:** US25
 - **Naziv storyja:** Pregled materijala za konferenciju i sesije
@@ -668,8 +668,10 @@ Kreiranje i pregled konferencija je centralna svrha platforme. Organizatori treb
   - Sistem mora prikazati sve trenutno dodane materijale za odabranu konferenciju/sesiju
   - Mogućnost pretrage, filtriranja, sortiranja
   - Klikom na neki od materijala se prikazuje više detalja
+ 
+---
 
-&nbsp;
+### S45.2 — Dodavanje materijala za konferenciju i sesije
 
 - **ID storyja:** US26
 - **Naziv storyja:** Dodavanje materijala za konferenciju i sesije
@@ -689,12 +691,12 @@ Kreiranje i pregled konferencija je centralna svrha platforme. Organizatori treb
 
 ---
 
-### S46 — Upravljanje logističkim aktivnostima
+### S46.1 — Pregled logističkih aktivnosti
 
-- **ID storyja:** US27
-- **Naziv storyja:** Upravljanje logističkim aktivnostima
-- **Opis:** Kao organizator, želim upravljati (kreirati, uređivati, brisati, imati pregled) logističkih aktivnosti konferencije.
-- **Poslovna vrijednost:** Omogućava upravljanje pratećim aktivnostima konferencije.
+- **ID storyja:** US27.1
+- **Naziv storyja:** Pregled logističkih aktivnosti
+- **Opis:** Kao organizator, želim upravljati imati pregled logističkih aktivnosti konferencije.
+- **Poslovna vrijednost:** Olakšava upravljanje pratećim aktivnostima konferencije.
 - **Prioritet:** Medium
 - **Pretpostavke i otvorena pitanja:**
   - Korisnik je prijavljen na sistem sa rolom organizatora
@@ -703,8 +705,65 @@ Kreiranje i pregled konferencija je centralna svrha platforme. Organizatori treb
 - **Veza sa drugim storyjima ili zavisnostima:**
   - Povezano sa S29 (Uređivanje konferencija)
 - **Acceptance criteria:**
-  - Sistem mora omogućiti osnovne CRUD operacije nad logističkim aktivnostima
-  - Sistem nudi korisniku listu logističkih aktivnosti za odabir kod kreiranja
+  - Sistem mora omogućiti pregled svih logističkih aktivnosti povezanih sa određenom konferencijom
+  - Omogućiti filtriranje po tipu aktivnosti (catering, ručak, video sadržaj i dr.)
+ 
+---
+
+### S46.2 — Dodavanje logističkih aktivnosti
+
+- **ID storyja:** US27.2
+- **Naziv storyja:** Dodavanje logističkih aktivnosti
+- **Opis:** Kao organizator, želim upravljati imati pregled logističkih aktivnosti konferencije.
+- **Poslovna vrijednost:** Olakšava upravljanje pratećim aktivnostima konferencije.
+- **Prioritet:** Medium
+- **Pretpostavke i otvorena pitanja:**
+  - Korisnik je prijavljen na sistem sa rolom organizatora
+  - Postoji najmanje jedna aktivna konferencija
+  - Da li staviti sve aktivnosti zajedno ili neke izdvojiti?
+- **Veza sa drugim storyjima ili zavisnostima:**
+  - Povezano sa S29 (Uređivanje konferencija)
+- **Acceptance criteria:**
+  - Sistem mora omogućiti pregled svih logističkih aktivnosti povezanih sa određenom konferencijom
+  - Omogućiti filtriranje po tipu aktivnosti (catering, ručak, video sadržaj i dr.)
+ 
+---
+
+### S46.3 — Pregled logističkih aktivnosti
+
+- **ID storyja:** US27.3
+- **Naziv storyja:** Pregled logističkih aktivnosti
+- **Opis:** Kao organizator, želim upravljati imati pregled logističkih aktivnosti konferencije.
+- **Poslovna vrijednost:** Olakšava upravljanje pratećim aktivnostima konferencije.
+- **Prioritet:** Medium
+- **Pretpostavke i otvorena pitanja:**
+  - Korisnik je prijavljen na sistem sa rolom organizatora
+  - Postoji najmanje jedna aktivna konferencija
+  - Da li staviti sve aktivnosti zajedno ili neke izdvojiti?
+- **Veza sa drugim storyjima ili zavisnostima:**
+  - Povezano sa S29 (Uređivanje konferencija)
+- **Acceptance criteria:**
+  - Sistem mora omogućiti pregled svih logističkih aktivnosti povezanih sa određenom konferencijom
+  - Omogućiti filtriranje po tipu aktivnosti (catering, ručak, video sadržaj i dr.)
+ 
+---
+
+### S46.4 — Pregled logističkih aktivnosti
+
+- **ID storyja:** US27.4
+- **Naziv storyja:** Pregled logističkih aktivnosti
+- **Opis:** Kao organizator, želim upravljati imati pregled logističkih aktivnosti konferencije.
+- **Poslovna vrijednost:** Olakšava upravljanje pratećim aktivnostima konferencije.
+- **Prioritet:** Medium
+- **Pretpostavke i otvorena pitanja:**
+  - Korisnik je prijavljen na sistem sa rolom organizatora
+  - Postoji najmanje jedna aktivna konferencija
+  - Da li staviti sve aktivnosti zajedno ili neke izdvojiti?
+- **Veza sa drugim storyjima ili zavisnostima:**
+  - Povezano sa S29 (Uređivanje konferencija)
+- **Acceptance criteria:**
+  - Sistem mora omogućiti pregled svih logističkih aktivnosti povezanih sa određenom konferencijom
+  - Omogućiti filtriranje po tipu aktivnosti (catering, ručak, video sadržaj i dr.)
  
 ---
 
