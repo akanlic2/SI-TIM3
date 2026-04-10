@@ -276,9 +276,9 @@ Jedna konferencija može imati više logističkih zadataka, dok svaki logističk
 ---
 
 ### Session i Equipment
-Jedna sesija može zahtijevati više komada opreme, a jedan komad opreme može biti korišten u više sesija.
+Jedna sesija može zahtijevati više komada opreme, dok jedan komad opreme pripada tačno jednoj sesiji.
 
-**Veza:** M : N
+**Veza:** 1 : N
 
 ---
 
