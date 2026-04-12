@@ -27,6 +27,13 @@ Obuhvata testiranje:
 - Validacije kotizacija (iznosi, kategorije, status plaćanja)
 - Funkcija za generisanje obavijesti
 
+**Odgovorne osobe:** Razvojni tim
+
+**Izlazni kriterij:** 
+- 100% unit testova prolazi (0 failova)
+- Pokrivenost koda (code coverage) ≥ 90% za business logiku
+- Svi edge case-ovi za validaciju pokriveni testovima
+
 ## Integraciono testiranje
 Integraciono testiranje provjerava ispravnu komunikaciju između modula sistema i ispravnost toka podataka između komponenti.
 
@@ -39,6 +46,14 @@ Ključne integracije koje se testiraju:
 - Integracija sistema obavijesti sa okidačkim događajima (prijava, promjena statusa, brisanje)
 - Integracija Q&A modula sa sesijama i korisničkim profilima
 
+**Odgovorne osobe:** Dev tim & QA
+
+**Izlazni kriterij:**  
+- Svi kritični integracioni tokovi prolaze bez grešaka
+- Nema otvorenih defekata vezanih za komunikaciju između modula
+- API response time unutar definisanog praga (< 3 sekunde za CRUD operacije)
+
+
 ## Sistemsko testiranje
 Sistemsko testiranje provjerava ponašanje cjelokupnog sistema kao integrisane cjeline, uključujući end-to-end tokove i ne-funkcionalne zahtjeve.
 
@@ -49,13 +64,28 @@ Obuhvata:
 - Testiranje konzistentnosti podataka nakon brisanja (konferencija, sesija, dvorane)
 - Testiranje performansi pri pregledu lista sa većim brojem zapisa
 - Testiranje integriteta sesije nakon odjave korisnika
+
+**Odgovorne osobe:** QA
+
+**Izlazni kriterij:** 
+- Svi end-to-end scenariji prolaze
+- Svi sigurnosni testovi prolaze (neovlašteni pristup blokiran u 100% slučajeva)
+- Performansni testovi unutar prihvatljivih granica
+- Konzistentnost podataka potvrđena nakon brisanja
+
   
 ## Prihvatno testiranje
 Prihvatno testiranje se provodi na osnovu acceptance kriterija definisanih u user stories. Cilj je potvrditi da sistem ispunjava poslovne zahtjeve i da je spreman za puštanje u produkciju.
 
 Ovo testiranje obuhvata verifikaciju svakog acceptance kriterija za sve user storije, uz sudjelovanje vlasnika proizvoda ili krajnjih korisnika u finalnom pregledu.
 
+**Odgovorne osobe:** Product Owner, krajnji korisnici (organizator, predavač, učesnik), QA
 
+**Izlazni kriterij:** 
+- Više od 90% acceptance kriterija verifikovano kao zadovoljeno
+- Nema otvorenih Critical ili High defekata
+- Product Owner dao formalno odobrenje
+- Sva otvorena pitanja iz user storija riješena ili svjesno odložena 
 
 
 
@@ -88,6 +118,37 @@ Ovo testiranje obuhvata verifikaciju svakog acceptance kriterija za sve user sto
 # Veza sa acceptance kriterijima
 
 # Način evidentiranja rezultata testiranja
+
+### Test case dokumentacija
+Za svaki user story se definišu test case-ovi koji obuhvataju:
+- Identifikator test case-a (TC-[US-ID]-[redni broj])
+- Opis test scenarija i preduslove 
+- Korake izvršavanja
+- Očekivane i stvarne rezultate
+- Status: Passed / Failed / Blocked / Skipped
+- Prioritet: Critical / High / Medium / Low
+- Vezu sa acceptance kriterijem kojeg pokriva
+
+### Evidencija defekta
+Svaki pronađeni defekt se evidentira sa sljedećim informacijama:
+- Jedinstveni ID defekta
+- Naziv i opis defekta
+- Koraci za reprodukciju
+- Očekivano i stvarno ponašanje
+- Severity: Critical / Major / Minor / Trivial
+- Priority: High / Medium / Low
+- Status: New / In Progress / Fixed / Verified / Closed
+- Veza sa test case-om i user storyjem
+- Screenshot ili log kao prilog (gdje je primjenljivo)
+
+### Izvještaj o testiranju
+Po završetku svake faze testiranja generiše se Test Report koji sadrži:
+- Sažetak rezultata: ukupan broj test case-ova, Passed/Failed/Blocked
+- Tabelu statusa po user storyjima i nivoima testiranja
+- Listu otvorenih defekata sa severity/priority klasifikacijom
+- Pokrivenost acceptance kriterija - postotak
+- Preporuku: Go / No-Go za puštanje u produkciju
+
 
 # Glavni rizici kvaliteta
 | ID |Opis rizika |Vjerovatnoća |Uticaj| Strategija mitigacije|
