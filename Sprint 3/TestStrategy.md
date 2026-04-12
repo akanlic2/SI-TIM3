@@ -4,15 +4,18 @@ Cilj testiranja sistema za organizaciju konferencija je osigurati da sve funkcio
 
 | Cilj| Obim|Kriterij uspjeha|
 |----------|-----------|--------|
-|          |           |        |
-|          |           |        |
-|          |           |        |
-|          |           |        |
-|          |           |        |
-|          |           |        |
-|          |           |        |
-|          |           |        |
-|          |           |        |
+|  Verifikacija ispravnosti toka autentifikacije i sigurnosti korisničke sesije (US-01, US-02, US-03)|Registracija, prijava i odjava za sve korisničke role (učesnik, organizator, administrator); invalidacija sesije i blokada zaštićenih ruta|Svi AC iz US-01, US-02 i US-03 zadovoljeni; neautorizovan pristup zaštićenim stranicama je onemogućen; povratak browserom nakon odjave ne otvara zaštićeni sadržaj|
+|Provjera ispravnosti rolno-baziranog pristupa za sve korisničke role (US-05)|Pristup rutama, UI elementima i API endpointima za role: učesnik, organizator, administrator; direktan URL pristup kao neovlašteni korisnik|Korisnik ne može pristupiti funkcionalnostima van svoje role; svaki zahtjev prolazi provjeru permisija; HTTP 403 ili redirect za neovlaštene zahtjeve|
+|Validacija upravljanja korisničkim profilom i izolacije podataka (US-04, US-04.1, US-04.2)|Pregled i izmjena profila (ime, prezime, email, lozinka); zabrana emaila koji je duplikat; potvrda lozinke pri promjeni; izolacija podataka po korisniku|Korisnik vidi isključivo vlastite podatke; izmjene se snimaju i odmah prikazuju; duplikat email i prazna polja su blokirani; promjena lozinke zahtijeva potvrdu|
+|Validacija kompletne konferencije (US-06, US-07, US-08, US-09, US-10, US-11)|Kreiranje, pregled, detalji, uređivanje, brisanje i pretraga konferencija; vidljivost samo aktivnih konferencija; autorizacija na svim operacijama|Konferencija se kreira, prikazuje, ažurira i briše ispravno; obrisane/deaktivirane konferencije nisu vidljive; pretraga vraća samo relevantne rezultate; neovlašteni korisnici ne mogu vršiti izmjene|
+|Provjera upravljanja sesijama, rasporedom i dodjele predavača (US-12.1, US-12.2, US-12.3, US-12.4, US-13, US-14)|CRUD operacije nad sesijama; zabrana duplikat termina u istoj konferenciji; dodjela predavača; prikaz rasporeda sesija sortiranog po vremenu|Sesija se ne može kreirati sa konfliktnim terminom; dodjela nepostojećeg predavača je blokirana; raspored prikazuje sve sesije tačno po terminu bez obrisanih stavki|
+|Validacija upravljanja dvoranama i dodjele dvorane sesiji (US-15.1, US-15.2, US-15.3, US-15.4, US-16)|CRUD operacije nad dvoranama; zabrana duplikata naziva; blokada brisanja dvorane dodijeljene aktivnoj sesiji; dodjela dvorane sesiji|Duplikat naziva dvorane je blokiran; brisanje aktivne dvorane vraća grešku s porukom; dodjela nepostojeće dvorane je odbijena; promjene su odmah vidljive|
+|Provjera toka prijave i odjave učesnika uz real-time ažuriranje kapaciteta (US-18, US-19, US-20, US-21)|Prijava na konferenciju i sesiju; odjava sa konferencije; zabrana duplikata i preklapajućih sesija; real-time ažuriranje slobodnih mjesta; prikaz popunjenosti|Istovremena prijava više korisnika ne prekoračuje kapacitet; prijava na popunjenu sesiju je blokirana; preklapajuće sesije nisu dozvoljene; kapacitet se ažurira nakon svake promjene|
+|Validacija upravljanja učesnicima i kotizacijama (US-22, US-23.1, US-23.2)|Lista učesnika po konferenciji s pretragom i filterom; autorizacija pristupa listi; kreiranje, izmjena i brisanje kategorija i iznosa kotizacija; evidencija statusa plaćanja|Lista učesnika vidljiva samo organizatoru; korisnik (učesnik) nema pristup; kategorije i iznosi se korektno kreiraju, mijenjaju i brišu; status plaćeno/neplaćeno se evidentira|
+|Validacija upravljanja materijalima i logističkim aktivnostima (US-25, US-26, US-27.1, US-27.2, US-27.3, US-27.4)|Pregled, dodavanje materijala za konferencije i sesije; CRUD logističkih aktivnosti; filtriranje po tipu aktivnosti; sprječavanje konkurentnih konflikata pri uređivanju|Materijali i aktivnosti se korektno dodaju, prikazuju i brišu; filter po tipu aktivnosti radi ispravno; sistem blokira konflikt pri istovremenom uređivanju od strane više organizatora|
+|Provjera upravljanja tehničkom opremom i dodjele konferenciji (US-28.1, US-28.2, US-28.3, US-28.4)|Pregled, kreiranje i brisanje tehničke opreme; upravljanje dostupnom količinom; dodjela opreme konferenciji uz provjeru dostupnosti| Nije moguće dodijeliti više opreme nego što je dostupno; dostupan broj se ažurira nakon dodjele ili brisanja; novokreirana oprema je odmah vidljiva na listi|
+|Validacija Q&A funkcionalnosti za interakciju učesnika i predavača (US-29.1, US-29.2)|Postavljanje pitanja bez prekidanja predavača; pristup samo kroz validan link za prisutne; prikaz svih pitanja predavaču; označavanje pitanja kao odgovorenih|Pitanja mogu postavljati samo korisnici s validnim pristupom sesiji; sva pitanja su vidljiva predavaču; označeno pitanje se uklanja iz aktivne liste|
+|Provjera generisanja i preuzimanja izvještaja za organizatore (US-30)|Izvještaji o prijavama, kapacitetima i kotizacijama konferencije; pregled unutar sistema; preuzimanje izvještaja|Izvještaj sadrži tačne podatke o prijavama, kapacitetima i kotizacijama; preuzimanje funkcioniše korektno; dostupan isključivo organizatoru|
 
 # Nivoi testiranja
 
