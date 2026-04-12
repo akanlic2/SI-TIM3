@@ -117,11 +117,87 @@ Ovo testiranje obuhvata verifikaciju svakog acceptance kriterija za sve user sto
 
 # Veza sa acceptance kriterijima
 
+|User Story|Acceptance Criteria| ID testnog slučaja|
+|----------|-------------------|-------------------|
+|US-01: Sign Up|Kada korisnik uspješno unese sve podatke i potvrdi registraciju, korisnik treba dobiti potvrdu o uspješnoj registraciji na ekranu.|TC-01|
+|US-01: Sign Up|Sistem ne smije dozvoliti završetak registracije bez popunjenih svih obaveznih polja.|TC-02|
+|US-01: Sign Up|Sistem ne smije dozvoliti registraciju sa već postojećom email adresom|TC-03|
+|US-02: Sign In|Kada korisnik unese ispravne kredencijale i klikne "Prijavi se", korisnik treba biti preusmjeren na početnu stranicu sistema.|TC-04|
+|US-02: Sign In	|Sistem ne smije dozvoliti pristup sistemu korisniku koji nije registrovan.|TC-04|
+|US-02: Sign In|Sistem ne smije dozvoliti prijavu sa pogrešnom kombinacijom emaila i lozinke|TC-05|
+|US-03: Log Out|Kada korisnik klikne na dugme za odjavu, korisnik treba biti preusmjeren na stranicu za prijavu.|TC-06|
+|US-03: Log Out|Sistem ne smije dozvoliti pristup zaštićenim stranicama nakon odjave.|TC-07|
+|US-03: Log Out|Sistem mora poništiti korisničku sesiju nakon odjave, tako da povratak na prethodnu stranicu putem browsera ne otvara zaštićeni sadržaj.|TC-08|
+|US-04.1: Pregled korisničkog profila|Sistem prikazuje trenutne podatke korisničkog profila: ime, prezime, email|TC-09|
+|US-04.2: Izmjena korisničkog profila|Kada korisnik izmijeni podatke i sačuva promjene, korisnik treba dobiti potvrdu o uspješnoj izmjeni.|TC-10|
+|US-04.2: Izmjena korisničkog profila|Sistem mora tražiti potvrdu trenutne lozinke pri promjeni lozinke.|TC-11|
+|US-05: Korisničke role i permisije|Kada korisniku bude dodijeljena određena rola, korisnik treba imati pristup samo onim funkcionalnostima koje su predviđene za tu rolu.|TC-12|
+|US-05: Korisničke role i permisije|Sistem mora onemogućiti pristup administratorskim funkcionalnostima svim korisnicima koji nemaju admin rolu.|TC-13|
+|US-06: Kreiranje konferencije|Kada organizator popuni sve obavezne podatke i potvrdi kreiranje, korisnik treba dobiti potvrdu o uspješnom kreiranju konferencije. |TC-14|
+|US-06: Kreiranje konferencije | Sistem ne smije dozvoliti kreiranje konferencije bez popunjenih obaveznih polja.| TC-15|
+|US-06: Kreiranje konferencije | Sistem ne smije dozvoliti kreiranje konferencije korisniku koji nema rolu organizatora.| TC-16|
+|US-07: Pregled konferencija |Sistem mora prikazati listu svih dostupnih konferencija sa osnovnim informacijama (naziv, datum, lokacija). | TC-17|
+|US-07: Pregled konferencija | Sistem mora prikazati jasnu poruku kada nema dostupnih konferencija.| TC-18|
+|US-07: Pregled konferencija| Sistem ne smije prikazivati konferencije koje su obrisane ili deaktivirane.| TC-19|
+|US-08: Pregled detalja konferencije |Kada korisnik klikne na konferenciju, ako konferencija postoji, tada vidi sve detalje. | TC-20|
+|US-09: Uređivanje konferencije |Kada organizator izmijeni podatke, ako su svi obavezni podaci uneseni, tada se promjene spremaju | TC-21|
+|US-10: Brisanje konferencije |Kada organizator klikne na brisanje, ako potvrdi akciju, tada se konferencija briše | TC-22|
+|US-10: Brisanje konferencije | Korisnik treba dobiti informaciju da je brisanje uspješno| TC-23|
+|US-11: Pretraga konferencija |Kada korisnik unese pojam, ako postoje rezultati, tada sistem prikazuje odgovarajuće konferencije | TC-24|
+|US-11: Pretraga konferencija |Sistem mora prikazati samo relevantne konferencije | TC-25|
+|US-11: Pretraga konferencija |Kada nema rezultata, sistem treba prikazati poruku | TC-26|
+|US-12.1: Pregled sesija konferencije |Kada organizator otvori sesije, tada vidi listu svih sesija za konferenciju | TC-27|
+| US-12.1: Pregled sesija konferencije|Sistem mora prikazati osnovne podatke o sesiji | TC-28|
+|US-12.1: Pregled sesija konferencije |Kada nema sesija, tada sistem prikazuje odgovarajuću poruku| TC-29|
+|US-12.2: Kreiranje sesije | Sistem ne smije dozvoliti kreiranje sesije sa istim terminom u istoj konferenciji| TC-30|
+|US-12.2: Kreiranje sesije  |Sistem ne smije dozvoliti kreiranje bez obaveznih podataka | TC-31|
+|US-12.2: Kreiranje sesije | Kada organizator unese validne podatke, tada sistem sprema sesiju| TC-32|
+|US-12.3: Uređivanje sesije| Sistem ne smije dozvoliti nevalidne izmjene| TC-33|
+|US-12.4: Brisanje sesije | Kada organizator izvrši brisanje sesije, tada se ona uklanja iz sistema| TC-34|
+|US-13: Dodjela predavača sesiji |Sistem ne smije dozvoliti dodjelu nepostojećeg korisnika | TC-35|
+|US-13: Dodjela predavača sesiji |Kada organizator dodijeli predavača, ako predavač postoji, tada se prikazuje u sesiji | TC-36|
+|US-14: Pregled rasporeda | Sistem ne smije prikazivati nepostojeće sesije| TC-37|
+|US-15.1: Pregled dvorana |Kada nema dvorana, tada sistem prikazuje odgovarajuću poruku | TC-38|
+|US-15.2: Dodavanje dvorane| Sistem ne smije dozvoliti unos duplikata dvorane| TC-39|
+|US-15.2: Dodavanje dvorane |Organizator treba dobiti potvrdu o uspješnom dodavanju | TC-40|
+|US-15.4: Brisanje dvorane| Sistem ne smije dozvoliti brisanje dvorane koja je dodijeljena aktivnoj sesiji| TC-41|
+|US-16: Dodjela dvorane|Kada organizator dodijeli dvoranu, ako postoji, tada se povezuje sa sesijom | TC-42|
+|US-18: Prijava učesnika na konferenciju| Korisnik treba dobiti potvrdu o uspješnoj prijavi| TC-43|
+|US-18: Prijava učesnika na konferenciju|Kada korisnik klikne prijavu, ako nije već prijavljen, tada se registruje | TC-44|
+|US-19: Odjava učesnika s konferencije |Sistem mora promijeniti status prijave u 'Otkazano'. | TC-45|
+|US-19: Odjava učesnika s konferencije| Sistem mora ažurirati broj slobodnih mjesta.| TC-46|
+|US-20: Prijava učesnika na sesiju|Sistem ne smije dozvoliti prijavu ako je sesija popunjena.|TC-47|
+|US-21: Pregled popunjenosti kapaciteta |Kada postoji konferencija ili sesija, sistem mora prikazati broj prijavljenih. | TC-48|
+|US-21: Pregled popunjenosti kapaciteta |Prikaz se mora ažurirati nakon svake prijave ili odjave. | TC-49|
+|US-21: Pregled popunjenosti kapaciteta|Sistem mora prikazati maksimalni kapacitet. | TC-50|
+|US-22: Lista učesnika po konferenciji | Sistem ne smije dozvoliti pristup listi neautorizovanim korisnicima| TC-51|
+|US-23.1: Upravljanje kategorijama kotizacija |Sistem mora omogućiti izmjenu kategorija | TC-52|
+|US-23.1: Upravljanje kategorijama kotizacija|Sistem mora omogućiti kreiranje kategorija kotizacija | TC-53|
+|US-23.1: Upravljanje kategorijama kotizacija |Sistem mora omogućiti brisanje kategorija | TC-54|
+| US-23.2: Upravljanje iznosima kotizacija|Sistem mora evidentirati status (plaćeno / neplaćeno) | TC-55|
+|US-23.2: Upravljanje iznosima kotizacija | Sistem mora omogućiti unos iznosa kotizacije| TC-56|
+|US-23.2: Upravljanje iznosima kotizacija |Sistem mora povezati iznos sa kategorijom | TC-57|
+|US-23.2: Upravljanje iznosima kotizacija |Sistem mora omogućiti izmjenu iznosa | TC-58|
+|US-24: Obavijesti za korisnike |Kada se desi važan događaj, sistem mora poslati obavijest| TC-59|
+|US-24: Obavijesti za korisnike |Korisnik treba imati mogućnost pregleda prethodnih obavijesti | TC-60|
+|US25: Pregled materijala za konferenciju i sesije |Mogućnost pretrage, filtriranja, sortiranja | TC-61|
+|US25: Pregled materijala za konferenciju i sesije |Sistem mora prikazati sve trenutno dodane materijale za odabranu konferenciju/sesiju | TC-62|
+|US25: Pregled materijala za konferenciju i sesije|Klikom na neki od materijala se prikazuje više detalja| TC-63|
+|US27.1: Pregled logističkih aktivnosti |Omogućiti filtriranje po tipu aktivnosti (catering, ručak, video sadržaj i dr.) | TC-64|
+|US27.2: Dodavanje logističkih aktivnosti  |Sistem daje mogućnost odabira vrste aktivnosti iz liste opcija pri kreiranju| TC-65|
+|US28.4:Dodjela tehničke opreme konferenciji |Moguće je dodijeliti onoliko opreme konferenciji koliko je dostupno | TC-66|
+|US29.1: Postavljanje pitanja za Q&A sesiju |Sistem omogućava da učesnici na predavanju mogu postavljati pitanja bez prekidanja predavača | TC-67|
+|US29.2: Prikaz pitanja predavaču| Predavač može označiti pitanja kao odgovorena, čime se uklanjaju iz liste| TC-68|
+|US30: Izvještaji za organizatore|Organizator može pregledati izvještaj i preuzeti ga|TC-69|
+
+
+
+
 # Način evidentiranja rezultata testiranja
 
 ### Test case dokumentacija
 Za svaki user story se definišu test case-ovi koji obuhvataju:
-- Identifikator test case-a (TC-[US-ID]-[redni broj])
+- Identifikator test case-a (TC-[redni broj])
 - Opis test scenarija i preduslove 
 - Korake izvršavanja
 - Očekivane i stvarne rezultate
