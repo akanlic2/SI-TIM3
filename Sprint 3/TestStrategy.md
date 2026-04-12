@@ -2,7 +2,7 @@
 
 Cilj testiranja sistema za organizaciju konferencija je osigurati da sve funkcionalnosti sistema rade ispravno, pouzdano i sigurno u skladu sa definisanim zahtjevima i acceptance kriterijima.
 
-| Cilj      | Obim   | Kriterij uspjeha |
+| Cilj| Obim|Kriterij uspjeha|
 |----------|-----------|--------|
 |          |           |        |
 |          |           |        |
@@ -61,8 +61,25 @@ Ovo testiranje obuhvata verifikaciju svakog acceptance kriterija za sve user sto
 
 # Šta se testira u kojem nivou
 
+| Funkcionalnost|Unit testiranje|Integraciono|Sistemsko|Prihvatno|
+|----------|-----------|--------|-----------|--------|
+|          |           |        |         |        |
+|          |           |        |         |        |
+|          |           |        |         |        |
+|          |           |        |         |        |
+|          |           |        |         |        |
+|          |           |        |         |        |
+
 # Veza sa acceptance kriterijima
 
 # Način evidentiranja rezultata testiranja
 
 # Glavni rizici kvaliteta
+| ID |Opis rizika |Vjerovatnoća |Uticaj| Strategija mitigacije|
+|----|-----------|--------|-----------|--------|
+|R01 |Neispravna implementacija rolno-baziranog pristupa omogućava neovlaštene akcije|Srednja |Visok |Detaljno testiranje svakog zaštićenog endpoint-a za svaku rolu|
+|R02 |Race condition pri istovremenom prijavljivanju više učesnika na sesiju s ograničenim kapacitetom|Visoka| Visok|Konkurentno testiranje, provjera da se kapacitet ne prekorači ni u jednom scenariju |
+|R03 |Sesija korisnika ostaje aktivna nakon odjave, pa je omogućen neovlašteni pristup|Niska|Visok|Testiranje invalidacije sesije i provjera zaštićenih ruta nakon odjave|
+|R04 |Prikaz podataka jednog korisnika drugom korisniku|Niska|Visok|Testiranje izolacije podataka: provjera da korisnik vidi samo svoje podatke|
+|R05 |Konflikti pri uređivanju iste konferencije/sesije od strane više organizatora| Srednja| Srednji|Testiranje konkurentnog uređivanja; provjera mehanizma za rješavanje konflikata (US-27.3)|
+|R06 |Q&A pitanja dostupna korisnicima koji nisu prisutni na predavanju|Niska|Srednji|Testiranje autorizacije za Q&A, provjera da link funkcioniše isključivo u kontekstu sesije|
