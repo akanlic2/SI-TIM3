@@ -126,19 +126,24 @@ Kao konkretan primjer toka podataka, ovako izgleda proces kreiranja nove konfere
 ## Ključne tehničke odluke
 
 - Izbor četveroslojne arhitekture 
+
 Odabrana je klasična četveroslojna arhitektura jer jasno razdvaja odgovornosti. Svaki sloj se može mijenjati ili testirati zasebno, bez kaskadnih promjena kroz cijeli sistem. 
 
 - JWT autentifikacija s refresh tokenom
+
 Autentifikacija je centralizirana u UserService-u (generisanje tokena) i UserController-u (validacija). Uveden je i refresh token kako se korisnik ne bi morao stalno prijavljivati pri isteku JWT tokena.
 
 - Odvajanje domenskih entiteta od baze podataka
+
 Sva poslovna pravila — provjera konflikta termina, kapaciteta, raspoloživosti opreme, korisničkih uloga — nalaze se isključivo u domain entitetima.
 Domenski sloj treba da predstavlja isključivo poslovnu logiku organizacije konferencija, a ne tehničku strukturu tabela u bazi.
 
 - Heširanje lozinki u Data access layeru
+
 Lozinke se nikada ne spremaju u čistom tekstu nego se vrši heširanje prije upisa u bazu. Na ovaj način je osigurana zaštita privatnosti korisnika u slučaju kompromitovanja baze podataka.
 
 - Repository kao jedina tačka pristupa bazi
+
 Cijela komunikacija sa bazom podataka prolazi isključivo kroz repozitorije, što centralizira upite, sprječava dupliranje koda i olakšava održavanje. Ostatak sistema — servisi i domenski entiteti - ne zna ništa o tome kako su podaci pohranjeni, što omogućava zamjenu baze ili ORM-a bez izmjena u ostatku koda. Dodatna prednost je lakše testiranje, jer se repozitorij u testovima jednostavno zamijeni mock implementacijom, bez potrebe za pravom bazom.
 
 ## Ograničenja i rizici arhitekture
