@@ -1,6 +1,6 @@
 | ID  | Opis rizika | Uzrok  | Vjerovatnoća | Uticaj | Prioritet rizika | Plan mitigacije  | Odgovorna osoba/uloga  | Status |
 |-----|-------------|--------|--------------|--------|------------------|------------------|------------------------|--------|
-| R1  | Pad sistema | Preopterećenje servera ili greška u sistemu | Srednja | Visok | Visok | Preventivno održavanje, Monitoring i alarmi | DevOps inženjer | Otvoren |
+| R1  | Pad sistema | Preopterećenje servera ili greška u sistemu | Srednja | Visok | Visok | Preventivno održavanje, Monitoring | DevOps inženjer | Otvoren |
 | R2  | Preopterećenje sistema | Veliki broj istovremenih korisnika | Srednja | Visok | Visok | Redovno testiranje opterećenja (Load Testing), Optimizacija koda i baza podataka | DevOps inženjer | Otvoren |
 | R3  | Nestanak internet konekcije | Nestabilna mreža korisnika ili servera | Srednja | Srednja | Srednji | Retry mehanizmi | DevOps inženjer | Otvoren |
 | R4  | Gubitak podataka | Nedostatak backup mehanizma | Niska | Visok | Visok | Redovan backup | Backend developer / DBA | Otvoren |
@@ -39,7 +39,4 @@
 | R37 | Nekonzistentnost podataka u sistemu | Nedovoljna validacija poslovnih pravila | Srednja | Visok | Visok | Poslovna pravila validacije | Backend developer | Otvoren |
 | R38 | Netačni podaci u izvještajima | Pogrešna logika agregacije | Srednja | Srednja | Srednji | Validacija izvještajnih upita | Backend developer | Otvoren |
 | R39 | Predugo učitavanje podataka u listi | Nedostatak paginacije | Srednja | Srednja | Srednji | Implementacija paginacije | Frontend developer | Otvoren |
-| R40 | Greška u obradi kotizacije | Bug u payment logici ili integraciji | Srednja | Visok | Visok | Evidencija transakcija i zaštita od duplog izvršavanja API zahtjeva | Backend developer | Otvoren |
-| R41 | Dupla naplata učesnika | Konkurentni pristup plaćanju | Srednja | Visok | Visok | Provjera statusa uplate i zaštita od duplog procesiranja transakcije | Backend developer | Otvoren |
-| R42 | Nedostupnost sistema za plaćanje | Eksterni servis nedostupan | Srednja | Visok | Visok | Retry mehanizam, fallback poruka korisniku i evidencija neuspjelih transakcija | Backend developer / DevOps | Otvoren |
-| R43 | Kršenje GDPR propisa | Neadekvatno upravljanje ličnim podacima | Niska | Visok | Visok | Implementacija privacy policy, enkripcija podataka, kontrola pristupa i pravo na brisanje podataka | Security inženjer / Pravni savjetnik | Otvoren |
+| R40 | Kršenje GDPR propisa | Neadekvatno upravljanje ličnim podacima | Niska | Visok | Visok | Implementacija privacy policy, enkripcija podataka, kontrola pristupa i pravo na brisanje podataka | Security inženjer / Pravni savjetnik | Otvoren |
