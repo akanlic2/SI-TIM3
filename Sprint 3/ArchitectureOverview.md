@@ -1,5 +1,20 @@
 # Architecture Overview
 
+## Kratak opis arhitektonskog pristupa
+
+Sistem za organizaciju konferencija zasnovan je na klasičnoj slojevitoj (layered) arhitekturi koja razdvaja odgovornosti između četiri horizontalna sloja: 
+ - Prezentacijski sloj - upravlja komunikacijom s korisnikom, prima HTTP zahtjeve i vraća odgovore,
+ - Aplikacijski sloj - upravlja izvršavanjem korisničkih zahtjeva i povezuje prezentacijski sloj s ostalim dijelovima sistema,
+ - Domenski sloj - sadrži poslovna pravila i logiku sistema,
+ - Sloj za pristup podacima - upravlja pristupom bazi podataka i omogućava čitanje i zapisivanje podataka.
+ Svaki sloj ima jasno definisanu odgovornost i komunicira isključivo sa susjednim slojevima. Ovakav pristup omogućava:
+ - Razdvajanje odgovornosti - svaki sloj ima svoju jasnu ulogu što sistem čini preglednijim i lakšim za održavanje
+ - Jednosmjerna zavisnost - zavisnosti idu samo od viših ka nižim slojevima, što smanjuje međusobnu povezanost komponenti
+ - Zamjenjivost slojeva - slojevi komuniciraju preko definisanih interfejsa, pa se pojedine implementacije, poput baze podataka, mogu zamijeniti bez većih izmjena u ostatku sistema
+ - Lakše testiranje - svaki sloj se može testirati zasebno
+ - Bolja preglednost sistema - standardna struktura omogućava lakše snalaženje u projektu i brže razumijevanje koda
+ - Lakše održavanje i izmjene - promjene su lokalizovane na određeni sloj, što smanjuje rizik od grešaka pri uvođenju novih funkcionalnosti
+
 ## Glavne komponente sistema
 
 Sistem za organizaciju konferencija je oragnizovan u 4 sloja:
