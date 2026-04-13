@@ -7,6 +7,7 @@ Sistem za organizaciju konferencija zasnovan je na klasičnoj slojevitoj (layere
  - Aplikacijski sloj - upravlja izvršavanjem korisničkih zahtjeva i povezuje prezentacijski sloj s ostalim dijelovima sistema,
  - Domenski sloj - sadrži poslovna pravila i logiku sistema,
  - Sloj za pristup podacima - upravlja pristupom bazi podataka i omogućava čitanje i zapisivanje podataka.
+
 Svaki sloj ima jasno definisanu odgovornost i komunicira isključivo sa susjednim slojevima. Ovakav pristup omogućava:
  - Razdvajanje odgovornosti - svaki sloj ima svoju jasnu ulogu što sistem čini preglednijim i lakšim za održavanje
  - Jednosmjerna zavisnost - zavisnosti idu samo od viših ka nižim slojevima, što smanjuje međusobnu povezanost komponenti
@@ -97,3 +98,27 @@ u oblik koji koristi ostatak sistema.
 
 Heširanje korisničkih podataka se također vrši u ovom sloju. Pri kreiranju novog korisnika, `UserRepository` hešira lozinku koju je korisnik unio te je takvu
 spašava u bazu. Nakon toga se autentifikacija korisnika pri svakom loginu vrši dohvaćanjem te lozinke iz baze što se izvršava u ovom sloju.
+
+## Tok podataka i interakcija
+
+Svaki korisnički zahtjev prolazi kroz sva četiri sloja u tačno određenom redoslijedu — od prezentacijskog sloja prema sloju za pristup 
+podacima pri čitanju/pisanju podataka, te u obrnutom smjeru pri vraćanju odgovora.
+
+Tipičan tok zahtjeva:
+- Klijent šalje HTTP zahtjev na određenu API rutu
+- Controller (Presentation layer) prima zahtjev, validira ulazne podatke i provjerava JWT token
+- Service (Application layer) prima validirani zahtjev te pravi pozive ka domenskim entitetima i repozitorijima
+- Domain entitet (Domain layer) primjenjuje poslovna pravila i validacije
+- Repository (Data access layer) izvršava operacije nad bazom podataka
+- Rezultat se vraća istim putem nazad do klijenta
+
+<img width="1198" height="323" alt="Tok podataka" src="https://github.com/user-attachments/assets/9089292b-5b99-4441-84cb-8f1a02f212ff" />
+
+Kao konkretan primjer toka podataka, ovako izgleda proces kreiranja nove konferencije:
+1. Klijent šalje POST zahtjev na rutu `/conference` s podacima o konferenciji i JWT tokenom u headeru
+2. `ConferenceController` radi osnovnu validaciju nad ulaznim podacima (format, obavezna polja) i autentificira korisnika
+3. `ConferenceService` prima zahtjev te poziva `Conference` domenski entitet
+4. `Conference` provjerava poslovna pravila — konflikt termina i prostora, maksimalni broj učesnika validan i sl.
+5. Ako su sva pravila zadovoljena, `ConferenceService` poziva `ConferenceRepository`
+6. `ConferenceRepository` prevodi domenski entitet u DB strukturu i zapisuje podatke
+7. Potvrda o uspješnom kreiranju vraća se kroz sve slojeve nazad do klijenta
