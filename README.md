@@ -3,3 +3,5 @@
 # Tema 3: Sistem za organizaciju konferencija
 Sistem treba podržati prijavu učesnika, upravljanje sesijama, rasporedom, dvoranama, kotizacijama, obavijestima i osnovnim izvještajima za organizatore.
 
+## Link za google meet sastanke: https://meet.google.com/zwb-yyow-hfi
+
