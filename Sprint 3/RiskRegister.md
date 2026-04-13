@@ -39,3 +39,7 @@
 | R37 | Nekonzistentnost podataka u sistemu | Nedovoljna validacija poslovnih pravila | Srednja | Visok | Visok | Poslovna pravila validacije | Backend developer | Otvoren |
 | R38 | Netačni podaci u izvještajima | Pogrešna logika agregacije | Srednja | Srednja | Srednji | Validacija izvještajnih upita | Backend developer | Otvoren |
 | R39 | Predugo učitavanje podataka u listi | Nedostatak paginacije | Srednja | Srednja | Srednji | Implementacija paginacije | Frontend developer | Otvoren |
+| R40 | Greška u obradi kotizacije | Bug u payment logici ili integraciji | Srednja | Visok | Visok | Evidencija transakcija i zaštita od duplog izvršavanja API zahtjeva | Backend developer | Otvoren |
+| R41 | Dupla naplata učesnika | Konkurentni pristup plaćanju | Srednja | Visok | Visok | Provjera statusa uplate i zaštita od duplog procesiranja transakcije | Backend developer | Otvoren |
+| R42 | Nedostupnost sistema za plaćanje | Eksterni servis nedostupan | Srednja | Visok | Visok | Retry mehanizam, fallback poruka korisniku i evidencija neuspjelih transakcija | Backend developer / DevOps | Otvoren |
+| R43 | Kršenje GDPR propisa | Neadekvatno upravljanje ličnim podacima | Niska | Visok | Visok | Implementacija privacy policy, enkripcija podataka, kontrola pristupa i pravo na brisanje podataka | Security inženjer / Pravni savjetnik | Otvoren |
