@@ -7,7 +7,7 @@
 | R5  | Neovlašten pristup podacima | Slaba autentifikacija ili loše role kontrole | Srednja | Visok | Visok | Enkripcija podataka, 2FA | Security inženjer | Otvoren |
 | R6  | Curenje podataka korisnika | Sigurnosne rupe ili loša enkripcija | Niska | Visok | Visok | Enkripcija podataka, 2FA | Security inženjer | Otvoren |
 | R7  | Kašnjenje u razvoju | Loša procjena vremena i resursa | Visoka | Srednja | Visok | Implementacija Agile metodologije | Projekt menadžer | Otvoren |
-| R8  | Problemi s registracijom korisnika | Bug u validaciji ili backend logici | Srednja | Srednja | Srednji | Validacija inputa na frontend i backend strani | Backend developer | Otvoren |
+| R8  | Problemi s registracijom korisnika | Bug u validaciji ili backend logici | Srednja | Srednja | Srednji | Validacija inputa na frontendu i backendu | Backend developer | Otvoren |
 | R9  | Neispravno slanje email notifikacija | Problemi u SMTP konfiguraciji ili email servisu | Srednja | Srednja | Srednji | Implementacija logova i alerta, Validacija e-mail adresa, Ažuriranje sistema | Backend developer | Otvoren |
 | R10 | Korisnici ne znaju koristiti sistem | Neintuitivan UI i nedostatak uputstava | Srednja | Srednja | Srednji | Pisanje vodiča | UI dizajner | Otvoren |
 | R11 | Loše korisničko iskustvo | Neoptimizovan UI dizajn | Srednja | Srednja | Srednji | User Acceptance Testing | UI dizajner | Otvoren |
