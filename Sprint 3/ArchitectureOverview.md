@@ -18,7 +18,7 @@ Svaki sloj ima jasno definisanu odgovornost i komunicira isključivo sa susjedni
 
 ## Glavne komponente sistema
 
-Sistem za organizaciju konferencija je oragnizovan u 4 sloja:
+Sistem za organizaciju konferencija je organizovan u 4 sloja:
 
 1. **Presentation layer**: Prima HTTP zahtjeve od klijenata i vraća odgovore. Odgovoran je za validaciju ulaznih podataka,
 autentifikaciju korisnika i formatiranje odgovora. Ne sadrži nikakvu poslovnu logiku.
@@ -122,3 +122,33 @@ Kao konkretan primjer toka podataka, ovako izgleda proces kreiranja nove konfere
 5. Ako su sva pravila zadovoljena, `ConferenceService` poziva `ConferenceRepository`
 6. `ConferenceRepository` prevodi domenski entitet u DB strukturu i zapisuje podatke
 7. Potvrda o uspješnom kreiranju vraća se kroz sve slojeve nazad do klijenta
+
+## Ključne tehničke odluke
+
+- Izbor četveroslojne arhitekture 
+Odabrana je klasična četveroslojna arhitektura jer jasno razdvaja odgovornosti. Svaki sloj se može mijenjati ili testirati zasebno, bez kaskadnih promjena kroz cijeli sistem. 
+
+- JWT autentifikacija s refresh tokenom
+Autentifikacija je centralizirana u UserService-u (generisanje tokena) i UserController-u (validacija). Uveden je i refresh token kako se korisnik ne bi morao stalno prijavljivati pri isteku JWT tokena.
+
+- Odvajanje domenskih entiteta od baze podataka
+Sva poslovna pravila — provjera konflikta termina, kapaciteta, raspoloživosti opreme, korisničkih uloga — nalaze se isključivo u domain entitetima.
+Domenski sloj treba da predstavlja isključivo poslovnu logiku organizacije konferencija, a ne tehničku strukturu tabela u bazi.
+
+- Heširanje lozinki u Data access layeru
+Lozinke se nikada ne spremaju u čistom tekstu nego se vrši heširanje prije upisa u bazu. Na ovaj način je osigurana zaštita privatnosti korisnika u slučaju kompromitovanja baze podataka.
+
+- Repository kao jedina tačka pristupa bazi
+Cijela komunikacija sa bazom podataka prolazi isključivo kroz repozitorije, što centralizira upite, sprječava dupliranje koda i olakšava održavanje. Ostatak sistema — servisi i domenski entiteti - ne zna ništa o tome kako su podaci pohranjeni, što omogućava zamjenu baze ili ORM-a bez izmjena u ostatku koda. Dodatna prednost je lakše testiranje, jer se repozitorij u testovima jednostavno zamijeni mock implementacijom, bez potrebe za pravom bazom.
+
+## Ograničenja i rizici arhitekture
+
+- Overhead za jednostavne operacije - slojevita arhitektura zahtijeva prolaz kroz sve slojeve čak i za trivijalne CRUD operacije.
+- Stroga granica između slojeva može usporiti razvoj.
+- Teže praćenje toka izvršavanja - prolazak kroz više slojeva otežava debugovanje i praćenje izvršavanja.
+- Domain layer može postati preopterećen. Sva poslovna logika koncentriše se u domenskim entitetima i oni postaju pretrpani odgovornostima. 
+Granica između onoga šta pripada domenskom, a šta aplikacijskom sloju nije uvijek jasna.
+
+## Otvorena pitanja
+1. Koji algoritam koristiti za hashiranje lozinki?
+ 
