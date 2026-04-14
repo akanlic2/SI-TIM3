@@ -9,7 +9,7 @@ Cilj ovog sprinta je da analiziramo rizike projekta, izgradimo domenski i use-ca
 ## Ključne stavke koje tim želi završiti
 
 - Izraditi **Risk Register** — identifikacija, analiza i prioritizacija projektnih rizika
-- Izraditi **Domain Model i/ili Use Case Model** — modeliranje domene i use-case dijagrami usklađeni sa zahtjevima
+- Izraditi **Domain Model i Use Case Model** — modeliranje domene i use-case dijagrami usklađeni sa zahtjevima
 - Definisati **Architecture Overview** — osnovni arhitektonski pravac sistema utemeljen na zahtjevima
 - Definisati **Test Strategy** — strategija i pristup testiranju kroz dalji razvoj
 
