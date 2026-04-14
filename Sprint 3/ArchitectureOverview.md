@@ -101,7 +101,7 @@ spašava u bazu. Nakon toga se autentifikacija korisnika pri svakom loginu vrši
 
 ## Tok podataka i interakcija
 
-Svaki korisnički zahtjev prolazi kroz sva četiri sloja u tačno određenom redoslijedu — od prezentacijskog sloja prema sloju za pristup 
+Svaki korisnički zahtjev prolazi kroz sva četiri sloja u tačno određenom redoslijedu - od prezentacijskog sloja prema sloju za pristup 
 podacima pri čitanju/pisanju podataka, te u obrnutom smjeru pri vraćanju odgovora.
 
 Tipičan tok zahtjeva:
@@ -118,7 +118,7 @@ Kao konkretan primjer toka podataka, ovako izgleda proces kreiranja nove konfere
 1. Klijent šalje POST zahtjev na rutu `/conference` s podacima o konferenciji i JWT tokenom u headeru
 2. `ConferenceController` radi osnovnu validaciju nad ulaznim podacima (format, obavezna polja) i autentificira korisnika
 3. `ConferenceService` prima zahtjev te poziva `Conference` domenski entitet
-4. `Conference` provjerava poslovna pravila — konflikt termina i prostora, maksimalni broj učesnika validan i sl.
+4. `Conference` provjerava poslovna pravila - konflikt termina i prostora, maksimalni broj učesnika validan i sl.
 5. Ako su sva pravila zadovoljena, `ConferenceService` poziva `ConferenceRepository`
 6. `ConferenceRepository` prevodi domenski entitet u DB strukturu i zapisuje podatke
 7. Potvrda o uspješnom kreiranju vraća se kroz sve slojeve nazad do klijenta
@@ -135,7 +135,7 @@ Autentifikacija je centralizirana u UserService-u (generisanje tokena) i UserCon
 
 - Odvajanje domenskih entiteta od baze podataka
 
-Sva poslovna pravila — provjera konflikta termina, kapaciteta, raspoloživosti opreme, korisničkih uloga — nalaze se isključivo u domain entitetima.
+Sva poslovna pravila - provjera konflikta termina, kapaciteta, raspoloživosti opreme, korisničkih uloga - nalaze se isključivo u domain entitetima.
 Domenski sloj treba da predstavlja isključivo poslovnu logiku organizacije konferencija, a ne tehničku strukturu tabela u bazi.
 
 - Heširanje lozinki u Data access layeru
@@ -144,7 +144,7 @@ Lozinke se nikada ne spremaju u čistom tekstu nego se vrši heširanje prije up
 
 - Repository kao jedina tačka pristupa bazi
 
-Cijela komunikacija sa bazom podataka prolazi isključivo kroz repozitorije, što centralizira upite, sprječava dupliranje koda i olakšava održavanje. Ostatak sistema — servisi i domenski entiteti - ne zna ništa o tome kako su podaci pohranjeni, što omogućava zamjenu baze ili ORM-a bez izmjena u ostatku koda. Dodatna prednost je lakše testiranje, jer se repozitorij u testovima jednostavno zamijeni mock implementacijom, bez potrebe za pravom bazom.
+Cijela komunikacija sa bazom podataka prolazi isključivo kroz repozitorije, što centralizira upite, sprječava dupliranje koda i olakšava održavanje. Ostatak sistema - servisi i domenski entiteti - ne zna ništa o tome kako su podaci pohranjeni, što omogućava zamjenu baze ili ORM-a bez izmjena u ostatku koda. Dodatna prednost je lakše testiranje, jer se repozitorij u testovima jednostavno zamijeni mock implementacijom, bez potrebe za pravom bazom.
 
 ## Ograničenja i rizici arhitekture
 
@@ -153,7 +153,11 @@ Cijela komunikacija sa bazom podataka prolazi isključivo kroz repozitorije, št
 - Teže praćenje toka izvršavanja - prolazak kroz više slojeva otežava debugovanje i praćenje izvršavanja.
 - Domain layer može postati preopterećen. Sva poslovna logika koncentriše se u domenskim entitetima i oni postaju pretrpani odgovornostima. 
 Granica između onoga šta pripada domenskom, a šta aplikacijskom sloju nije uvijek jasna.
+- Iako slojevi mogu biti dizajnirani da budu nezavisni, promjena zahtjeva može uzrokovati promjene u više slojeva.
 
 ## Otvorena pitanja
 1. Koji algoritam koristiti za hashiranje lozinki?
- 
+2. Koliko dugo će važiti refresh token i hoćemo li implementirati "Refresh Token Rotation" (poništavanje starog pri svakoj generaciji novog JWT-a) radi dodatne sigurnosti u slučaju krađe tokena?
+3. Kako će se rješavati konkurentni pristup podacima (npr. dvije osobe pokušavaju rezervisati isto mjesto u isto vrijeme)?
+4. Da li ćemo imati centralizovan način obrade grešaka ili će svaki dio sistema to raditi zasebno?
+
