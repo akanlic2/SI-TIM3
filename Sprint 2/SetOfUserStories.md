@@ -6,6 +6,7 @@
 
 - **ID storyja:** US-01
 - **Naziv storyja:** Sign Up
+- **Sprint:** 5
 - **Opis:** Kao novi korisnik, želim kreirati nalog unosom svojih podataka, kako bih mogao koristiti funkcionalnosti sistema za konferencije.
 - **Poslovna vrijednost:** Omogućava korisnicima pristup sistemu kroz kreiranje naloga.
 - **Prioritet:** High
@@ -29,6 +30,7 @@
 
 - **ID storyja:** US-02
 - **Naziv storyja:** Sign In
+- **Sprint:** 5
 - **Opis:** Kao registrovani korisnik, želim se prijaviti na sistem koristeći svoju email adresu i lozinku, kako bih pristupio funkcionalnostima aplikacije.
 - **Poslovna vrijednost:** Omogućava ovlaštenim korisnicima pristup zaštićenim funkcionalnostima sistema.
 - **Prioritet:** High
@@ -52,6 +54,7 @@
 
 - **ID storyja:** US-03
 - **Naziv storyja:** Log Out
+- **Sprint:** 5
 - **Opis:** Kao prijavljeni korisnik, želim se odjaviti sa svog naloga, kako bi moji podaci i sesija bili sigurni nakon završetka rada.
 - **Poslovna vrijednost:** Osigurava sigurnost korisničke sesije i zaštitu podataka.
 - **Prioritet:** High
@@ -73,6 +76,7 @@
 
 - **ID storyja:** US-04
 - **Naziv storyja:** Upravljanje korisničkim profilom
+- **Sprint:** 6
 - **Opis:** Kao prijavljeni korisnik, želim upravljati podacima svog korisničkog profila, kako bih osigurao da su moje informacije tačne i ažurne.
 - **Poslovna vrijednost:** Omogućava korisnicima kontrolu nad vlastitim podacima i povećava povjerenje u sistem.
 - **Prioritet:** Medium
@@ -92,6 +96,7 @@
 
 - **ID storyja:** US-04.1
 - **Naziv storyja:** Pregled korisničkog profila
+- **Sprint:** 6
 - **Opis:** Kao prijavljeni korisnik, želim vidjeti podatke svog korisničkog profila, kako bih provjerio svoje informacije.
 - **Poslovna vrijednost:** Omogućava korisniku uvid u trenutno stanje vlastitih podataka.
 - **Prioritet:** Medium
@@ -110,6 +115,7 @@
 
 - **ID storyja:** US-04.2
 - **Naziv storyja:** Izmjena korisničkog profila
+- **Sprint:** 6
 - **Opis:** Kao prijavljeni korisnik, želim izmijeniti podatke svog korisničkog profila, kako bih ih ažurirao.
 - **Poslovna vrijednost:** Osigurava tačnost korisničkih podataka u sistemu.
 - **Prioritet:** Medium
@@ -130,6 +136,7 @@
 
 - **ID storyja:** US-05
 - **Naziv storyja:** Korisničke role i permisije
+- **Sprint:** 6
 - **Opis:** Kao administrator sistema, želim definisati korisničke role i odgovarajuća prava pristupa, kako bih osigurao da svaki korisnik može pristupiti samo onim funkcionalnostima koje odgovaraju njegovoj roli.
 - **Poslovna vrijednost:** Osigurava sigurnost i kontrolu pristupa funkcionalnostima sistema prema tipu korisnika.
 - **Prioritet:** High
@@ -152,6 +159,7 @@
 
 - **ID storyja:** US-06
 - **Naziv storyja:** Kreiranje konferencije
+- **Sprint:** 7
 - **Opis:** Kao organizator, želim kreirati novu konferenciju unosom osnovnih informacija, kako bih je učinio dostupnom korisnicima sistema.
 - **Poslovna vrijednost:** Centralna funkcionalnost platforme koja organizatorima omogućava postavljanje konferencija.
 - **Prioritet:** High
@@ -175,6 +183,7 @@
 
 - **ID storyja:** US-07
 - **Naziv storyja:** Pregled konferencija
+- **Sprint:** 7
 - **Opis:** Kao korisnik sistema, želim pregledati listu dostupnih konferencija, kako bih pronašao konferencije koje me interesuju i odlučio se za učešće.
 - **Poslovna vrijednost:** Korisnicima omogućava otkrivanje dostupnih konferencija i donošenje odluke o učešću.
 - **Prioritet:** High
@@ -196,6 +205,7 @@
 
 - **ID storyja:** US-08  
 - **Naziv storyja:** Pregled detalja konferencije  
+- **Sprint:** 7
 - **Opis:** Kao korisnik sistema, želim vidjeti detalje pojedinačne konferencije, kako bih dobio sve potrebne informacije prije prijave.  
 - **Poslovna vrijednost:** Omogućava korisnicima donošenje odluke o učešću na osnovu potpunih informacija.  
 - **Prioritet:** High  
@@ -217,6 +227,7 @@
 
 - **ID storyja:** US-09  
 - **Naziv storyja:** Uređivanje konferencije  
+- **Sprint:** 8
 - **Opis:** Kao organizator, želim izmijeniti podatke postojeće konferencije, kako bih ažurirao informacije.  
 - **Poslovna vrijednost:** Omogućava održavanje tačnih i ažurnih podataka.  
 - **Prioritet:** High  
@@ -236,7 +247,8 @@
 ### S30 — Brisanje konferencije
 
 - **ID storyja:** US-10  
-- **Naziv storyja:** Brisanje konferencije  
+- **Naziv storyja:** Brisanje konferencije
+- **Sprint:** 8  
 - **Opis:** Kao organizator, želim obrisati konferenciju, kako bih uklonio nevažeće događaje.  
 - **Poslovna vrijednost:** Omogućava uklanjanje zastarjelih ili otkazanih konferencija.  
 - **Prioritet:** Medium  
@@ -256,7 +268,8 @@
 ### S31 — Pretraga konferencija
 
 - **ID storyja:** US-11  
-- **Naziv storyja:** Pretraga konferencija  
+- **Naziv storyja:** Pretraga konferencija
+- **Sprint:** 8  
 - **Opis:** Kao korisnik, želim pretraživati konferencije, kako bih brzo pronašao željenu konferenciju.  
 - **Poslovna vrijednost:** Povećava efikasnost i brzinu pronalaska konferencija.  
 - **Prioritet:** Medium  
@@ -276,7 +289,8 @@
 ### S32 — Upravljanje sesijama
 
 - **ID storyja:** US-12  
-- **Naziv storyja:** Upravljanje sesijama  
+- **Naziv storyja:** Upravljanje sesijama 
+- **Sprint:** 9 
 - **Opis:** Kao organizator, želim upravljati sesijama, kako bih organizovao sadržaj konferencije.  
 - **Poslovna vrijednost:** Omogućava organizaciju programa konferencije.  
 - **Prioritet:** High  
@@ -296,7 +310,8 @@
 ### S32.1 — Pregled sesija konferencije
 
 - **ID storyja:** US-12.1  
-- **Naziv storyja:** Pregled sesija konferencije  
+- **Naziv storyja:** Pregled sesija konferencije 
+- **Sprint:** 9  
 - **Opis:** Kao organizator, želim vidjeti sve sesije unutar odabrane konferencije, kako bih imao jasan pregled programa konferencije.  
 - **Poslovna vrijednost:** Omogućava bolju organizaciju i pregled sadržaja konferencije.  
 - **Prioritet:** High  
@@ -316,6 +331,7 @@
 
 - **ID storyja:** US-12.2  
 - **Naziv storyja:** Kreiranje sesije  
+- **Sprint:** 9 
 - **Opis:** Kao organizator, želim kreirati novu sesiju, kako bih definisao sadržaj konferencije.  
 - **Poslovna vrijednost:** Omogućava izgradnju programa konferencije.  
 - **Prioritet:** High  
@@ -337,6 +353,7 @@
 
 - **ID storyja:** US-12.3  
 - **Naziv storyja:** Uređivanje sesije  
+- **Sprint:** 9 
 - **Opis:** Kao organizator, želim izmijeniti postojeću sesiju, kako bih ažurirao program konferencije.  
 - **Poslovna vrijednost:** Omogućava ažurnost podataka.  
 - **Prioritet:** High  
@@ -356,6 +373,7 @@
 
 - **ID storyja:** US-12.4  
 - **Naziv storyja:** Brisanje sesije  
+- **Sprint:** 9 
 - **Opis:** Kao organizator, želim obrisati sesiju, kako bih uklonio nevažeći sadržaj.  
 - **Poslovna vrijednost:** Održava preglednost programa konferencije.  
 - **Prioritet:** Medium  
@@ -373,7 +391,8 @@
 ### S33 — Dodjela predavača sesiji
 
 - **ID storyja:** US-13  
-- **Naziv storyja:** Dodjela predavača  
+- **Naziv storyja:** Dodjela predavača 
+- **Sprint:** 9  
 - **Opis:** Kao organizator, želim dodijeliti predavača sesiji, kako bih definisao ko vodi sesiju.  
 - **Poslovna vrijednost:** Omogućava jasnu organizaciju i odgovornost.  
 - **Prioritet:** High  
@@ -394,6 +413,7 @@
 
 - **ID storyja:** US-14  
 - **Naziv storyja:** Pregled rasporeda  
+- **Sprint:** 9 
 - **Opis:** Kao korisnik, želim vidjeti raspored sesija, kako bih znao kada se šta dešava.  
 - **Poslovna vrijednost:** Omogućava planiranje prisustva.  
 - **Prioritet:** High  
@@ -413,7 +433,8 @@
 ### S35 — Upravljanje dvoranama
 
 - **ID storyja:** US-15  
-- **Naziv storyja:** Upravljanje dvoranama  
+- **Naziv storyja:** Upravljanje dvoranama 
+- **Sprint:** 10 
 - **Opis:** Kao organizator, želim upravljati dvoranama, kako bih organizovao prostor konferencije.  
 - **Poslovna vrijednost:** Omogućava pravilno upravljanje prostorima i raspored sesija.  
 - **Prioritet:** High  
@@ -433,7 +454,8 @@
 ### S35.1 — Pregled dvorana
 
 - **ID storyja:** US-15.1  
-- **Naziv storyja:** Pregled dvorana  
+- **Naziv storyja:** Pregled dvorana 
+- **Sprint:** 10  
 - **Opis:** Kao organizator, želim vidjeti sve dvorane, kako bih imao pregled raspoloživih prostora za održavanje sesija.  
 - **Poslovna vrijednost:** Omogućava lakše planiranje rasporeda sesija.  
 - **Prioritet:** High  
@@ -452,6 +474,7 @@
 
 - **ID storyja:** US-15.2  
 - **Naziv storyja:** Dodavanje dvorane  
+- **Sprint:** 10 
 - **Opis:** Kao organizator, želim dodati novu dvoranu, kako bih omogućio raspoređivanje sesija u odgovarajući prostor.  
 - **Poslovna vrijednost:** Povećava mogućnost organizacije konferencije i raspodjele prostora.  
 - **Prioritet:** High  
@@ -472,6 +495,7 @@
 
 - **ID storyja:** US-15.3  
 - **Naziv storyja:** Uređivanje dvorane  
+- **Sprint:** 10 
 - **Opis:** Kao organizator, želim izmijeniti podatke postojeće dvorane, kako bih održavao tačne informacije o prostoru.  
 - **Poslovna vrijednost:** Omogućava ažurnost i tačnost podataka.  
 - **Prioritet:** High  
@@ -492,6 +516,7 @@
 
 - **ID storyja:** US-15.4  
 - **Naziv storyja:** Brisanje dvorane  
+- **Sprint:** 10 
 - **Opis:** Kao organizator, želim obrisati dvoranu, kako bih uklonio prostor koji više nije dostupan za korištenje.  
 - **Poslovna vrijednost:** Omogućava održavanje tačne evidencije prostora i uklanjanje nevažećih podataka.  
 - **Prioritet:** Medium  
@@ -513,7 +538,8 @@
 ### S36 — Dodjela dvorane sesiji
 
 - **ID storyja:** US-16  
-- **Naziv storyja:** Dodjela dvorane  
+- **Naziv storyja:** Dodjela dvorane 
+- **Sprint:** 10  
 - **Opis:** Kao organizator, želim dodijeliti dvoranu sesiji, kako bih osigurao prostor.  
 - **Poslovna vrijednost:** Omogućava pravilnu raspodjelu resursa.  
 - **Prioritet:** High  
@@ -534,7 +560,8 @@
 ### S38 — Prijava učesnika na konferenciju
 
 - **ID storyja:** US-18  
-- **Naziv storyja:** Prijava učesnika  
+- **Naziv storyja:** Prijava učesnika 
+- **Sprint:** 11 
 - **Opis:** Kao učesnik, želim se prijaviti na konferenciju, kako bih učestvovao.  
 - **Poslovna vrijednost:** Omogućava korisnicima aktivno učešće u sistemu.  
 - **Prioritet:** High  
@@ -555,6 +582,7 @@
 
 - **ID storyja:** US-19
 - **Naziv storyja:** Odjava učesnika sa konferencije
+- **Sprint:** 11
 - **Opis:** Kao učesnik, želim se odjaviti sa konferencije, kako bih oslobodio svoje mjesto.
 - **Poslovna vrijednost:** Omogućava preciznu evidenciju dolazaka i automatsko oslobađanje resursa.
 - **Prioritet:** Medium
@@ -576,6 +604,7 @@
 
 - **ID storyja:** US-20
 - **Naziv storyja:** Prijava učesnika na sesiju
+- **Sprint:** 11
 - **Opis:** Kao učesnik, želim se prijaviti na pojedinačne sesije konferencije, kako bih prisustvovao temama koje me zanimaju.
 - **Poslovna vrijednost:** Omogućava bolju organizaciju sesija.
 - **Prioritet:** High
@@ -597,6 +626,7 @@
 
 - **ID storyja:** US-21
 - **Naziv storyja:** Pregled popunjenosti kapaciteta
+- **Sprint:** 11
 - **Opis:** Kao organizator, želim vidjeti broj prijavljenih u odnosu na kapacitet, kako bih imao uvid u dostupnost mjesta.
 - **Poslovna vrijednost:** Pomaže u boljem upravljanju resursima.
 - **Prioritet:** High
@@ -616,6 +646,7 @@
 
 - **ID storyja:** US-22
 - **Naziv storyja:** Lista učesnika po konferenciji
+- **Sprint:** 11
 - **Opis:** Kao organizator, želim vidjeti listu prijavljenih učesnika, kako bih imao pregled i mogao upravljati događajem.
 - **Poslovna vrijednost:** Omogućava lakšu organizaciju i administraciju konferencije.
 - **Prioritet:** Medium
@@ -636,6 +667,7 @@
 
 - **ID storyja:** US-23.1
 - **Naziv storyja:** Upravljanje kategorijama kotizacija
+- **Sprint:** 11
 - **Opis:** Kao organizator, želim definisati kategorije, kako bih omogućio različite vrste kotizacija.
 - **Poslovna vrijednost:** Omogućava definisanje tipova kotizacija.
 - **Prioritet:** High
@@ -653,6 +685,7 @@
 
   - **ID storyja:** US-23.2
   - **Naziv storyja:** Upravljanje iznosima kotizacija
+  - **Sprint:** 11
   - **Opis:** Kao organizator, želim definisati iznose kotizacija, kako bih upravljao naplatom učešća.
   - **Poslovna vrijednost:** Omogućava kontrolu plaćanja.
   - **Prioritet:** High
@@ -672,6 +705,7 @@
 
 - **ID storyja:** US-24
 - **Naziv storyja:** Obavijesti za korisnike
+- **Sprint:** 11
 - **Opis:** Kao korisnik, želim primati obavijesti iz sistema, kako bih bio informisan o važnim događajima.
 - **Poslovna vrijednost:** Povećava informisanost i poboljšava korisničko iskustvo.
 - **Prioritet:** Medium
@@ -691,6 +725,7 @@
 
 - **ID storyja:** US25
 - **Naziv storyja:** Pregled materijala za konferenciju i sesije
+- **Sprint:** 12
 - **Opis:** Kao organizator, želim mogućnost pregleda dodanih materijala za određenu konferenciju/sesiju.
 - **Poslovna vrijednost:** Olakšava planiranje i organizaciju.
 - **Prioritet:** Medium
@@ -711,6 +746,7 @@
 
 - **ID storyja:** US26
 - **Naziv storyja:** Dodavanje materijala za konferenciju i sesije
+- **Sprint:** 12
 - **Opis:** Kao organizator, želim dodati nove materijale za određenu konferenciju/sesiju.
 - **Poslovna vrijednost:** Omogućava organizaciju konferencije.
 - **Prioritet:** High
@@ -733,6 +769,7 @@
 
 - **ID storyja:** US27.1
 - **Naziv storyja:** Pregled logističkih aktivnosti
+- **Sprint:** 12
 - **Opis:** Kao organizator, želim imati pregled logističkih aktivnosti konferencije.
 - **Poslovna vrijednost:** Olakšava upravljanje pratećih aktivnosti konferencije.
 - **Prioritet:** Medium
@@ -753,6 +790,7 @@
 
 - **ID storyja:** US27.2
 - **Naziv storyja:** Dodavanje logističkih aktivnosti
+- **Sprint:** 12
 - **Opis:** Kao organizator, želim dodati novu logističku aktivnost konferenciji.
 - **Poslovna vrijednost:** Omogućava upravljanje pratećih aktivnosti konferencije.
 - **Prioritet:** Medium
@@ -776,6 +814,7 @@
 
 - **ID storyja:** US27.3
 - **Naziv storyja:** Uređivanje logističkih aktivnosti
+- **Sprint:** 12
 - **Opis:** Kao organizator, želim imati mogućnost uređivanja logističkih aktivnosti konferencije.
 - **Poslovna vrijednost:** Omogućava upravljanje pratećih aktivnosti konferencije.
 - **Prioritet:** Medium
@@ -797,6 +836,7 @@
 
 - **ID storyja:** US27.4
 - **Naziv storyja:** Brisanje logističkih aktivnosti
+- **Sprint:** 12
 - **Opis:** Kao organizator, želim imati mogućnost brisanja logističkih aktivnosti konferencije.
 - **Poslovna vrijednost:** Omogućava upravljanje pratećih aktivnosti konferencije.
 - **Prioritet:** Medium
@@ -818,6 +858,7 @@
 
 - **ID storyja:** US28.1
 - **Naziv storyja:** Pregled tehničke opreme
+- **Sprint:** 12
 - **Opis:** Kao organizator, želim mogućnost pregleda tehničke opreme.
 - **Poslovna vrijednost:** Olakšava upravljanje resursima.
 - **Prioritet:** Medium
@@ -836,6 +877,7 @@
 
 - **ID storyja:** US28.2
 - **Naziv storyja:** Kreiranje tehničke opreme
+- **Sprint:** 12
 - **Opis:** Kao organizator, želim mogućnost kreiranja nove tehničke opreme kako bih imao/la evidenciju inventara.
 - **Poslovna vrijednost:** Omogućava upravljanje resursima.
 - **Prioritet:** Medium
@@ -857,6 +899,7 @@
 
 - **ID storyja:** US28.3
 - **Naziv storyja:** Brisanje tehničke opreme
+- **Sprint:** 12
 - **Opis:** Kao organizator, želim mogućnost brisanja tehničke opreme koja više nije na raspolaganju.
 - **Poslovna vrijednost:** Omogućava upravljanje resursima.
 - **Prioritet:** Medium
@@ -877,6 +920,7 @@
 
 - **ID storyja:** US28.4
 - **Naziv storyja:** Dodjela tehničke opreme konferenciji
+- **Sprint:** 12
 - **Opis:** Kao organizator, želim mogućnost dodjele tehničke opreme konferencijama kako bih pojednostavio pripremu za konferenciju.
 - **Poslovna vrijednost:** Olakšava upravljanje resursima.
 - **Prioritet:** Medium
@@ -898,6 +942,7 @@
 
 - **ID storyja:** US29.1
 - **Naziv storyja:** Postavljanje pitanja za Q&A sesiju
+- **Sprint:** 12
 - **Opis:** Kao korisnik, želim imati mogućnost slanja pitanja za predavača u toku njegove/njene prezentacije bez ometanja predavača.
 - **Poslovna vrijednost:** Omogućava i olakšava interakciju između predavača i učesnika.
 - **Prioritet:** Medium
@@ -919,6 +964,7 @@
 
 - **ID storyja:** US29.1
 - **Naziv storyja:** Prikaz pitanja predavaču
+- **Sprint:** 12
 - **Opis:** Kao predavač, želim imati prikaz postavljnih pitanja na koja ću odgovoriti pri završetku predavanju.
 - **Poslovna vrijednost:** Omogućava i olakšava interakciju između predavača i učesnika.
 - **Prioritet:** Medium
@@ -937,6 +983,7 @@
 
 - **ID storyja:** US30
 - **Naziv storyja:** Izvještaji za organizatore
+- **Sprint:** 12
 - **Opis:** Kao organizator, želim dobiti izvještaje o konferenciji sa njenom statistikom.
 - **Poslovna vrijednost:** Daje povratnu informaciju organizatoru.
 - **Prioritet:** Medium
