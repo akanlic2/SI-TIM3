@@ -17,9 +17,9 @@ Cilj ovog sprinta je da analiziramo rizike projekta, izgradimo domenski i use-ca
 
 ## Rizici
 
-- Arhitekturalni izbori mogu biti tehnološki motivirani umjesto zahtjevima vođeni
-- Domenski model može previdjeti ključne entitete ili relacije
-- Nekompletna analiza rizika može ostaviti kritične prijetnje neadresiranim
+- Arhitektura može biti odabrana bez jasne veze sa zahtjevima
+- Domenski model može biti nepotpun ili netačan
+- Neki rizici mogu ostati neuočeni tokom analize
 
 ---
 
@@ -27,4 +27,3 @@ Cilj ovog sprinta je da analiziramo rizike projekta, izgradimo domenski i use-ca
 
 - **Sprint 2** — Jasno definirane user stories i acceptance criteria iz prethodnog sprinta
 - **Tim** — Usaglašenost tima oko prioriteta i razumijevanja domene sistema
-- **Review** — Sedmični sastanak — modeli i arhitektura moraju biti opravdani zahtjevima
