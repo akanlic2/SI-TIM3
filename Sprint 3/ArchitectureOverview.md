@@ -129,9 +129,18 @@ Kao konkretan primjer toka podataka, ovako izgleda proces kreiranja nove konfere
 
 Odabrana je klasična četveroslojna arhitektura jer jasno razdvaja odgovornosti. Svaki sloj se može mijenjati ili testirati zasebno, bez kaskadnih promjena kroz cijeli sistem. 
 
+- Izbor web aplikacije umjesto mobilne
+
+Za razvoj sistema odabrana je web aplikacija, a ne mobilna. Konferencijski sistem primarno koriste organizatori i učesnici putem desktop ili laptop uređaja, bilo da se radi o registraciji, pregledu rasporeda ili upravljanju sesijama. Web aplikacija omogućava pristup sa bilo kojeg uređaja putem browsera, bez potrebe za instalacijom, što je praktičnije za ovakav tip sistema. Također, ažuriranja su odmah dostupna na web aplikaciji bez potrebe da ih korisnik skida sa App Store-a ili Google Play-a. Kreiranjem web aplikacije pravimo sistem dostupan na svim uređajima putem browsera te ne moramo praviti zasebne verzije za svaki operativni sistem.
+
+- Odabir softvera
+
+Za backend će se koristiti ASP.NET Core, koji pruža optimalan balans između strukturiranog pristupa i programerske slobode. Razmatrane su i alternative poput Node.js-a i Java Spring Boot-a, međutim nijedna od njih ne postiže tu ravnotežu u mjeri u kojoj to čini ASP.NET Core.
+Za frontend će se koristiti React, moderan i široko prihvaćen framework koji se danas ubraja među najzastupljenije tehnologije za razvoj web aplikacija.
+
 - JWT autentifikacija s refresh tokenom
 
-Autentifikacija je centralizirana u UserService-u (generisanje tokena) i UserController-u (validacija). Uveden je i refresh token kako se korisnik ne bi morao stalno prijavljivati pri isteku JWT tokena.
+Autentifikacija je centralizirana u UserService-u (generisanje tokena) i UserController-u (validacija). JWT token se drži u httpOnly cookie-u kada se korisnik prijavi na račun, te se isti šalje u headeru zahtjeva kada korisnik izvrši akciju koja šalje API zahtjev. Uveden je i refresh token kako se korisnik ne bi morao stalno prijavljivati pri isteku JWT tokena.
 
 - Odvajanje domenskih entiteta od baze podataka
 
