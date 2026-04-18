@@ -49,7 +49,7 @@ Ključne integracije koje se testiraju:
 - Integracija sistema obavijesti sa okidačkim događajima (prijava, promjena statusa, brisanje)
 - Integracija Q&A modula sa sesijama i korisničkim profilima
 
-**Odgovorne osobe:** Dev tim & QA
+**Odgovorne osobe:** Dev tim & QA inženjeri
 
 **Izlazni kriterij:**  
 - Svi kritični integracioni tokovi prolaze bez grešaka
@@ -68,7 +68,7 @@ Obuhvata:
 - Testiranje performansi pri pregledu lista sa većim brojem zapisa
 - Testiranje integriteta sesije nakon odjave korisnika
 
-**Odgovorne osobe:** QA
+**Odgovorne osobe:** QA inženjeri
 
 **Izlazni kriterij:** 
 - Svi end-to-end scenariji prolaze
@@ -82,13 +82,46 @@ Prihvatno testiranje se provodi na osnovu acceptance kriterija definisanih u use
 
 Ovo testiranje obuhvata verifikaciju svakog acceptance kriterija za sve user storije, uz sudjelovanje vlasnika proizvoda ili krajnjih korisnika u finalnom pregledu.
 
-**Odgovorne osobe:** Product Owner, krajnji korisnici (organizator, predavač, učesnik), QA
+**Odgovorne osobe:** Product Owner, krajnji korisnici (organizator, predavač, učesnik), QA inženjeri
 
 **Izlazni kriterij:** 
 - Više od 90% acceptance kriterija verifikovano kao zadovoljeno
 - Nema otvorenih Critical ili High defekata
 - Product Owner dao formalno odobrenje
 - Sva otvorena pitanja iz user storija riješena ili svjesno odložena 
+
+## UI testiranje
+UI testiranje provjerava ispravnost i konzistentnost korisničkog interfejsa — vizualni prikaz, navigacija, responzivnost i ponašanje UI komponenti u skladu sa dizajn specifikacijama.
+
+Obuhvata:
+- Provjeru da su sva obavezna polja, dugmad i poruke prikazani na ispravnom mjestu i sa ispravnim labelama
+- Testiranje validacijskih poruka greške - da se prikazuju na pravom polju, u pravom trenutku
+- Provjeru navigacije između stranica (redirecti nakon prijave, odjave, kreiranja, brisanja)
+- Testiranje prikaza praznih stanja (prazna lista konferencija, sesija, dvorana)
+- Provjeru da su akcije dostupne samo korisnicima sa odgovarajućom rolom (npr. dugme "Kreiraj konferenciju" vidljivo samo organizatoru)
+- Testiranje responzivnosti na različitim veličinama ekrana
+
+**Odgovorne osobe**: QA inženjer & Frontend developer za pronađene UI defekte.
+
+**Izlazni kriterij:** 
+- Sve kritične stranice prikazuju ispravne elemente za svaku rolu 
+- Validacijske poruke se pojavljuju na ispravnim mjestima 
+- Navigacija funkcioniše bez grešaka
+- Nema vizualnih lomova na standardnim rezolucijama
+
+## Regresijsko testiranje
+Regresijsko testiranje se provodi nakon svake izmjene ili ispravke u kodu kako bi se osiguralo da nove promjene nisu narušile postojeće funkcionalnosti.
+
+Obuhvata:
+- Ponovna izvršavanja smoke test skupa za sve kritične tokove (prijava, kreiranje konferencije, prijava učesnika) nakon svakog deploy-a
+- Provjeru da ispravka jednog defekta nije uvela novi defekt u drugim modulima
+- Regresiju autentifikacije i autorizacije nakon svake izmjene u upravljanju rolama
+- Provjeru integriteta podataka (kapaciteti, kotizacije, liste učesnika) nakon izmjena u back-end logici
+
+**Odgovorne osobe:** QA inženjer, Tech Lead odobrava release nakon prolaska regresije.
+- 100% smoke testova prolazi
+- Nema novih Critical ili High defekata uvedenih izmjenom
+- Svi prethodno zatvoreni defekti ostaju zatvoreni
 
 
 
