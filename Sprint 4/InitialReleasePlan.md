@@ -1,5 +1,7 @@
 # Initial Release Plan
 
+<br>
+
 ## INC-01: Autentifikacija i upravljanje korisnicima
 
 ### Cilj inkrementa:
@@ -21,6 +23,16 @@ sistema nije upotrebljiva, jer su sve zavisne od autentikovanog korisnika s dodi
 - US-05 (Role i permisije) je preduslov za US-06 (Kreiranje konferencije).
 
 ### Glavni rizici:
+
+|ID|Opis rizika|Prioritet|Plan mitigacije|
+|---|-----|-----|-----|
+| R5  | Neovlašten pristup podacima | Visok | Enkripcija podataka, 2FA |
+| R6  | Curenje podataka korisnika | Visok | Enkripcija podataka, 2FA |  
+| R8  | Problemi s registracijom korisnika | Srednji | Validacija inputa na frontendu i backendu |
+| R27 | Promjena emaila bez verifikacije | Visok | Verifikacija email promjene |
+| R35 | Pokušaji pogađanja lozinke (Brute-force)| Visok | Ograničavanje pokušaja prijave i zaključavanje naloga |
+| R36 | Krađa korisničke sesije | Visok | Zaštita sesije i automatsko odjavljivanje nakon određenog vremena |
+| R40 | Kršenje GDPR propisa | Visok | Implementacija privacy policy, enkripcija podataka, kontrola pristupa i pravo na brisanje podataka |
 
 
 ### Okvirni sprintovi u kojima se očekuje realizacija:
@@ -51,6 +63,15 @@ sistema bez koje isti nema poslovnu svrhu.
 
 ### Glavni rizici:
 
+|ID|Opis rizika|Prioritet|Plan mitigacije|
+|---|-----|-----|-----|
+| R12 | Nemogućnost kreiranja konferencije | Visok | Validacija podataka i error handling na API-ju |
+| R13 | Neispravan prikaz konferencija | Srednji | Provjera integracije između backend-a i frontenda |
+| R19 | Neispravna evidencija korisnika | Visok | Validacija i constraint u bazi podataka |
+| R28 | Nevalidni datumi | Srednji | Validacija datuma na frontendu i backendu | 
+| R37 | Nekonzistentnost podataka u sistemu | Visok | Poslovna pravila validacije |
+| R39 | Predugo učitavanje podataka u listi | Srednji | Implementacija paginacije |
+
 
 ### Okvirni sprintovi u kojima se očekuje realizacija:
 - Sprint 6: US-06 (Kreiranje), US-07 (Pregled), US-08 (Detalji)
@@ -79,6 +100,15 @@ Proširiti konferencije strukturiranim programom kroz definisanje sesija, dodjel
 - US-14 (Raspored) ovisi o US-12 - raspored je prazan bez definisanih sesija.
 
 ### Glavni rizici:
+
+|ID|Opis rizika|Prioritet|Plan mitigacije|
+|---|-----|-----|-----|
+| R14 | Preklapanje termina sesija | Visok | Logika provjere konflikta termina prije spremanja | 
+| R16 | Greške u rasporedu konferencija | Visok | Optimizacija algoritma raspoređivanja i testiranje |
+| R19 | Neispravna evidencija korisnika | Visok | Validacija i constraint u bazi podataka | 
+| R28 | Nevalidni datumi | Srednji | Validacija datuma na frontendu i backendu |
+| R32 | Problem istovremenog pristupa podacima | Visok | Locking mehanizam | 
+| R37 | Nekonzistentnost podataka u sistemu | Visok | Poslovna pravila validacije |
 
 
 ### Okvirni sprintovi u kojima se očekuje realizacija:
