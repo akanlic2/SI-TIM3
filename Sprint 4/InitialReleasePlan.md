@@ -109,9 +109,16 @@ Uvesti upravljanje fizičkim prostorima i njihovo povezivanje sa sesijama. Ovaj 
 
 ### Glavni rizici:
 
+|ID|Opis rizika|Prioritet|Plan mitigacije|
+|---|-----|-----|-----|
+|R15|Neispravna dodjela dvorana sesijama|Visok|Provjera dostupnosti dvorane prije dodjele|
+|R17|Prekoračenje kapaciteta konferencije/dvorane|Visok|Validacija kapaciteta prije prijave|
+|R32|Problem istovremenog pristupa podacima dvorana|Visok|Locking mehanizam|
+
+
 ### Okvirni sprintovi u kojima se očekuje realizacija:
 
-- Sprint 8-9: Svi user storiji ovog inkrementa (US-15.1, US-15.2, US-15.3, US-15.4, US-16)
+- Sprint 8: Svi user storiji ovog inkrementa (US-15.1, US-15.2, US-15.3, US-15.4, US-16)
 
 <br>
 
@@ -142,9 +149,19 @@ Aktivirati punu participaciju korisnika kroz registraciju na konferencije i sesi
 
 ### Glavni rizici:
 
+|ID|Opis rizika|Prioritet|Plan mitigacije|
+|---|-----|-----|-----|
+|R17|Prekoračenje kapaciteta konferencije|Visok|Validacija kapaciteta prije prijave|
+|R18|Neuspjela prijava na konferenciju|Visok|Error handling i retry logika|
+|R19|Neispravna evidencija korisnika: greška u bazi ili duplikati podataka|Visok|Validacija i constraint u bazi podataka|
+|R9|Neispravno slanje e-mail notifikacija|Srednji|Implementacija logova i alerta, validacija e-mail adresa|
+|R26|Nefunkcionisanje notifikacija|Srednji|Monitoring servisa i retry logika|
+|R32|Problem istovremenog pristupa podacima|Visok|Locking mehanizam|
+|R40|Kršenje GDPR propisa: Neadekvatno upravljanje ličnim podacima|Visok|Implementacija privacy policy, enkripcija podataka, kontrola pristupa i pravo na brisanje podataka|
+
 ### Okvirni sprintovi u kojima se očekuje realizacija:
 
-- Sprint 9-10: Svi user storiji ovog inkrementa (US-18, US-19, US-20, US-21, US-22, US-23.1, US-23.2, US-24)
+- Sprint 9: Svi user storiji ovog inkrementa (US-18, US-19, US-20, US-21, US-22, US-23.1, US-23.2, US-24)
 
 <br>
 
@@ -174,6 +191,17 @@ Proširiti sistem naprednim funkcionalnostima za upravljanje resursima, materija
 
 ### Glavni rizici:
 
+|ID|Opis rizika|Prioritet|Plan mitigacije|
+|---|-----|-----|-----|
+|R20|Q&A sistem ne radi tokom sesije|Srednji|Rezervni mehanizmi i monitoring sistema|
+|R21|Greška u izvještaju za oragnizatore|Srednji|Testiranje izvještaja i validacija podataka|
+|R22|Nedostupnost izvještaja za organizatore|Srednji|Keširanje i fallback pristup|
+|R23|Greška u dodjeli opreme|Srednji|Validacija dostupnosti prije dodjele|
+|R24|Nedostupnost opreme|Srednji|Upravljanje inventarom i rezervacijama|
+|R25|Nemogućnost upload materijala|Srednji|Optimizacija storage sistema i limit kontrola|
+|R29|Upload zlonamjernih fajlova|Visok|Antivirus skeniranje i file validacija|
+|R30|Dupla rezervacija opreme|Visok|Locking mehanizam pri rezervaciji|
+|R31|Neprimjeren sadržaj tokom Q&A|Srednji|Moderacija sadržaja i filter riječi|
 
 
 ### Okvirni sprintovi u kojima se očekuje realizacija:
