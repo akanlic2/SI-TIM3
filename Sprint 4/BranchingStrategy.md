@@ -21,6 +21,79 @@ Radni tok je jednostavan i pregledan:
 
 Sve što se nalazi u main grani uvijek treba biti spremno za produkciju.
 
+## Struktura grana i proces rada sa izmjenama
+
+U okviru našeg projekta koristimo jednu glavnu granu i više pomoćnih grana koje omogućavaju paralelan rad članova tima i bolju organizaciju izmjena.
+
+### Glavna grana
+
+- `main` predstavlja stabilnu verziju projekta  
+- sadrži samo testirane i odobrene izmjene  
+- direktan rad na ovoj grani nije dozvoljen  
+
+### Pomoćne grane
+
+- `feature/` – koristi se za razvoj novih funkcionalnosti sistema  
+- `docs/` – koristi se za izradu i izmjenu dokumentacije  
+- `fix/` – koristi se za ispravke grešaka  
+
+Sve pomoćne grane su privremene i brišu se nakon merge-a.
+
+### Pravila imenovanja grana
+
+Nazivi grana trebaju biti jasni i opisivati zadatak na kojem se radi, kako bi svi članovi tima mogli lako razumjeti svrhu svake grane.
+
+Koristimo sljedeći format:
+
+- `feature/naziv-funkcionalnosti`
+- `docs/naziv-dokumenta`
+- `fix/opis-greske`
+
+Primjeri:
+
+main
+│
+├── feature/PB-21-registracija-korisnika
+├── feature/PB-22-prijava-korisnika
+├── feature/PB-26-kreiranje-konferencije
+├── feature/PB-27-pregled-konferencija
+├── feature/PB-30-upravljanje-sesijama
+├── feature/PB-33-raspored-konferencije
+├── docs/use-case-model
+├── docs/domain-model
+├── docs/branching-strategy
+├── fix/ispravka-greske
+└── chore/podesavanje-projekta
+
+
+## Review proces (Pull Request)
+
+Sve izmjene u projektu moraju proći kroz Pull Request prije nego što se spoje u glavnu granu `main`, čime se osigurava kvalitet i tačnost implementiranih promjena.
+
+Pull Request omogućava:
+- pregled izmjena od strane drugih članova tima  
+- pronalazak potencijalnih grešaka  
+- poboljšanje kvaliteta koda i dokumentacije  
+
+### Pravila review-a:
+
+- direktan push na `main` granu nije dozvoljen  
+- svaki branch mora imati Pull Request  
+- najmanje jedan član tima mora pregledati izmjene  
+- izmjene se po potrebi koriguju na osnovu komentara  
+- merge se vrši tek nakon odobrenja  
+
+### Proces review-a
+
+1. Član tima završi rad na svom branch-u  
+2. Push-a branch na GitHub  
+3. Otvara Pull Request prema `main` grani  
+4. Drugi član tima pregledava izmjene  
+5. Ako postoje komentari ili prijedlozi, vrše se potrebne ispravke  
+6. Nakon odobrenja, Pull Request se merge-a u `main`  
+7. Završeni branch se briše  
+
+
 ## Prednosti GitHub Flow-a
 
 - Jednostavan i intuitivan za učenje, bez složenih pravila grananja  
