@@ -49,8 +49,9 @@ Koristimo sljedeći format:
 - `docs/naziv-dokumenta`
 - `fix/opis-greske`
 
-Primjeri:
+## Primjeri
 
+```
 main
 │
 ├── feature/PB-21-registracija-korisnika
@@ -62,9 +63,8 @@ main
 ├── docs/use-case-model
 ├── docs/domain-model
 ├── docs/branching-strategy
-├── fix/ispravka-greske
-└── chore/podesavanje-projekta
-
+└── fix/ispravka-greske
+```
 
 ## Review proces (Pull Request)
 
