@@ -45,7 +45,7 @@ Ključne React biblioteke:
  
 ### 1.2 Backend — ASP.NET Core
  
-Odabir: ASP.NET Core 8 + C#
+Odabir: ASP.NET Core 10 + C#
  
 Obrazloženje:
 - ASP.NET Core pruža optimalan balans između strukturiranog pristupa i programerske slobode
@@ -63,7 +63,7 @@ Ključni NuGet paketi:
 | `FluentValidation` | Validacija ulaznih podataka |
 | `AutoMapper` | Mapiranje između domenskih entiteta i DTO-ova |
 | `Serilog` | Strukturirani logging |
-| `Swashbuckle (Swagger)` | Automatska API dokumentacija |
+| `Scalar` | Automatska API dokumentacija |
 | `xUnit + Moq` | Testiranje |
  
 ---
