@@ -108,25 +108,34 @@ Svaki servis radi u vlastitom Docker kontejneru. Docker Compose orkestrira pokre
  
 ---
  
-### 2.2 Web server — Nginx
- 
-Nginx služi kao reverse proxy ispred React aplikacije i ASP.NET Core servisa. Odgovoran je za SSL/TLS terminaciju i preusmjeravanje zahtjeva na odgovarajući servis.
- 
+### 2.2 Host i Cloud strategija
+- **Server:** Sistem se hostuje na jednoj **virtuelnoj mašini (VPS)**.
+- **OS:** Windows 11 (korištenjem Docker Desktop + WSL2 engine-a).
+- **Cloud status:** Iako koristimo VPS, sistem je **Cloud-agnostic**. Zahvaljujući Dockeru, migracija na Azure, AWS ili DigitalOcean je moguća bez izmjene koda.
+
+### 2.3 Perzistencija i Sigurnost
+- **Docker Volumes:** Podaci baze (`db_data`) se čuvaju na fizičkom disku hosta kako bi preživjeli restart kontejnera.
+- **Mrežna izolacija:** Baza podataka nije direktno izložena internetu. Komunicira isključivo sa backendom unutar zatvorene Docker mreže.
+
 ---
- 
-### 2.3 Hosting
- 
-| Komponenta | Detalji |
-|------------|---------|
-| Operativni sistem | Windows 11 |
-| Hosting | VPS server |
-| CI/CD | GitHub Actions — automatski testovi i deploy na svaki merge u main |
- 
+
+## 3. Deployment proces (CI/CD)
+
+Deployment se obavlja potpuno automatski putem **GitHub Actions** alata:
+
+1.  **Faza provjere:** Prilikom svakog `push` zahtjeva na `main` granu, pokreću se automatski testovi i build procesi.
+2.  **Docker Build:** GitHub Actions gradi nove Docker image-e za frontend i backend.
+3.  **Isporuka (Deploy):**
+    * GitHub Actions se putem **SSH protokola** spaja na naš VPS.
+    * Izvršava se `docker-compose pull` (preuzimanje novih verzija).
+    * Izvršava se `docker-compose up -d` (restartovanje servisa bez downtime-a).
+
 ---
+
+
+## 4. Razvojna okolina
  
-## 3. Razvojna okolina
- 
-### 3.1 Alati i verzije
+### 4.1 Alati i verzije
  
 | Alat | Verzija | Namjena |
 |------|---------|---------|
