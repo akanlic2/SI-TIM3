@@ -1,5 +1,5 @@
 # Technical Setup
-### Sistem za organizaciju konferencija
+### Tim 3 - Sistem za organizaciju konferencija
  
 ---
  
@@ -37,7 +37,7 @@ Ključne React biblioteke:
 | `axios` | HTTP komunikacija s backendom |
 | `react-hook-form` | Upravljanje formama (registracija, kreiranje konferencija) |
 | `@mui/material` | UI komponente (tabele, forme, dialozi, navigacija) |
-| `recharts` | Grafikoni i vizualizacija podataka |
+| `recharts` | Grafovi i vizualizacija podataka |
 | `react-query` | Server state management, caching API poziva |
 | `dayjs` | Manipulacija datumima i vremenskim zonama |
  
@@ -49,8 +49,8 @@ Odabir: ASP.NET Core 8 + C#
  
 Obrazloženje:
 - ASP.NET Core pruža optimalan balans između strukturiranog pristupa i programerske slobode
-- Nativna podrška za dependency injection, middleware, autentifikaciju i autorizaciju
-- Odlične performanse — jedan od najbržih web frameworka prema industry benchmarkovima
+- Podrška za dependency injection, middleware, autentifikaciju i autorizaciju
+- Odlične performanse — jedan od najbržih web frameworka prema industrijskim benchmarkovima
 - Bogat ekosistem NuGet paketa pokriva sve potrebe: JWT, validacija, ORM, logging
 - Odlična integracija s Entity Framework Core ORM-om za rad s bazom podataka
 Ključni NuGet paketi:
@@ -82,7 +82,7 @@ Obrazloženje:
  
 ### 1.4 Autentifikacija — JWT + Refresh Token
  
-Autentifikacija je implementirana kroz kombinaciju kratkoživućih JWT access tokena i dugoživućih refresh tokena.
+Autentifikacija je implementirana kroz kombinaciju kratkoročnih JWT access tokena i dugovječnih refresh tokena.
  
 Tok autentifikacije:
 - Korisnik se prijavljuje s email/lozinkom — backend verificira i vraća JWT token (15 min) i refresh token (7 dana)
@@ -118,10 +118,9 @@ Nginx služi kao reverse proxy ispred React aplikacije i ASP.NET Core servisa. O
  
 | Komponenta | Detalji |
 |------------|---------|
-| Operativni sistem | Ubuntu 24.04 LTS |
+| Operativni sistem | Windows 11 |
 | Hosting | VPS server |
 | CI/CD | GitHub Actions — automatski testovi i deploy na svaki merge u main |
-| SSL/TLS | Nginx + Let's Encrypt certifikat |
  
 ---
  
