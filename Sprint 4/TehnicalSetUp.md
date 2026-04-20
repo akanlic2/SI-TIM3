@@ -140,10 +140,3 @@ Nginx služi kao reverse proxy ispred React aplikacije i ASP.NET Core servisa. O
  
 ---
  
-### 3.2 Lokalno pokretanje projekta
- 
-```bash
-git clone https://github.com/tim-xx/conference-system
-cd conference-system
-docker-compose up --build
-```
