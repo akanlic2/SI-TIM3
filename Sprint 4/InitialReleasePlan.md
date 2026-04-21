@@ -36,8 +36,7 @@ sistema nije upotrebljiva, jer su sve zavisne od autentikovanog korisnika s dodi
 
 
 ### Okvirni sprintovi u kojima se očekuje realizacija:
-- Sprint 5: US-01 (Sign Up), US-02 (Sign In), US-03 (Log Out)
-- Sprint 6: US-04 (Profil - pregled i izmjena), US-05 (Role i permisije)
+- Sprint 5-6: US-01 (Sign Up), US-02 (Sign In), US-03 (Log Out), US-04 (Profil - pregled i izmjena), US-05 (Role i permisije)
 
 <br>
 
@@ -74,8 +73,7 @@ sistema bez koje isti nema poslovnu svrhu.
 
 
 ### Okvirni sprintovi u kojima se očekuje realizacija:
-- Sprint 6: US-06 (Kreiranje), US-07 (Pregled), US-08 (Detalji)
-- Sprint 7: US-09 (Uređivanje), US-10 (Brisanje), US-11 (Pretraga)
+- Sprint 6-7: US-06 (Kreiranje), US-07 (Pregled), US-08 (Detalji), US-09 (Uređivanje), US-10 (Brisanje), US-11 (Pretraga)
 
 <br>
 
@@ -116,7 +114,7 @@ Proširiti konferencije strukturiranim programom kroz definisanje sesija, dodjel
 
 <br>
 
-## INC-04: Upravljanje dvoranama i ostalim prostorima
+## INC-04: Upravljanje dvoranama
 
 ### Cilj inkrementa: 
 
