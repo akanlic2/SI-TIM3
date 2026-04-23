@@ -1,0 +1,56 @@
+services:
+  conferencemanagement.db:
+    image: postgres:16-alpine
+    container_name: conferencemanagement.db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: conference_management_db
+      POSTGRES_USER: si_tim3
+      POSTGRES_PASSWORD: si_tim3_db_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - conferencemanagement-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U si_tim3 -d conference_management_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  conferencemanagement.migrator:
+    image: ${DOCKER_REGISTRY-}conferencemanagementapi
+    build:
+      context: .
+      dockerfile: ConferenceManagement.Api/Dockerfile
+    container_name: conferencemanagement.migrator
+    restart: on-failure
+    depends_on:
+      conferencemanagement.db:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      RUN_MIGRATIONS_ONLY: "true"
+      ConnectionStrings__DefaultConnection: Host=conferencemanagement.db;Port=5432;Database=conference_management_db;Username=si_tim3;Password=si_tim3_db_pass
+
+  conferencemanagement.api:
+    image: ${DOCKER_REGISTRY-}conferencemanagementapi
+    build:
+      context: .
+      dockerfile: ConferenceManagement.Api/Dockerfile
+    container_name: conferencemanagement.api
+    restart: unless-stopped
+    depends_on:
+      conferencemanagement.db:
+        condition: service_healthy
+      conferencemanagement.migrator:
+        condition: service_completed_successfully
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Host=conferencemanagement.db;Port=5432;Database=conference_management_db;Username=si_tim3;Password=si_tim3_db_pass
+    ports:
+      - "8080:8080"
+
+volumes:
+  conferencemanagement-db-data:
