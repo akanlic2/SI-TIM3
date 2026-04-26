@@ -40,5 +40,9 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(user => user.UpdatedAt)
             .IsRequired(false);
+
+        builder.Property(user => user.Role)
+            .IsRequired()
+            .HasMaxLength(50);
     }
 }
