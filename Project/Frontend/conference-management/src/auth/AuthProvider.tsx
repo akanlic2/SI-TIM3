@@ -60,9 +60,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const handleLogout = useCallback(async () => {
     await keycloakLogout();
-    setIsLoggedIn(false);
-    setUser(null);
-    setToken(null);
+    // Namjerno ne mijenjamo state ovdje jer keycloakLogout radi window.location.href
+    // Ako promijenimo state u false, Router bi nas odmah redirektao na login() prije nego
+    // što se browser preusmjeri na Keycloak logout!
   }, []);
 
   const loginRedirect = useCallback(async () => {

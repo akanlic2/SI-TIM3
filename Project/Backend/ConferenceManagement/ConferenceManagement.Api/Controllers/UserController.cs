@@ -2,16 +2,17 @@ using Microsoft.AspNetCore.Mvc;
 using ConferenceManagement.Application.Services;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using System;
 
-namespace ConferenceManagement.Api.Modules
+namespace ConferenceManagement.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class UserModule : ControllerBase
+    public class UserController : ControllerBase
     {
         private readonly IKeycloakService _keycloakService;
 
-        public UserModule(IKeycloakService keycloakService)
+        public UserController(IKeycloakService keycloakService)
         {
             _keycloakService = keycloakService;
         }
@@ -29,16 +30,8 @@ namespace ConferenceManagement.Api.Modules
             var token = Request.Headers["Authorization"].ToString();
             if (string.IsNullOrEmpty(token))
                 return BadRequest(new { error = "No token provided." });
-
-            try
-            {
-                await _keycloakService.LogoutUser(token);
-                return Ok(new { message = "Logged out successfully." });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { error = ex.Message });
-            }
+                
+            return Ok(new { message = "Logged out successfully." });
         }
     }
 }

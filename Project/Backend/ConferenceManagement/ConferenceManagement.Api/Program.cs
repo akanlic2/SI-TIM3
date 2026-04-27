@@ -51,7 +51,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         {
             ValidateAudience = false,
             ValidateIssuer = true,
-            ValidIssuer = authority,
+            ValidIssuers = new[] { authority, authority.Replace("keycloak", "localhost") },
             NameClaimType = "sub", // Mapira Keycloak 'sub' na ClaimTypes.NameIdentifier
             RoleClaimType = "role" // Mapira role koje doda nas Transformer
         };
