@@ -729,8 +729,16 @@
     "enabled" : true,
     "alwaysDisplayInConsole" : false,
     "clientAuthenticatorType" : "client-secret",
-    "redirectUris": [ "http://localhost/*", "http://localhost/callback" ],
-    "webOrigins": [ "http://localhost" ],
+    "redirectUris": [ 
+      "http://localhost/*", 
+      "http://localhost/callback",
+      "https://178.128.144.139.nip.io/*",
+      "https://178.128.144.139.nip.io/callback"
+    ],
+    "webOrigins": [ 
+      "http://localhost",
+      "https://178.128.144.139.nip.io"
+    ],
     "notBefore" : 0,
     "bearerOnly" : false,
     "consentRequired" : false,
