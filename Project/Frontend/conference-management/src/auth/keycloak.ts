@@ -2,9 +2,12 @@
 // Implementira Authorization Code Flow s PKCE za SPA aplikacije.
 // Nema potrebe za keycloak-js bibliotekom.
 
-const KEYCLOAK_URL = 'http://localhost:8080';
-const REALM = 'conference-app';
-const CLIENT_ID = 'conference-backend';
+//const KEYCLOAK_URL = 'http://localhost:8080';
+//const REALM = 'conference-app';
+//const CLIENT_ID = 'conference-backend';
+const KEYCLOAK_URL = import.meta.env.VITE_KEYCLOAK_URL ?? 'http://localhost:8080';
+const REALM = import.meta.env.VITE_KEYCLOAK_REALM ?? 'conference-app';
+const CLIENT_ID = import.meta.env.VITE_KEYCLOAK_CLIENT_ID ?? 'conference-backend';
 const REDIRECT_URI = `${window.location.origin}/callback`;
 
 const KEYCLOAK_BASE = `${KEYCLOAK_URL}/realms/${REALM}/protocol/openid-connect`;
