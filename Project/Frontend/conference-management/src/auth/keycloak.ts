@@ -185,7 +185,7 @@ export async function logout(): Promise<void> {
   // Pozivamo backend logout rutu
   if (token) {
     try {
-      await fetch('/api/user/logout', {
+      await fetch('http://localhost:8082/api/user/logout', {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
       });
