@@ -1,26 +1,20 @@
-using ConferenceManagement.Domain.Entities;
-using ConferenceManagement.Dal;
-using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
+using ConferenceManagement.Application.Interfaces;
+using ConferenceManagement.Domain.Abstractions.Repositories;
 
 namespace ConferenceManagement.Application.Services
 {
-    public interface IUserService
-    {
-        Task<int> GetUserCountAsync();
-    }
-
     public class UserService : IUserService
     {
-        private readonly ApplicationDbContext _dbContext;
-        public UserService(ApplicationDbContext dbContext)
+        private readonly IUserRepository _userRepository;
+
+        public UserService(IUserRepository userRepository)
         {
-            _dbContext = dbContext;
+            _userRepository = userRepository;
         }
 
         public async Task<int> GetUserCountAsync()
         {
-            return await _dbContext.Users.CountAsync();
+            return await _userRepository.GetUserCountAsync();
         }
     }
 }

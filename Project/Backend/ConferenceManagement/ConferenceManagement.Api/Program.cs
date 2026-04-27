@@ -72,6 +72,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
         .ConfigureWarnings(warnings => warnings.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)));
 
 builder.Services.AddScoped<IConferenceRepository, ConferenceRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IConferenceService, ConferenceService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IKeycloakService, KeycloakService>();
