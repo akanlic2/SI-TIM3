@@ -25,6 +25,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("FrontendDev", policy =>
     {
         policy.WithOrigins(
+                "http://localhost",
                 "http://localhost:5173",
                 "http://localhost:5174"   // fallback ako Vite promijeni port
             )
