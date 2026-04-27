@@ -30,6 +30,8 @@ services:
       KC_HOSTNAME_STRICT: "false"
       KC_HOSTNAME_STRICT_HTTPS: "false"
       KC_HEALTH_ENABLED: "true"
+      KC_PROXY: edge
+      KC_HTTP_RELATIVE_PATH: /keycloak
     ports:
       - "8080:8080"
     volumes:
@@ -77,8 +79,8 @@ services:
     image: ekurtovic5/conferencemanagement-frontend:latest
     container_name: conferencemanagement.frontend
     restart: unless-stopped
-    ports:
-      - "80:80"
+    ports: #bilo 80:80
+      - "3000:80"
     depends_on:
       conferencemanagement.api:
         condition: service_started
