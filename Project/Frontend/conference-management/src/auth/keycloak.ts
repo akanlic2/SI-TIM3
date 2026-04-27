@@ -185,7 +185,7 @@ export async function logout(): Promise<void> {
   // Pozivamo backend logout rutu
   if (token) {
     try {
-      await fetch('http://localhost:8082/api/user/logout', {
+      await fetch('/api/user/logout', {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -207,4 +207,8 @@ export async function logout(): Promise<void> {
   if (idToken) params.set('id_token_hint', idToken);
 
   window.location.href = `${KEYCLOAK_BASE}/logout?${params.toString()}`;
+
+  // Vraćamo Promise koji se nikada ne resolva kako bismo zaustavili daljnje izvršavanje koda
+  // i omogućili browseru da izvrši redirect bez prekida.
+  return new Promise(() => {});
 }
