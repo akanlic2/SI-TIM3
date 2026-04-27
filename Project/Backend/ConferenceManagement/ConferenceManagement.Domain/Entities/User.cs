@@ -12,6 +12,8 @@ public class User
 
     public string Email { get; set; } = string.Empty;
 
+    public string Role { get; set; } = string.Empty; // Dodato polje za rolu
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public DateTime? UpdatedAt { get; set; }
