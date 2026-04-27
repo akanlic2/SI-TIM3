@@ -21,7 +21,7 @@ services:
   keycloak:
     image: quay.io/keycloak/keycloak:26.6.1
     container_name: keycloak
-    command: start-dev --import-realm         
+    command: start-dev --import-realm
     restart: unless-stopped
     environment:
       KEYCLOAK_ADMIN: admin
@@ -29,24 +29,20 @@ services:
       KC_HTTP_PORT: 8080
       KC_HOSTNAME_STRICT: "false"
       KC_HOSTNAME_STRICT_HTTPS: "false"
-      KC_HEALTH_ENABLED: "true" # DODAJ OVO
+      KC_HEALTH_ENABLED: "true"
     ports:
       - "8080:8080"
     volumes:
-      - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json  
+      - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json
     healthcheck:
-      # Koristimo jednostavniji test koji provjerava da li Keycloak odgovara
       test: ["CMD", "curl", "-f", "http://localhost:9000/health/live"]
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 30s # Dajemo mu malo više vremena da uveze realm
+      start_period: 30s
 
   conferencemanagement.migrator:
-    image: ${DOCKER_REGISTRY-}conferencemanagementapi
-    build:
-      context: .
-      dockerfile: ConferenceManagement.Api/Dockerfile
+    image: ekurtovic5/conferencemanagement-api:latest
     container_name: conferencemanagement.migrator
     restart: on-failure
     depends_on:
@@ -58,10 +54,7 @@ services:
       ConnectionStrings__DefaultConnection: Host=conferencemanagement.db;Port=5432;Database=conference_management_db;Username=si_tim3;Password=si_tim3_db_pass
 
   conferencemanagement.api:
-    image: ${DOCKER_REGISTRY-}conferencemanagementapi
-    build:
-      context: .
-      dockerfile: ConferenceManagement.Api/Dockerfile
+    image: ekurtovic5/conferencemanagement-api:latest
     container_name: conferencemanagement.api
     restart: unless-stopped
     depends_on:
@@ -69,26 +62,23 @@ services:
         condition: service_healthy
       conferencemanagement.migrator:
         condition: service_completed_successfully
-      keycloak:                                          
-        condition: service_started                      
+      keycloak:
+        condition: service_started
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__DefaultConnection: Host=conferencemanagement.db;Port=5432;Database=conference_management_db;Username=si_tim3;Password=si_tim3_db_pass
-      Keycloak__Authority: http://keycloak:8080/realms/conference-app  
+      Keycloak__Authority: http://keycloak:8080/realms/conference-app
       Keycloak__Audience: conference-backend
     ports:
       - "8082:8080"
 
   conferencemanagement.frontend:
-    build:
-      # Putanja ide gore iz ConferenceManagement/ do roota Project/, pa u Frontend/conference-management
-      context: ../../Frontend/conference-management
-      dockerfile: Dockerfile
+    image: ekurtovic5/conferencemanagement-frontend:latest
     container_name: conferencemanagement.frontend
     restart: unless-stopped
     ports:
-      - "80:80"        # Frontend dostupan na http://localhost (bez porta)
+      - "80:80"
     depends_on:
       conferencemanagement.api:
         condition: service_started
