@@ -1,0 +1,510 @@
+// ─── Unit testovi za Keycloak Auth Helper ─────────────────────────────────────
+// Testiramo: parseToken, isTokenValid, login, handleCallback, logout,
+//            refreshToken, getAccessToken, getRefreshToken, isAuthenticated
+
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import {
+  parseToken,
+  isTokenValid,
+  getAccessToken,
+  getRefreshToken,
+  isAuthenticated,
+  login,
+  handleCallback,
+  logout,
+  refreshToken,
+} from '../keycloak';
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+/** Kreira JWT token sa zadanim payload-om (podržava UTF-8) */
+function createMockJWT(payload: Record<string, unknown>): string {
+  const header = btoa(JSON.stringify({ alg: 'RS256', typ: 'JWT' }));
+  // Koristimo TextEncoder za podršku UTF-8 karaktera u btoa
+  const jsonStr = JSON.stringify(payload);
+  const bytes = new TextEncoder().encode(jsonStr);
+  const body = btoa(String.fromCharCode(...bytes));
+  const signature = 'mock-signature';
+  return `${header}.${body}.${signature}`;
+}
+
+/** Kreira validan token koji istječe za N sekundi */
+function createValidToken(expiresInSeconds = 3600): string {
+  return createMockJWT({
+    sub: 'user-123',
+    email: 'test@example.com',
+    name: 'Test Korisnik',
+    given_name: 'Test',
+    family_name: 'Korisnik',
+    preferred_username: 'testuser',
+    realm_access: { roles: ['user', 'admin'] },
+    exp: Math.floor(Date.now() / 1000) + expiresInSeconds,
+  });
+}
+
+/** Kreira istekli token */
+function createExpiredToken(): string {
+  return createMockJWT({
+    sub: 'user-expired',
+    email: 'expired@example.com',
+    exp: Math.floor(Date.now() / 1000) - 600, // istekao prije 10 minuta
+  });
+}
+
+// ─── parseToken ───────────────────────────────────────────────────────────────
+
+describe('parseToken', () => {
+  it('ispravno parsira validan JWT token', () => {
+    const token = createMockJWT({
+      sub: 'user-abc',
+      email: 'korisnik@etf.unsa.ba',
+      name: 'Amina Husic',
+      preferred_username: 'amina.h',
+    });
+
+    const claims = parseToken(token);
+
+    expect(claims).not.toBeNull();
+    expect(claims!.sub).toBe('user-abc');
+    expect(claims!.email).toBe('korisnik@etf.unsa.ba');
+    expect(claims!.name).toBe('Amina Husic');
+    expect(claims!.preferred_username).toBe('amina.h');
+  });
+
+  it('parsira token sa realm_access rolama', () => {
+    const token = createMockJWT({
+      sub: 'user-roles',
+      realm_access: { roles: ['admin', 'organizer'] },
+      exp: Math.floor(Date.now() / 1000) + 3600,
+    });
+
+    const claims = parseToken(token);
+
+    expect(claims).not.toBeNull();
+    expect(claims!.realm_access).toBeDefined();
+    expect(claims!.realm_access!.roles).toContain('admin');
+    expect(claims!.realm_access!.roles).toContain('organizer');
+  });
+
+  it('vraća null za neispravan token', () => {
+    expect(parseToken('not-a-jwt')).toBeNull();
+  });
+
+  it('vraća null za prazan string', () => {
+    expect(parseToken('')).toBeNull();
+  });
+
+  it('vraća null za token sa neispravnim JSON-om', () => {
+    const header = btoa('{"alg":"RS256"}');
+    const invalidPayload = btoa('not-json{{{');
+    expect(parseToken(`${header}.${invalidPayload}.sig`)).toBeNull();
+  });
+});
+
+// ─── isTokenValid ─────────────────────────────────────────────────────────────
+
+describe('isTokenValid', () => {
+  it('vraća true za token koji nije istekao', () => {
+    const token = createValidToken(3600);
+    expect(isTokenValid(token)).toBe(true);
+  });
+
+  it('vraća false za istekli token', () => {
+    const token = createExpiredToken();
+    expect(isTokenValid(token)).toBe(false);
+  });
+
+  it('vraća false za token koji istječe za manje od 30 sekundi (buffer)', () => {
+    const token = createMockJWT({
+      sub: 'user',
+      exp: Math.floor(Date.now() / 1000) + 20, // istječe za 20s, a buffer je 30s
+    });
+    expect(isTokenValid(token)).toBe(false);
+  });
+
+  it('vraća true za token koji istječe za više od 30 sekundi', () => {
+    const token = createMockJWT({
+      sub: 'user',
+      exp: Math.floor(Date.now() / 1000) + 60,
+    });
+    expect(isTokenValid(token)).toBe(true);
+  });
+
+  it('vraća false za neispravan token', () => {
+    expect(isTokenValid('invalid')).toBe(false);
+  });
+});
+
+// ─── getAccessToken / getRefreshToken ─────────────────────────────────────────
+
+describe('getAccessToken', () => {
+  it('vraća null kad nema tokena u localStorage', () => {
+    expect(getAccessToken()).toBeNull();
+  });
+
+  it('vraća sačuvani access token', () => {
+    const token = createValidToken();
+    localStorage.setItem('kc_access_token', token);
+    expect(getAccessToken()).toBe(token);
+  });
+});
+
+describe('getRefreshToken', () => {
+  it('vraća null kad nema refresh tokena', () => {
+    expect(getRefreshToken()).toBeNull();
+  });
+
+  it('vraća sačuvani refresh token', () => {
+    localStorage.setItem('kc_refresh_token', 'mock-refresh-token');
+    expect(getRefreshToken()).toBe('mock-refresh-token');
+  });
+});
+
+// ─── isAuthenticated ──────────────────────────────────────────────────────────
+
+describe('isAuthenticated', () => {
+  it('vraća false kad nema tokena', () => {
+    expect(isAuthenticated()).toBe(false);
+  });
+
+  it('vraća true kad postoji validan token', () => {
+    const token = createValidToken();
+    localStorage.setItem('kc_access_token', token);
+    expect(isAuthenticated()).toBe(true);
+  });
+
+  it('vraća false kad je token istekao', () => {
+    const token = createExpiredToken();
+    localStorage.setItem('kc_access_token', token);
+    expect(isAuthenticated()).toBe(false);
+  });
+});
+
+// ─── login ────────────────────────────────────────────────────────────────────
+
+describe('login (Sign Up / Registracija redirect)', () => {
+  it('sprema code_verifier u localStorage', async () => {
+    await login();
+
+    const verifier = localStorage.getItem('kc_code_verifier');
+    expect(verifier).not.toBeNull();
+    expect(verifier!.length).toBeGreaterThan(0);
+  });
+
+  it('redirecta na Keycloak authorization endpoint', async () => {
+    await login();
+
+    const href = window.location.href;
+    expect(href).toContain('/realms/');
+    expect(href).toContain('/protocol/openid-connect/auth');
+  });
+
+  it('uključuje PKCE code_challenge parametar u URL', async () => {
+    await login();
+
+    const href = window.location.href;
+    expect(href).toContain('code_challenge=');
+    expect(href).toContain('code_challenge_method=S256');
+  });
+
+  it('uključuje ispravne OAuth parametre', async () => {
+    await login();
+
+    const href = window.location.href;
+    expect(href).toContain('response_type=code');
+    expect(href).toContain('scope=openid+email+profile');
+    expect(href).toContain('redirect_uri=');
+    expect(href).toContain('client_id=');
+  });
+
+  it('postavlja redirect_uri na /callback', async () => {
+    await login();
+
+    const href = window.location.href;
+    // redirect_uri treba sadržavati origin + /callback
+    expect(href).toContain(encodeURIComponent('/callback'));
+  });
+});
+
+// ─── handleCallback ───────────────────────────────────────────────────────────
+
+describe('handleCallback', () => {
+  it('vraća false kad nema code parametra u URL-u', async () => {
+    window.location.search = '';
+    const result = await handleCallback();
+    expect(result).toBe(false);
+  });
+
+  it('vraća false kad postoji error parametar', async () => {
+    window.location.search = '?error=access_denied&error_description=User+denied';
+    const result = await handleCallback();
+    expect(result).toBe(false);
+  });
+
+  it('vraća false kad nema code_verifier u localStorage', async () => {
+    window.location.search = '?code=mock-auth-code';
+    localStorage.removeItem('kc_code_verifier');
+    const result = await handleCallback();
+    expect(result).toBe(false);
+  });
+
+  it('šalje token exchange request i sprema tokene pri uspješnom odgovoru', async () => {
+    // Priprema
+    window.location.search = '?code=mock-auth-code';
+    localStorage.setItem('kc_code_verifier', 'mock-verifier-12345');
+
+    const mockTokens = {
+      access_token: createValidToken(),
+      refresh_token: 'mock-refresh-token',
+      id_token: 'mock-id-token',
+    };
+
+    // Mock fetch
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockTokens,
+      text: async () => JSON.stringify(mockTokens),
+    } as Response);
+
+    // Izvrši
+    const result = await handleCallback();
+
+    // Provjere
+    expect(result).toBe(true);
+    expect(fetchSpy).toHaveBeenCalledOnce();
+
+    // Provjeri da je fetch pozvan sa ispravnim parametrima
+    const [url, options] = fetchSpy.mock.calls[0];
+    expect(url).toContain('/token');
+    expect(options?.method).toBe('POST');
+
+    // Provjeri da su tokeni sačuvani
+    expect(localStorage.getItem('kc_access_token')).toBe(mockTokens.access_token);
+    expect(localStorage.getItem('kc_refresh_token')).toBe('mock-refresh-token');
+    expect(localStorage.getItem('kc_id_token')).toBe('mock-id-token');
+
+    // Code verifier treba biti obrisan
+    expect(localStorage.getItem('kc_code_verifier')).toBeNull();
+  });
+
+  it('vraća false kad token exchange ne uspije (HTTP error)', async () => {
+    window.location.search = '?code=bad-code';
+    localStorage.setItem('kc_code_verifier', 'mock-verifier');
+
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+      ok: false,
+      text: async () => 'Invalid grant',
+    } as Response);
+
+    const result = await handleCallback();
+    expect(result).toBe(false);
+  });
+
+  it('vraća false kad fetch baci exception (network error)', async () => {
+    window.location.search = '?code=network-fail-code';
+    localStorage.setItem('kc_code_verifier', 'mock-verifier');
+
+    vi.spyOn(globalThis, 'fetch').mockRejectedValueOnce(new Error('Network error'));
+
+    const result = await handleCallback();
+    expect(result).toBe(false);
+  });
+
+  it('uključuje grant_type=authorization_code u request body', async () => {
+    window.location.search = '?code=test-code';
+    localStorage.setItem('kc_code_verifier', 'test-verifier');
+
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        access_token: createValidToken(),
+        refresh_token: 'rt',
+        id_token: 'idt',
+      }),
+    } as Response);
+
+    await handleCallback();
+
+    const body = fetchSpy.mock.calls[0][1]?.body as URLSearchParams;
+    expect(body.get('grant_type')).toBe('authorization_code');
+    expect(body.get('code')).toBe('test-code');
+    expect(body.get('code_verifier')).toBe('test-verifier');
+  });
+});
+
+// ─── refreshToken ─────────────────────────────────────────────────────────────
+
+describe('refreshToken', () => {
+  it('vraća false kad nema refresh tokena', async () => {
+    const result = await refreshToken();
+    expect(result).toBe(false);
+  });
+
+  it('osvježava token uspješno', async () => {
+    const newAccessToken = createValidToken(7200);
+    localStorage.setItem('kc_refresh_token', 'old-refresh-token');
+
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        access_token: newAccessToken,
+        refresh_token: 'new-refresh-token',
+      }),
+    } as Response);
+
+    const result = await refreshToken();
+
+    expect(result).toBe(true);
+    expect(localStorage.getItem('kc_access_token')).toBe(newAccessToken);
+    expect(localStorage.getItem('kc_refresh_token')).toBe('new-refresh-token');
+  });
+
+  it('šalje grant_type=refresh_token u request body', async () => {
+    localStorage.setItem('kc_refresh_token', 'my-refresh');
+
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        access_token: createValidToken(),
+        refresh_token: 'new-rt',
+      }),
+    } as Response);
+
+    await refreshToken();
+
+    const body = fetchSpy.mock.calls[0][1]?.body as URLSearchParams;
+    expect(body.get('grant_type')).toBe('refresh_token');
+    expect(body.get('refresh_token')).toBe('my-refresh');
+  });
+
+  it('vraća false kad server vrati error', async () => {
+    localStorage.setItem('kc_refresh_token', 'invalid-refresh');
+
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+      ok: false,
+    } as Response);
+
+    const result = await refreshToken();
+    expect(result).toBe(false);
+  });
+
+  it('vraća false kad fetch baci exception', async () => {
+    localStorage.setItem('kc_refresh_token', 'some-refresh');
+
+    vi.spyOn(globalThis, 'fetch').mockRejectedValueOnce(new Error('Network fail'));
+
+    const result = await refreshToken();
+    expect(result).toBe(false);
+  });
+});
+
+// ─── logout ───────────────────────────────────────────────────────────────────
+
+describe('logout', () => {
+  it('briše sve tokene iz localStorage', async () => {
+    localStorage.setItem('kc_access_token', createValidToken());
+    localStorage.setItem('kc_refresh_token', 'rt');
+    localStorage.setItem('kc_id_token', 'idt');
+
+    // Mock fetch za backend logout
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ message: 'ok' }),
+    } as Response);
+
+    // logout() vraća Promise koji se nikada ne resolva,
+    // pa koristimo race sa timeoutom
+    const logoutPromise = logout();
+    const timeoutPromise = new Promise<string>((resolve) =>
+      setTimeout(() => resolve('timeout'), 100)
+    );
+
+    await Promise.race([logoutPromise, timeoutPromise]);
+
+    expect(localStorage.getItem('kc_access_token')).toBeNull();
+    expect(localStorage.getItem('kc_refresh_token')).toBeNull();
+    expect(localStorage.getItem('kc_id_token')).toBeNull();
+  });
+
+  it('poziva backend logout endpoint sa Bearer tokenom', async () => {
+    const token = createValidToken();
+    localStorage.setItem('kc_access_token', token);
+    localStorage.setItem('kc_id_token', 'id-token');
+
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ message: 'ok' }),
+    } as Response);
+
+    const logoutPromise = logout();
+    await Promise.race([
+      logoutPromise,
+      new Promise((r) => setTimeout(r, 100)),
+    ]);
+
+    expect(fetchSpy).toHaveBeenCalledWith('/api/user/logout', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  });
+
+  it('redirecta na Keycloak logout endpoint', async () => {
+    localStorage.setItem('kc_access_token', createValidToken());
+    localStorage.setItem('kc_id_token', 'mock-id-token');
+
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({}),
+    } as Response);
+
+    const logoutPromise = logout();
+    await Promise.race([
+      logoutPromise,
+      new Promise((r) => setTimeout(r, 100)),
+    ]);
+
+    const href = window.location.href;
+    expect(href).toContain('/protocol/openid-connect/logout');
+    expect(href).toContain('post_logout_redirect_uri=');
+    expect(href).toContain('id_token_hint=mock-id-token');
+  });
+
+  it('nastavlja sa logout čak i kad backend logout ne uspije', async () => {
+    localStorage.setItem('kc_access_token', createValidToken());
+
+    vi.spyOn(globalThis, 'fetch').mockRejectedValueOnce(new Error('Backend down'));
+
+    const logoutPromise = logout();
+    await Promise.race([
+      logoutPromise,
+      new Promise((r) => setTimeout(r, 100)),
+    ]);
+
+    // Tokeni ipak trebaju biti obrisani
+    expect(localStorage.getItem('kc_access_token')).toBeNull();
+    expect(localStorage.getItem('kc_refresh_token')).toBeNull();
+
+    // Redirect na Keycloak treba se desiti
+    expect(window.location.href).toContain('/logout');
+  });
+
+  it('radi logout bez id_token_hint kad nema ID tokena', async () => {
+    localStorage.setItem('kc_access_token', createValidToken());
+    // Namjerno NE postavljamo kc_id_token
+
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({}),
+    } as Response);
+
+    const logoutPromise = logout();
+    await Promise.race([
+      logoutPromise,
+      new Promise((r) => setTimeout(r, 100)),
+    ]);
+
+    const href = window.location.href;
+    expect(href).toContain('/logout');
+    expect(href).not.toContain('id_token_hint');
+  });
+});

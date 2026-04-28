@@ -1,0 +1,229 @@
+// ─── Testovi za AuthProvider komponentu ───────────────────────────────────────
+// Testiramo: AuthProvider context, useAuth hook, login/logout integraciju
+
+import React from 'react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, act, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { AuthProvider, useAuth } from '../AuthProvider';
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+/** Kreira JWT token sa zadanim payload-om */
+function createMockJWT(payload: Record<string, unknown>): string {
+  const header = btoa(JSON.stringify({ alg: 'RS256', typ: 'JWT' }));
+  const body = btoa(JSON.stringify(payload));
+  return `${header}.${body}.mock-sig`;
+}
+
+function createValidToken(expiresInSeconds = 3600): string {
+  return createMockJWT({
+    sub: 'user-123',
+    email: 'test@etf.unsa.ba',
+    name: 'Test Korisnik',
+    given_name: 'Test',
+    family_name: 'Korisnik',
+    preferred_username: 'testuser',
+    realm_access: { roles: ['user'] },
+    exp: Math.floor(Date.now() / 1000) + expiresInSeconds,
+  });
+}
+
+// ─── Mock keycloak modul ──────────────────────────────────────────────────────
+
+vi.mock('../keycloak', async () => {
+  const actual = await vi.importActual('../keycloak') as Record<string, unknown>;
+  return {
+    ...actual,
+    login: vi.fn(),
+    logout: vi.fn().mockResolvedValue(undefined),
+    refreshToken: vi.fn().mockResolvedValue(false),
+  };
+});
+
+import * as keycloak from '../keycloak';
+
+/** Test komponenta koja prikazuje auth state */
+function AuthConsumer() {
+  const { isLoggedIn, isLoading, user, token, logout, loginRedirect } = useAuth();
+
+  return (
+    <div>
+      <span data-testid="loading">{isLoading ? 'true' : 'false'}</span>
+      <span data-testid="logged-in">{isLoggedIn ? 'true' : 'false'}</span>
+      <span data-testid="user-name">{user?.name ?? 'none'}</span>
+      <span data-testid="user-email">{user?.email ?? 'none'}</span>
+      <span data-testid="token">{token ? 'present' : 'none'}</span>
+      <button data-testid="logout-btn" onClick={logout}>Logout</button>
+      <button data-testid="login-btn" onClick={loginRedirect}>Login</button>
+    </div>
+  );
+}
+
+// ─── Testovi ──────────────────────────────────────────────────────────────────
+
+describe('AuthProvider', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('prikazuje loading state inicijalno', () => {
+    render(
+      <AuthProvider>
+        <AuthConsumer />
+      </AuthProvider>
+    );
+
+    // Inicijalno bi trebao biti loading dok se ne izvrši initAuth
+    // (ali budući da je async, trebamo čekati)
+    expect(screen.getByTestId('loading')).toBeDefined();
+  });
+
+  it('postavlja isLoggedIn=false kad nema tokena', async () => {
+    // Nema tokena u localStorage, refreshToken vraća false
+    vi.mocked(keycloak.refreshToken).mockResolvedValue(false);
+
+    render(
+      <AuthProvider>
+        <AuthConsumer />
+      </AuthProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('loading').textContent).toBe('false');
+    });
+
+    expect(screen.getByTestId('logged-in').textContent).toBe('false');
+    expect(screen.getByTestId('user-name').textContent).toBe('none');
+    expect(screen.getByTestId('token').textContent).toBe('none');
+  });
+
+  it('postavlja isLoggedIn=true kad postoji validan token u localStorage', async () => {
+    const token = createValidToken();
+    localStorage.setItem('kc_access_token', token);
+
+    render(
+      <AuthProvider>
+        <AuthConsumer />
+      </AuthProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('loading').textContent).toBe('false');
+    });
+
+    expect(screen.getByTestId('logged-in').textContent).toBe('true');
+    expect(screen.getByTestId('user-name').textContent).toBe('Test Korisnik');
+    expect(screen.getByTestId('user-email').textContent).toBe('test@etf.unsa.ba');
+    expect(screen.getByTestId('token').textContent).toBe('present');
+  });
+
+  it('pokušava refreshToken kad je access token istekao', async () => {
+    const expiredToken = createMockJWT({
+      sub: 'user',
+      exp: Math.floor(Date.now() / 1000) - 600,
+    });
+    localStorage.setItem('kc_access_token', expiredToken);
+    localStorage.setItem('kc_refresh_token', 'old-refresh');
+
+    // Refresh ne uspije
+    vi.mocked(keycloak.refreshToken).mockResolvedValue(false);
+
+    render(
+      <AuthProvider>
+        <AuthConsumer />
+      </AuthProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('loading').textContent).toBe('false');
+    });
+
+    expect(keycloak.refreshToken).toHaveBeenCalled();
+    expect(screen.getByTestId('logged-in').textContent).toBe('false');
+  });
+
+  it('uspješno refreshuje token i postavlja stanje na logged in', async () => {
+    const expiredToken = createMockJWT({
+      sub: 'user',
+      exp: Math.floor(Date.now() / 1000) - 600,
+    });
+    localStorage.setItem('kc_access_token', expiredToken);
+    localStorage.setItem('kc_refresh_token', 'old-refresh');
+
+    // Refresh uspije – simuliramo tako da refreshToken postavi novi token
+    const newToken = createValidToken();
+    vi.mocked(keycloak.refreshToken).mockImplementation(async () => {
+      localStorage.setItem('kc_access_token', newToken);
+      return true;
+    });
+
+    render(
+      <AuthProvider>
+        <AuthConsumer />
+      </AuthProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('loading').textContent).toBe('false');
+    });
+
+    expect(screen.getByTestId('logged-in').textContent).toBe('true');
+    expect(screen.getByTestId('token').textContent).toBe('present');
+  });
+
+  it('poziva keycloakLogout kad korisnik klikne logout', async () => {
+    const token = createValidToken();
+    localStorage.setItem('kc_access_token', token);
+
+    const user = userEvent.setup();
+
+    render(
+      <AuthProvider>
+        <AuthConsumer />
+      </AuthProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('loading').textContent).toBe('false');
+    });
+
+    // Klik na logout
+    await user.click(screen.getByTestId('logout-btn'));
+
+    expect(keycloak.logout).toHaveBeenCalledOnce();
+  });
+
+  it('poziva login kad korisnik klikne login', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <AuthProvider>
+        <AuthConsumer />
+      </AuthProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('loading').textContent).toBe('false');
+    });
+
+    await user.click(screen.getByTestId('login-btn'));
+
+    expect(keycloak.login).toHaveBeenCalledOnce();
+  });
+});
+
+// ─── useAuth izvan AuthProvider-a ─────────────────────────────────────────────
+
+describe('useAuth hook', () => {
+  it('baca grešku kad se koristi izvan AuthProvider-a', () => {
+    // Suppress console.error za očekivani error
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    expect(() => {
+      render(<AuthConsumer />);
+    }).toThrow('useAuth must be used inside AuthProvider');
+
+    consoleSpy.mockRestore();
+  });
+});

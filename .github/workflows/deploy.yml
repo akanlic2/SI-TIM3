@@ -17,8 +17,21 @@ jobs:
         with:
           dotnet-version: '10.0'
 
-      - name: Run tests
+      - name: Run Backend tests
         run: dotnet test Project/Backend/ConferenceManagement/ConferenceManagement.slnx
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Frontend dependencies
+        run: npm install
+        working-directory: ./Project/Frontend/conference-management
+
+      - name: Run Frontend tests
+        run: npm test
+        working-directory: ./Project/Frontend/conference-management
 
   build-and-push:
     runs-on: ubuntu-latest
