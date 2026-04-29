@@ -164,5 +164,43 @@ Pomoć oko kreiranja realma `conference-app`, definisanja uloga (**Organizatori,
 - **UI barijera:** Keycloak interfejs (v19+) otežava pronalaženje sistemskih uloga (poput `manage-users`), što može dovesti do *403 Forbidden* greške na backendu ako se ne podesi ispravno.
 - **Sinhronizacija:** Postoji rizik od desinhronizacije lokalne baze i Keycloaka ako middleware ne obradi grešku pri kreiranju korisnika na jednoj od dvije strane.
 
+---
+
+## Unos #5
+
+| Polje | Detalji |
+|---|---|
+| **Datum** | 25.04.2026. |
+| **Sprint broj** | Sprint 5 |
+| **Alat** | Claude AI |
+| **Ko je koristio alat** | Emira Kurtović |
+
+### Svrha korištenja
+Konsultacije i pomoć oko deploymenta aplikacije.
+
+### Kratak opis zadatka ili upita
+
+> *"Korišten AI alat za pomoć pri odabiru alata za deploy aplikacije ako i sami deploy"*
+
+### Šta je AI predložio ili generisao
+- Za VPS predložio DigitalOcean
+- Za domenu koristiti nip.io sa Let's Encrypt
+- Dodavanje 2GB swap memorije koja koristi disk prostor kao virtuelni RAM na serveru
+  
+### Šta je tim prihvatio
+- Za VPS predložio DigitalOcean
+- Za domenu koristiti nip.io sa Let's Encrypt
+- Dodavanje 2GB swap memorije koja koristi disk prostor kao virtuelni RAM na serveru
+
+### Šta je tim izmijenio
+- Prebacili smo build sa VPS na GitHub Actions
+  
+### Šta je tim odbacio
+- Plaćenu paket u DigitalOcean (više memorije, ...)
+
+### Rizici, problemi ili greške koje su uočene
+- Nedostatak memorije na serveru, već smo na samom početku morali dodavati 2GB swap memorije.
+
+---
   
 *Dokument se ažurira tokom trajanja projekta. Svaki novi slučaj korištenja AI dodaje se kao novi unos.*
