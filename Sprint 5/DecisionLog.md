@@ -1,5 +1,5 @@
 ### DL-001 – Odabir IAM rješenja
-**Datum:** 2026-04-25
+**Datum:** 25.04.2026
 
 **Opis problema:** Projekt zahtijeva autentikaciju i autorizaciju korisnika za web aplikaciju (frontend + backend). Trebalo je odlučiti koji IAM sistem koristiti.
 
@@ -19,7 +19,7 @@
 ---
 
 ### DL-002 – Realm struktura – jedan realm
-**Datum:** 2026-04-25
+**Datum:** 25.04.2026
 
 **Opis problema:** Nakon postavljanja Keycloaka trebalo je odlučiti da li kreirati jedan realm ili odvojene realme po okruženjima ili aplikacijama.
 
@@ -39,7 +39,7 @@
 ---
 
 ### DL-003 – Grant type – Client Credentials Flow
-**Datum:** 2026-04-25
+**Datum:** 25.04.2026
 
 **Opis problema:** Web aplikacija treba se autentifikovati prema Keycloaku. Trebalo je odabrati odgovarajući OAuth2 grant type s obzirom na arhitekturu aplikacije.
 
@@ -60,7 +60,7 @@
 ---
 
 ### DL-004 – Integracija – JWT direktno bez adaptera
-**Datum:** 2026-04-25
+**Datum:** 25.04.2026
 
 **Opis problema:** Trebalo je odlučiti kako frontend i backend integrišu Keycloak – putem gotovih adaptera ili direktnom obradom JWT tokena.
 
