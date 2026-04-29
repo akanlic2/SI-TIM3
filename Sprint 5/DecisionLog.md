@@ -74,6 +74,45 @@
 
 **Razlog izbora:** Smanjuje zavisnost o Keycloak-specifičnim adapterima, povećava fleksibilnost. Backend validira JWT potpis koristeći javni ključ s Keycloak JWKS endpointa.
 
-**Posljedice odluke:** Tim mora sam implementirati JWT validaciju. 
+---
+
+### DL-005 – Deployment – Odabir VPS
+**Datum:** 25.04.2026
+
+**Opis problema:** Trebalo je odlučiti koji alat koristiti za VPS.
+
+**Razmatrane opcije:**
+1. DigitalOcean
+2. Hetzner
+3. Contabo
+
+
+**Odabrana opcija:** DigitalOcean
+
+**Razlog izbora:** Jednostavnost i povoljnost.
+
+**Posljedice odluke:** Veća odgovornost za sigurnost, update OS i skaliranje ručno 
+
+**Status:** Aktivna
+
+
+---
+
+### DL-006 – Deployment – Odabir domene
+**Datum:** 25.04.2026
+
+**Opis problema:** Trebalo je odabrati domenu za aplikaciju.
+
+**Razmatrane opcije:**
+1. nip.io sa Let's Encrypt
+2. sslip.io
+
+
+
+**Odabrana opcija:** nip.io
+
+**Razlog izbora:** Jednostavnost, odmah radi.
+
+**Posljedice odluke:** Ako padne servis, pada aplikacija
 
 **Status:** Aktivna
