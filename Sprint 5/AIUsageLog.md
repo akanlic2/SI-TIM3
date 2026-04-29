@@ -123,5 +123,46 @@ Traženo je od Copilota da na osnovu postojećeg koda napiše testove za fronten
 - Generisani mock-ovi nisu uvijek reflektirali stvarno ponašanje baze podataka, što je moglo dati lažan osjećaj sigurnosti
 - Sve generisane testove pregledao i validirao developer prije nego su uključeni u codebase
 ---
- 
+
+---
+
+## Unos #4
+
+| Polje | Detalji |
+|---|---|
+| **Datum** | 25.04.2026. |
+| **Sprint broj** | Sprint 5 |
+| **Alat** | Gemini |
+| **Ko je koristio alat** | Hamza Kovač |
+
+### Svrha korištenja
+Konfiguracija Keycloak IAM sistema, definisanje RBAC (Role-Based Access Control) strukture i priprema klijenta za backend integraciju.
+
+### Kratak opis zadatka ili upita
+Pomoć oko kreiranja realma `conference-app`, definisanja uloga (**Organizatori, Učesnici, Predavači, Administratori sistema**) i rješavanje problema sa permisijama kako bi backend mogao vršiti automatsku registraciju korisnika.
+
+### Šta je AI predložio ili generisao
+- Arhitekturu uloga koristeći **Realm Roles** umjesto Client Roles radi lakšeg upravljanja.
+- Postupak kreiranja **Confidential** klijenta sa aktiviranim **Service Accounts** opcijama.
+- Identifikaciju neophodne sistemske uloge `manage-users` (unutar `realm-management` klijenta) koja omogućava backendu da komunicira sa Keycloak Admin API-jem.
+- Mapiranje uloga unutar JWT tokena (`realm_access` sekcija).
+
+### Šta je tim prihvatio
+- Model sa 4 osnovne uloge definisane na nivou realma.
+- Korištenje klijenta `conference-backend` kao posrednika između koda i Keycloaka.
+- Sigurnosni pristup sa **Client Secret** ključem za backend autentifikaciju.
+
+### Šta je tim izmijenio
+- Zbog specifičnosti nove verzije Keycloak interfejsa, navigacija do "Filter by client" opcije u *Service accounts roles* tabu je prilagođena ručno jer dugme nije bilo odmah vidljivo.
+- Uloge su u Keycloaku nazvane opisno (npr. "Organizatori"), dok su u kodu zadržane kao slug-ovi radi lakše validacije.
+
+### Šta je tim odbacio
+- Inicijalni prijedlog korištenja **Client Roles** je odbačen kako bi se izbjeglo komplikovano parsiranje `resource_access` polja u tokenu u ranoj fazi razvoja.
+- Napredna verifikacija emaila je odložena dok se ne podesi SMTP server.
+
+### Rizici, problemi ili greške koje su uočene
+- **UI barijera:** Keycloak interfejs (v19+) otežava pronalaženje sistemskih uloga (poput `manage-users`), što može dovesti do *403 Forbidden* greške na backendu ako se ne podesi ispravno.
+- **Sinhronizacija:** Postoji rizik od desinhronizacije lokalne baze i Keycloaka ako middleware ne obradi grešku pri kreiranju korisnika na jednoj od dvije strane.
+
+  
 *Dokument se ažurira tokom trajanja projekta. Svaki novi slučaj korištenja AI dodaje se kao novi unos.*
