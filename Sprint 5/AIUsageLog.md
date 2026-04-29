@@ -1,1 +1,127 @@
-| Datum | Sprint | Korišteni alat | Svrha korištenja | Kratak opis zadatka ili upita | Šta je AI predložio ili generisao | Šta je tim prihvatio | Šta je tim izmijenio | Šta je tim odbacio | Rizici, problemi ili greške koje su uočene | Ko je koristio alat |
+# AI Usage Log
+
+> Ovaj dokument evidentira korištenje AI alata u sklopu projekta razvoja sistema za organizaciju kontejnera.  
+> Svrha logiranja nije kontrola, već transparentnost i procjena zrelosti u korištenju alata.
+
+---
+
+## Unos #1
+
+| Polje | Detalji |
+|---|---|
+| **Datum** | 24.04.2026. |
+| **Sprint broj** | Sprint 5 |
+| **Alat** | ChatGPT |
+| **Ko je koristio alat** | Ajdin Kanlić |
+
+### Svrha korištenja
+Konsultacija oko planiranja entiteta za prvi sprint — odluka šta modelirati odmah, a šta odložiti.
+
+### Kratak opis zadatka ili upita
+
+> *"Hej, hajde ovako — posto je ovo tek prvi inkrement, a u ovom sprintu zelimo samo da ispunimo osnovne stvari oko registracije i login-a, mozda bi najbolje bilo da sada samo odradimo User entitet da bude kvalitetan, a kasnije cemo ostale kada budu zatrebali. Posto smo u timu od 8 ljudi smatram da ce to biti puno bolja kontrola i znat ce se tacno sta kada u kojem trenutku treba."*
+
+### Šta je AI predložio ili generisao
+- Potvrdio pristup — fokus na `User` entitetu u prvom sprintu je u skladu sa incremental delivery principima
+- Predložio strukturu `User` entiteta sa atributima: `id`, `username`, `email`, `passwordHash`, `role`, `createdAt`, `updatedAt`
+- Preporučio da se odmah razmisli o `role` polju (enum: `ADMIN`, `USER`) kako bi se izbjegao refactoring kada autorizacija bude potrebna
+- Napomenuo da `passwordHash` treba čuvati hashovan (npr. bcrypt), nikad plain text
+- Predložio validacijska ograničenja na `email` i `username` (jedinstvenost, format)
+
+### Šta je tim prihvatio
+- Odluka da se u ovom sprintu radi isključivo `User` entitet
+- Osnovna struktura entiteta sa predloženim atributima
+- Uključivanje `role` polja već u ovoj fazi radi lakše nadogradnje
+
+### Šta je tim izmijenio
+- Nazivi polja usklađeni sa konvencijom projekta
+
+### Šta je tim odbacio
+- Naprednije prijedloge (`lastLoginAt`, `profilePicture`) odloženi za kasniji sprint kao neeesencijalni za registraciju/login
+
+### Rizici, problemi ili greške koje su uočene
+- Bez posebnih rizika — AI je korišten kao sounding board za potvrdu već formiranog razmišljanja, a konačna odluka je donijeta od strane tima
+
+---
+
+## Unos #2
+
+| Polje | Detalji |
+|---|---|
+| **Datum** | 25.04.2026. |
+| **Sprint broj** | Sprint 5 |
+| **Alat** | GitHub Copilot |
+| **Ko je koristio alat** | Ajdin Kanlić |
+
+### Svrha korištenja
+Podrška pri pisanju `docker-compose.yml` konfiguracije za spajanje frontend i backend servisa.
+
+### Kratak opis zadatka ili upita
+Tražena je pomoć u kreiranju `docker-compose` konfiguracije koja objedinjuje frontend i backend servis, sa ispravnim mrežnim vezama, portovima i varijablama okruženja.
+
+### Šta je AI predložio ili generisao
+- Kompletan `docker-compose.yml` sa definisanim servisima `frontend`, `backend` i `db`
+- Konfiguraciju zajedničke Docker mreže između servisa
+- Primjer `.env` fajla sa varijablama okruženja
+- Prijedlog `Dockerfile` za frontend i backend servis
+
+### Šta je tim prihvatio
+- Osnovnu strukturu `docker-compose.yml` sa servisima i mrežom
+- Definiciju portova i environment varijabli
+- Strukturu `Dockerfile` za oba servisa
+
+### Šta je tim izmijenio
+- Nazivi servisa i image-a usklađeni sa internim konvencijama projekta
+- Prilagođeni volumeni i putanje prema stvarnoj strukturi projekta
+- Zamijenjeni generički `latest` tagovi sa specifičnim verzijama radi reproducibilnosti
+- Dodane environment varijable koje AI nije mogao znati (interne URL adrese, portovi)
+
+### Šta je tim odbacio
+- Health check konfiguracija odložena za kasniji sprint
+- Predložena produkcijska konfiguracija (fokus je bio na razvojnom okruženju)
+
+### Rizici, problemi ili greške koje su uočene
+- Generisana konfiguracija koristila je `latest` image verzije — potencijalni rizik za reproducibilnost builda, ručno ispravljeno
+- Sve konfiguracije testirane lokalno prije commita
+
+---
+
+## Unos #3
+ 
+| Polje | Detalji |
+|---|---|
+| **Datum** | 28.04.2026. |
+| **Sprint broj** | Sprint 5 |
+| **Alat** | GitHub Copilot |
+| **Ko je koristio alat** | Ajdin Kanlić |
+ 
+### Svrha korištenja
+Generisanje unit i integracionih testova za frontend i backend dio aplikacije.
+ 
+### Kratak opis zadatka ili upita
+Traženo je od Copilota da na osnovu postojećeg koda napiše testove za frontend komponente (registracija i login forme) i backend logiku (autentifikacija, validacija korisničkih podataka, endpoint-i).
+ 
+### Šta je AI predložio ili generisao
+- Unit testove za frontend komponente (`LoginForm`, `RegisterForm`) koristeći Jest i React Testing Library — provjera renderovanja, validacije inputa i ponašanja pri submitu
+- Backend unit testove za `UserService` — provjera registracije, login logike i hash-ovanja lozinke
+- Integracione testove za REST endpoint-e (`POST /auth/register`, `POST /auth/login`) sa mock bazom podataka
+- Test case-ove za granične situacije: dupli email, pogrešna lozinka, nepostojeći korisnik, prazna polja
+### Šta je tim prihvatio
+- Većinu generisanih unit testova za frontend komponente uz manje izmjene
+- Strukturu i organizaciju test fajlova (naming convention, grupiranje po `describe` blokovima)
+- Test case-ove za osnovne happy path i error scenarije
+### Šta je tim izmijenio
+- Prilagođeni mock podaci da odgovaraju stvarnoj strukturi `User` entiteta u projektu
+- Ispravljeni import putevi koji nisu odgovarali strukturi projekta
+- Neki assertions preciznije definisani prema stvarnom ponašanju aplikacije
+- Dodani test case-ovi koje Copilot nije pokrio (npr. token expiry scenariji)
+### Šta je tim odbacio
+- Dio generisanih integracionih testova koji su bili previše kompleksni za trenutnu fazu i pretpostavljali funkcionalnosti koje još nisu implementirane
+- Određeni test case-ovi koji su duplicirali logiku bez dodane vrijednosti
+### Rizici, problemi ili greške koje su uočene
+- Copilot je na nekoliko mjesta generisao testove koji su prolazili, ali nisu testirali pravu stvar (lažno pozitivni rezultati) — zahtijevalo je pažljiv code review
+- Generisani mock-ovi nisu uvijek reflektirali stvarno ponašanje baze podataka, što je moglo dati lažan osjećaj sigurnosti
+- Sve generisane testove pregledao i validirao developer prije nego su uključeni u codebase
+---
+ 
+*Dokument se ažurira tokom trajanja projekta. Svaki novi slučaj korištenja AI dodaje se kao novi unos.*
