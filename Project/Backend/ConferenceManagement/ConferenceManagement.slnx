@@ -1,0 +1,10 @@
+<Solution>
+  <Project Path="ConferenceManagement.Api/ConferenceManagement.Api.csproj" />
+  <Project Path="ConferenceManagement.Application/ConferenceManagement.Application.csproj" />
+  <Project Path="ConferenceManagement.Dal/ConferenceManagement.Dal.csproj" />
+  <Project Path="ConferenceManagement.Domain/ConferenceManagement.Domain.csproj" />
+  <Project Path="ConferenceManagement.Tests/ConferenceManagement.Tests.csproj" />
+  <Project Path="docker-compose.dcproj">
+    <Build />
+  </Project>
+</Solution>
