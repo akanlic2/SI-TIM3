@@ -31,7 +31,7 @@ services:
       KC_HOSTNAME_STRICT_HTTPS: "false"
       KC_HEALTH_ENABLED: "true"
       KC_PROXY: edge
-      KC_HTTP_RELATIVE_PATH: /keycloak
+      #KC_HTTP_RELATIVE_PATH: /keycloak
     ports:
       - "8080:8080"
     volumes:
