@@ -6,6 +6,7 @@
 //const REALM = 'conference-app';
 //const CLIENT_ID = 'conference-backend';
 const KEYCLOAK_URL = import.meta.env.VITE_KEYCLOAK_URL ?? 'http://localhost:8080';
+console.log('KEYCLOAK_URL:', KEYCLOAK_URL);
 const REALM = import.meta.env.VITE_KEYCLOAK_REALM ?? 'conference-app';
 const CLIENT_ID = import.meta.env.VITE_KEYCLOAK_CLIENT_ID ?? 'conference-backend';
 const REDIRECT_URI = `${window.location.origin}/callback`;
