@@ -21,7 +21,7 @@ public class ConferenceService : IConferenceService
         return conferences.Select(MapToDto).ToList();
     }
 
-    public async Task<ConferenceDto?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<ConferenceDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var conference = await _conferenceRepository.GetByIdAsync(id, cancellationToken);
 
@@ -77,4 +77,24 @@ public class ConferenceService : IConferenceService
             Status = conference.Status
         };
     }
+
+public async Task UpdateAsync(Guid id, UpdateConferenceDto dto, CancellationToken cancellationToken = default)
+{
+    var conference = await _conferenceRepository.GetByIdAsync(id, cancellationToken);
+
+    if (conference == null)
+    {
+        throw new KeyNotFoundException($"Konferencija sa ID-jem {id} nije pronađena.");
+    }
+
+    conference.Title = dto.Title;
+    conference.Description = dto.Description;
+    conference.StartDate = dto.StartDate.ToUniversalTime();
+    conference.EndDate = dto.EndDate.ToUniversalTime();
+    conference.Location = dto.Location;
+    conference.Category = dto.Category;
+    conference.MaxParticipants = dto.MaxParticipants;
+
+    await _conferenceRepository.UpdateAsync(conference, cancellationToken);
+}
 }

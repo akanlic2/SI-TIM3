@@ -22,8 +22,8 @@ public class ConferenceController : ControllerBase
         return Ok(conferences);
     }
 
-    [HttpGet("{id:int}")]
-    public async Task<ActionResult<ConferenceDto>> GetById(int id, CancellationToken cancellationToken)
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult<ConferenceDto>> GetById(Guid id, CancellationToken cancellationToken)
     {
         var conference = await _conferenceService.GetByIdAsync(id, cancellationToken);
 
@@ -56,5 +56,19 @@ public class ConferenceController : ControllerBase
             createdConference);*/
 
         return Ok(createdConference);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateConferenceDto dto, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _conferenceService.UpdateAsync(id, dto, cancellationToken);
+            return NoContent(); // Vraća 204 status - to je znak da je uspješno izmijenjeno
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
     }
 }
