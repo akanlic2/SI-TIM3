@@ -1,4 +1,5 @@
-﻿using ConferenceManagement.Application.DTOs.Conference;
+﻿using Microsoft.AspNetCore.Authorization;
+using ConferenceManagement.Application.DTOs.Conference;
 using ConferenceManagement.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -36,6 +37,7 @@ public class ConferenceController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Policy = "AdminOrOrganizerPolicy")]
     public async Task<ActionResult<ConferenceDto>> Create(
         [FromBody] CreateConferenceDto dto, 
         CancellationToken cancellationToken)
@@ -49,29 +51,26 @@ public class ConferenceController : ControllerBase
         // Servis obavlja spasavanje u bazu
         var createdConference = await _conferenceService.CreateAsync(dto, cancellationToken);
 
-        // Vraćamo 201 Created sa linkom na novu konferenciju
-        /*return CreatedAtAction(
-            nameof(GetById),
-            new { id = createdConference.ConferenceId },
-            createdConference);*/
-
         return Ok(createdConference);
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{id:guid}")]
+    [Authorize(Policy = "AdminOrOrganizerPolicy")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateConferenceDto dto, CancellationToken cancellationToken)
     {
         try
         {
             await _conferenceService.UpdateAsync(id, dto, cancellationToken);
-            return NoContent(); // Vraća 204 status - to je znak da je uspješno izmijenjeno
+            return NoContent();
         }
         catch (KeyNotFoundException ex)
         {
             return NotFound(ex.Message);
         }
     }
+    
     [HttpDelete("{id:guid}")]
+    [Authorize(Policy = "AdminOrOrganizerPolicy")]
     public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
         try

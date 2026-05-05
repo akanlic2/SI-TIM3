@@ -97,6 +97,10 @@ builder.Services.AddAuthorizationBuilder()
     .AddPolicy("OrganizerPolicy", policy =>
         policy.RequireAssertion(context =>
             context.User.HasClaim(System.Security.Claims.ClaimTypes.Role, "organizator")))
+    .AddPolicy("AdminOrOrganizerPolicy", policy =>
+        policy.RequireAssertion(context =>
+            context.User.HasClaim(System.Security.Claims.ClaimTypes.Role, "admin-sistema") ||
+            context.User.HasClaim(System.Security.Claims.ClaimTypes.Role, "organizator")))
     .AddPolicy("SpeakerPolicy", policy =>
         policy.RequireAssertion(context =>
             context.User.HasClaim(System.Security.Claims.ClaimTypes.Role, "predavac")))
