@@ -78,23 +78,36 @@ public class ConferenceService : IConferenceService
         };
     }
 
-public async Task UpdateAsync(Guid id, UpdateConferenceDto dto, CancellationToken cancellationToken = default)
-{
-    var conference = await _conferenceRepository.GetByIdAsync(id, cancellationToken);
-
-    if (conference == null)
+    public async Task UpdateAsync(Guid id, UpdateConferenceDto dto, CancellationToken cancellationToken = default)
     {
-        throw new KeyNotFoundException($"Konferencija sa ID-jem {id} nije pronađena.");
+        var conference = await _conferenceRepository.GetByIdAsync(id, cancellationToken);
+
+        if (conference == null)
+        {
+            throw new KeyNotFoundException($"Konferencija sa ID-jem {id} nije pronađena.");
+        }
+
+        conference.Title = dto.Title;
+        conference.Description = dto.Description;
+        conference.StartDate = dto.StartDate.ToUniversalTime();
+        conference.EndDate = dto.EndDate.ToUniversalTime();
+        conference.Location = dto.Location;
+        conference.Category = dto.Category;
+        conference.MaxParticipants = dto.MaxParticipants;
+
+        await _conferenceRepository.UpdateAsync(conference, cancellationToken);
     }
 
-    conference.Title = dto.Title;
-    conference.Description = dto.Description;
-    conference.StartDate = dto.StartDate.ToUniversalTime();
-    conference.EndDate = dto.EndDate.ToUniversalTime();
-    conference.Location = dto.Location;
-    conference.Category = dto.Category;
-    conference.MaxParticipants = dto.MaxParticipants;
+    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var conference = await _conferenceRepository.GetByIdAsync(id, cancellationToken);
 
-    await _conferenceRepository.UpdateAsync(conference, cancellationToken);
-}
+        if (conference == null)
+        {
+            throw new KeyNotFoundException($"Conference with ID {id} not found.");
+        }
+
+        // Pozivamo repozitorij za brisanje
+        await _conferenceRepository.DeleteAsync(conference, cancellationToken);
+    }
 }

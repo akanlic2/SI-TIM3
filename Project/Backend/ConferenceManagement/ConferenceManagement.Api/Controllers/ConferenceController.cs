@@ -71,4 +71,18 @@ public class ConferenceController : ControllerBase
             return NotFound(ex.Message);
         }
     }
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _conferenceService.DeleteAsync(id, cancellationToken);
+            
+            return NoContent();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { Message = ex.Message });
+        }
+    }
 }
