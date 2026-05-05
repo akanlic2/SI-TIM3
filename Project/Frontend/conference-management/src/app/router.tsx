@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { AuthProvider, useAuth } from '../auth/AuthProvider';
 import CallbackPage from '../pages/CallbackPage';
 import DashboardPage from '../pages/DashboardPage';
+import ConferencesPage from '../pages/ConferencesPage';
 import { login } from '../auth/keycloak';
 
 // ─── Route resolver ───────────────────────────────────────────────────────────
@@ -11,8 +12,22 @@ function AppRoutes() {
 
   useEffect(() => {
     const onPopState = () => setPathname(window.location.pathname);
+    const onPushState = () => setPathname(window.location.pathname);
+
+    // Listen for browser navigation
     window.addEventListener('popstate', onPopState);
-    return () => window.removeEventListener('popstate', onPopState);
+
+    // Listen for programmatic navigation (pushState)
+    const originalPushState = window.history.pushState;
+    window.history.pushState = function(state, title, url) {
+      originalPushState.call(this, state, title, url);
+      onPushState();
+    };
+
+    return () => {
+      window.removeEventListener('popstate', onPopState);
+      window.history.pushState = originalPushState;
+    };
   }, []);
 
   // Handle redirects and login triggers in useEffect
@@ -49,6 +64,17 @@ function AppRoutes() {
   // Dashboard – samo ako je logovan
   if (pathname === '/dashboard') {
     if (isLoggedIn) return <DashboardPage />;
+    return (
+      <div className="global-loading">
+        <div className="global-spinner" />
+        <p>Preusmjeravanje na prijavu...</p>
+      </div>
+    );
+  }
+
+  // Konferencije – samo ako je logovan
+  if (pathname === '/conferences') {
+    if (isLoggedIn) return <ConferencesPage />;
     return (
       <div className="global-loading">
         <div className="global-spinner" />
