@@ -49,8 +49,8 @@ public class ConferenceService : IConferenceService
         {
             Title = dto.Title,
             Description = dto.Description,
-            StartDate = dto.StartDate,
-            EndDate = dto.EndDate,
+            StartDate = dto.StartDate.ToUniversalTime(), 
+            EndDate = dto.EndDate.ToUniversalTime(),
             Location = dto.Location,
             Category = dto.Category,
             MaxParticipants = dto.MaxParticipants,

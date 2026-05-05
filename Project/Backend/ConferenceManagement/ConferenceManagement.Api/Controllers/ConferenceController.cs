@@ -29,7 +29,7 @@ public class ConferenceController : ControllerBase
 
         if (conference is null)
         {
-            return NotFound();
+            return NotFound(new { Message = $"Conference with ID {id} not found." });
         }
 
         return Ok(conference);
@@ -37,14 +37,24 @@ public class ConferenceController : ControllerBase
 
     [HttpPost]
     public async Task<ActionResult<ConferenceDto>> Create(
-        [FromBody] CreateConferenceDto dto,
+        [FromBody] CreateConferenceDto dto, 
         CancellationToken cancellationToken)
     {
+        // Dodatna validacija logike (npr. datumi)
+        if (dto.EndDate <= dto.StartDate)
+        {
+            return BadRequest(new { Message = "End date must be after the start date." });
+        }
+
+        // Servis obavlja spasavanje u bazu
         var createdConference = await _conferenceService.CreateAsync(dto, cancellationToken);
 
-        return CreatedAtAction(
+        // Vraćamo 201 Created sa linkom na novu konferenciju
+        /*return CreatedAtAction(
             nameof(GetById),
             new { id = createdConference.ConferenceId },
-            createdConference);
+            createdConference);*/
+
+        return Ok(createdConference);
     }
 }
