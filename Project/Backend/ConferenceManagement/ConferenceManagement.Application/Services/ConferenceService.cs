@@ -21,7 +21,7 @@ public class ConferenceService : IConferenceService
         return conferences.Select(MapToDto).ToList();
     }
 
-    public async Task<ConferenceDto?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<ConferenceDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var conference = await _conferenceRepository.GetByIdAsync(id, cancellationToken);
 
@@ -49,8 +49,8 @@ public class ConferenceService : IConferenceService
         {
             Title = dto.Title,
             Description = dto.Description,
-            StartDate = dto.StartDate,
-            EndDate = dto.EndDate,
+            StartDate = dto.StartDate.ToUniversalTime(), 
+            EndDate = dto.EndDate.ToUniversalTime(),
             Location = dto.Location,
             Category = dto.Category,
             MaxParticipants = dto.MaxParticipants,
@@ -76,5 +76,38 @@ public class ConferenceService : IConferenceService
             MaxParticipants = conference.MaxParticipants,
             Status = conference.Status
         };
+    }
+
+    public async Task UpdateAsync(Guid id, UpdateConferenceDto dto, CancellationToken cancellationToken = default)
+    {
+        var conference = await _conferenceRepository.GetByIdAsync(id, cancellationToken);
+
+        if (conference == null)
+        {
+            throw new KeyNotFoundException($"Konferencija sa ID-jem {id} nije pronađena.");
+        }
+
+        conference.Title = dto.Title;
+        conference.Description = dto.Description;
+        conference.StartDate = dto.StartDate.ToUniversalTime();
+        conference.EndDate = dto.EndDate.ToUniversalTime();
+        conference.Location = dto.Location;
+        conference.Category = dto.Category;
+        conference.MaxParticipants = dto.MaxParticipants;
+
+        await _conferenceRepository.UpdateAsync(conference, cancellationToken);
+    }
+
+    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var conference = await _conferenceRepository.GetByIdAsync(id, cancellationToken);
+
+        if (conference == null)
+        {
+            throw new KeyNotFoundException($"Conference with ID {id} not found.");
+        }
+
+        // Pozivamo repozitorij za brisanje
+        await _conferenceRepository.DeleteAsync(conference, cancellationToken);
     }
 }

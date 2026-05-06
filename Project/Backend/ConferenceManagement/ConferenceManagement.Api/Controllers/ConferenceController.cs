@@ -1,4 +1,5 @@
-﻿using ConferenceManagement.Application.DTOs.Conference;
+﻿using Microsoft.AspNetCore.Authorization;
+using ConferenceManagement.Application.DTOs.Conference;
 using ConferenceManagement.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,29 +23,65 @@ public class ConferenceController : ControllerBase
         return Ok(conferences);
     }
 
-    [HttpGet("{id:int}")]
-    public async Task<ActionResult<ConferenceDto>> GetById(int id, CancellationToken cancellationToken)
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult<ConferenceDto>> GetById(Guid id, CancellationToken cancellationToken)
     {
         var conference = await _conferenceService.GetByIdAsync(id, cancellationToken);
 
         if (conference is null)
         {
-            return NotFound();
+            return NotFound(new { Message = $"Conference with ID {id} not found." });
         }
 
         return Ok(conference);
     }
 
     [HttpPost]
+    [Authorize(Policy = "AdminOrOrganizerPolicy")]
     public async Task<ActionResult<ConferenceDto>> Create(
-        [FromBody] CreateConferenceDto dto,
+        [FromBody] CreateConferenceDto dto, 
         CancellationToken cancellationToken)
     {
+        // Dodatna validacija logike (npr. datumi)
+        if (dto.EndDate <= dto.StartDate)
+        {
+            return BadRequest(new { Message = "End date must be after the start date." });
+        }
+
+        // Servis obavlja spasavanje u bazu
         var createdConference = await _conferenceService.CreateAsync(dto, cancellationToken);
 
-        return CreatedAtAction(
-            nameof(GetById),
-            new { id = createdConference.ConferenceId },
-            createdConference);
+        return Ok(createdConference);
+    }
+
+    [HttpPut("{id:guid}")]
+    [Authorize(Policy = "AdminOrOrganizerPolicy")]
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateConferenceDto dto, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _conferenceService.UpdateAsync(id, dto, cancellationToken);
+            return NoContent();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+    }
+    
+    [HttpDelete("{id:guid}")]
+    [Authorize(Policy = "AdminOrOrganizerPolicy")]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _conferenceService.DeleteAsync(id, cancellationToken);
+            
+            return NoContent();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { Message = ex.Message });
+        }
     }
 }

@@ -112,8 +112,8 @@ export default function DashboardPage() {
 
         <nav className="sidebar-nav">
           {[
-            { id: 'dashboard', icon: '⬡', label: 'Dashboard' },
-            { id: 'conferences', icon: '🗓', label: 'Konferencije' },
+            { id: 'dashboard', icon: '⬡', label: 'Dashboard', path: '/dashboard' },
+            { id: 'conferences', icon: '🗓', label: 'Konferencije', path: '/conferences' },
             { id: 'speakers', icon: '🎙', label: 'Govornici' },
             { id: 'reports', icon: '📊', label: 'Izvještaji' },
             { id: 'settings', icon: '⚙', label: 'Postavke' },
@@ -121,7 +121,13 @@ export default function DashboardPage() {
             <button
               key={item.id}
               className={`nav-item ${activeNav === item.id ? 'active' : ''}`}
-              onClick={() => setActiveNav(item.id)}
+              onClick={() => {
+                if (item.path) {
+                  window.history.pushState({}, '', item.path);
+                } else {
+                  setActiveNav(item.id);
+                }
+              }}
               id={`nav-${item.id}`}
             >
               <span className="nav-icon">{item.icon}</span>
@@ -223,7 +229,7 @@ export default function DashboardPage() {
                 <h2 className="section-title">Nadolazeće konferencije</h2>
                 <button
                   className="btn-secondary"
-                  onClick={() => setActiveNav('conferences')}
+                  onClick={() => window.history.pushState({}, '', '/conferences')}
                   id="view-all-conferences"
                 >
                   Vidi sve →
