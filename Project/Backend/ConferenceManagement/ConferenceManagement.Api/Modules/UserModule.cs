@@ -20,7 +20,7 @@ public static class UserModule
             var users = await userService.GetAllUsersAsync();
             return Results.Ok(new { users, count = users.Count });
         })
-        
+        .RequireAuthorization("AdminSistemaPolicy")
         .WithSummary("Dohvata sve korisnike - Dostupno samo za admin-sistema");
 
         

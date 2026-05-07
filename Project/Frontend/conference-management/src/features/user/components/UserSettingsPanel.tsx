@@ -1,8 +1,14 @@
 import { useAuth } from '../../../auth/AuthProvider';
 import { useUserProfile } from '../hooks/useUserProfile';
+import type { UserProfile } from '../types';
 import './UserSettingsPanel.css';
 
-export function UserSettingsPanel() {
+interface UserSettingsPanelProps {
+  title?: string;
+  targetUser?: UserProfile | null;
+}
+
+export function UserSettingsPanel({ title = 'Postavke naloga', targetUser = null }: UserSettingsPanelProps) {
   const { user, token } = useAuth();
   const {
     profile,
@@ -15,12 +21,12 @@ export function UserSettingsPanel() {
     message,
     saveProfile,
     cancelEditing,
-  } = useUserProfile({ user, token });
+  } = useUserProfile({ user, token, targetUser });
 
   return (
     <>
       <header className="settings-header">
-        <h1>Postavke naloga</h1>
+        <h1>{title}</h1>
         <div className="settings-actions">
           {!editing ? (
             <button className="btn-primary" onClick={() => setEditing(true)}>Uredi</button>

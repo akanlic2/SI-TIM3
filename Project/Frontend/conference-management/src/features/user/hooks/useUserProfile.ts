@@ -6,9 +6,20 @@ import type { UserProfile } from '../types';
 interface UseUserProfileParams {
   user: TokenClaims | null;
   token: string | null;
+  targetUser?: UserProfile | null;
 }
 
-function toInitialProfile(user: TokenClaims | null): UserProfile {
+function toInitialProfile(user: TokenClaims | null, targetUser?: UserProfile | null): UserProfile {
+  if (targetUser) {
+    return {
+      id: targetUser.id ?? user?.sub,
+      firstName: targetUser.firstName ?? '',
+      lastName: targetUser.lastName ?? '',
+      username: targetUser.username ?? '',
+      email: targetUser.email ?? '',
+    };
+  }
+
   return {
     id: user?.sub,
     firstName: user?.given_name ?? '',
@@ -18,9 +29,9 @@ function toInitialProfile(user: TokenClaims | null): UserProfile {
   };
 }
 
-export function useUserProfile({ user, token }: UseUserProfileParams) {
-  const userId = user?.sub;
-  const initialProfile = useMemo(() => toInitialProfile(user), [user]);
+export function useUserProfile({ user, token, targetUser }: UseUserProfileParams) {
+  const initialProfile = useMemo(() => toInitialProfile(user, targetUser), [user, targetUser]);
+  const userId = initialProfile.id ?? user?.sub;
 
   const [profile, setProfile] = useState<UserProfile>(initialProfile);
   const [loading, setLoading] = useState(false);
@@ -30,6 +41,9 @@ export function useUserProfile({ user, token }: UseUserProfileParams) {
 
   useEffect(() => {
     setProfile(initialProfile);
+    setEditing(false);
+    setPassword('');
+    setMessage(null);
   }, [initialProfile]);
 
   useEffect(() => {
