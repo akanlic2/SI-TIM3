@@ -281,6 +281,119 @@ Copilot je korišten kao podrška pri razvoju i implementaciji React + TypeScrip
 - Tokom razvoja Copilot je predlagao implementacije zasnovane na zastarjelim verzijama pojedinih biblioteka, što je dovelo do build i kompatibilnosnih grešaka
 
 
+## Unos #8
+
+| Polje | Detalji |
+| --- | --- |
+| **Datum** | 06.05.2026. |
+| **Sprint broj** | Sprint 6 |
+| **Alat** | GitHub Copilot |
+| **Ko je koristio alat** | Tarik Babahmetović |
+
+### Svrha korištenja
+Pomoć pri implementaciji backend ruta i frontend integracije za upravljanje korisničkim postavkama i administratorskim funkcionalnostima.
+
+### Kratak opis zadatka ili upita
+Copilot je korišten kao podrška pri generisanju ASP.NET Core API ruta, kontrolera i frontend React komponenti za prikaz i izmjenu korisničkih postavki, uključujući povezivanje sa postojećim servisima i autentifikacijom.
+
+### Šta je AI predložio ili generisao
+- API rute za dohvat i izmjenu korisničkih postavki
+- Primjere kontrolera sa `[Authorize]` atributima
+- React + TypeScript komponente za prikaz forme korisničkih postavki
+- Axios pozive prema backend endpointima
+
+### Šta je tim prihvatio
+- Generisane API rute
+- HTML sadržaj korisničkih postavki
+- Organizaciju komponenti i servisnih klasa na backendu
+
+### Šta je tim izmijenio
+- CSS forme za unos podataka
+- Ostajanje na dashboard stranici umjesto redirect na posebnu /settings stranicu
+
+### Šta je tim odbacio
+- Strukturu koda po folderima na frontendu
+
+### Rizici, problemi ili greške koje su uočene
+- Copilot nije pratio folder strukturu projekta
+- Copilot nije učio grešku u korištenju Expression izraza
+
+---
+
+## Unos #9
+
+| Polje | Detalji |
+| --- | --- |
+| **Datum** | 07.05.2026. |
+| **Sprint broj** | Sprint 6 |
+| **Alat** | ChatGPT |
+| **Ko je koristio alat** | Tarik Babahmetović |
+
+### Svrha korištenja
+Pomoć pri radu sa Git granama i pravilnom prebacivanju commit-a između branch-eva korištenjem `git cherry-pick` komande.
+
+### Kratak opis zadatka ili upita
+Tražena je pomoć oko korištenja `git cherry-pick` komande kako bi se određeni commit-i sa razvojne grane pravilno prebacili na drugu granu jer git nije prepoznavao promjene pri merge-u.
+
+### Šta je AI predložio ili generisao
+- Objašnjenje rada `git cherry-pick` komande
+- Primjere prebacivanja jednog i više commit-a
+- Korake za rješavanje konflikata tokom cherry-pick procesa
+- Savjete za provjeru historije commit-a pomoću `git log --oneline`
+- Objašnjenje kada koristiti `cherry-pick`, a kada `merge` ili `rebase`
+
+### Šta je tim prihvatio
+- Predloženi workflow za selektivno prebacivanje commit-a
+- Korištenje `git log --oneline` za identifikaciju commit hash-eva
+- Postupak za rješavanje konflikata tokom cherry-pick-a
+
+### Šta je tim izmijenio
+- Commit-i su reorganizovani prije cherry-pick procesa kako bi historija bila preglednija
+- Nisu korišteni merge commit-i u cherry-pick komandi
+
+### Šta je tim odbacio
+- Korištenje `git rebase` pristupa u ovom slučaju zbog mogućnosti komplikovanja timskog workflow-a
+
+### Rizici, problemi ili greške koje su uočene
+- Postojala je mogućnost konflikata zbog razlika između grana, pa su svi cherry-pick commit-i dodatno testirani prije push-a na remote repozitorij
+
+---
+
+## Unos #10
+
+| Polje | Detalji |
+| --- | --- |
+| **Datum** | 07.05.2026. |
+| **Sprint broj** | Sprint 6 |
+| **Alat** | Claude AI |
+| **Ko je koristio alat** | Tarik Babahmetović |
+
+### Svrha korištenja
+Pomoć pri konfiguraciji SSH pristupa serveru i pokretanju aplikacije na VPS infrastrukturi.
+
+### Kratak opis zadatka ili upita
+Claude AI je korišten za pomoć pri generisanju SSH komandi, konfiguraciji pristupa serveru pomoću SSH ključeva i pokretanju Docker servisa na udaljenom VPS serveru.
+
+### Šta je AI predložio ili generisao
+- Korake za SSH pristup serveru
+- Komande za pokretanje i provjeru Docker kontejnera (`docker compose up -d`, `docker ps`, `docker logs`)
+- Debug grešaka prilikom pokretanja kontejnera
+
+### Šta je tim prihvatio
+- Docker komande za pokretanje i nadzor aplikacije
+- Organizaciju deployment workflow-a na serveru
+
+### Šta je tim izmijenio
+- Putanje i nazivi servisa prilagođeni stvarnoj infrastrukturi projekta
+- Naziv i IP adresa servera u ssh komandi
+
+### Šta je tim odbacio
+- Korištenje HTTP protokola umjesto HTTPS za brzo rješavanje problema
+
+### Rizici, problemi ili greške koje su uočene
+- Nisu uočeni rizici
+
+
 ---
   
 *Dokument se ažurira tokom trajanja projekta. Svaki novi slučaj korištenja AI dodaje se kao novi unos.*
