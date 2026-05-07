@@ -17,7 +17,6 @@ services:
       timeout: 5s
       retries: 10
       start_period: 10s
-
   keycloak:
     image: quay.io/keycloak/keycloak:26.6.1
     container_name: keycloak
@@ -41,7 +40,6 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
-
   conferencemanagement.migrator:
     build:
       context: .
@@ -49,13 +47,12 @@ services:
     container_name: conferencemanagement.migrator
     restart: on-failure
     depends_on:
-      conferencemanagement.db:
+    conferencemanagement.db:
         condition: service_healthy
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       RUN_MIGRATIONS_ONLY: "true"
       ConnectionStrings__DefaultConnection: Host=conferencemanagement.db;Port=5432;Database=conference_management_db;Username=si_tim3;Password=si_tim3_db_pass
-
   conferencemanagement.api:
     build:
       context: .
@@ -77,9 +74,15 @@ services:
       Keycloak__Audience: conference-backend
     ports:
       - "8082:8080"
-
   conferencemanagement.frontend:
-    image: ekurtovic5/conferencemanagement-frontend:latest
+    build:
+      context: /root/SI-TIM3/Project/Frontend/conference-management
+      dockerfile: Dockerfile
+      args:
+        VITE_KEYCLOAK_URL: https://178.128.144.139.nip.io/keycloak
+        VITE_KEYCLOAK_REALM: conference-app
+        VITE_KEYCLOAK_CLIENT_ID: conference-backend
+        VITE_API_URL: http://178.128.144.139:8082
     container_name: conferencemanagement.frontend
     restart: unless-stopped
     ports:
@@ -89,6 +92,7 @@ services:
         condition: service_started
       keycloak:
         condition: service_started
-
 volumes:
-  conferencemanagement-db-data:
+ conferencemanagement-db-data:
+
+
