@@ -74,6 +74,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           command_timeout: 10m
           script: |
-            cd /app/Project/Backend/ConferenceManagement
-            docker compose pull
-            docker compose up -d
+            cd /root/SI-TIM3/Project/Backend/ConferenceManagement
+            git pull origin main
+            docker compose -f docker-compose.prod.yml pull
+            docker compose -f docker-compose.prod.yml up -d
