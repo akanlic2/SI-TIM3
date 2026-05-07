@@ -277,6 +277,7 @@
   mask-composite: exclude;
   opacity: 0;
   transition: opacity var(--transition);
+  pointer-events: none;
 }
 
 .conference-card:hover {
@@ -540,4 +541,47 @@
   .form-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* ─── Datetime-local: samo ikona kalendara, bez placeholder teksta ───────────── */
+
+input[type="datetime-local"].form-input {
+  color: transparent;
+  position: relative;
+}
+
+input[type="datetime-local"].form-input:focus {
+  color: var(--text-primary);
+}
+
+input[type="datetime-local"].form-input:valid {
+  color: var(--text-primary);
+}
+
+/* Bijela ikona kalendara */
+input[type="datetime-local"].form-input::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(2);
+  opacity: 0.8;
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Sakrij inner-text spinner (dd/mm/yyyy) kada nema vrijednosti */
+input[type="datetime-local"].form-input:not(:valid)::-webkit-datetime-edit {
+  color: transparent;
+}
+
+input[type="datetime-local"].form-input::-webkit-datetime-edit-fields-wrapper {
+  visibility: hidden;
+}
+
+input[type="datetime-local"].form-input:focus::-webkit-datetime-edit-fields-wrapper,
+input[type="datetime-local"].form-input:not([value=""])::-webkit-datetime-edit-fields-wrapper {
+  visibility: visible;
+  color: var(--text-primary);
 }

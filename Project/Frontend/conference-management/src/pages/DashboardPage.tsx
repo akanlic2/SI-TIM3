@@ -1,7 +1,5 @@
-import { useEffect, useState, type CSSProperties } from 'react';
+import React, { useEffect, useState, type CSSProperties } from 'react';
 import { useAuth } from '../auth/AuthProvider';
-import SettingsPage from './SettingsPage';
-import { AdminUsersPanel } from '../features/user';
 import './DashboardPage.css';
 
 // ─── Tip za konferenciju ───────────────────────────────────────────────────────
@@ -67,7 +65,6 @@ export default function DashboardPage() {
   const roles = user?.realm_access?.roles?.filter(
     (r) => !['default-roles-conference-app', 'offline_access', 'uma_authorization'].includes(r)
   ) ?? [];
-  const isAdmin = roles.some((role) => role.toLowerCase().includes('admin'));
 
   // ─── Dohvat konferencija ───────────────────────────────────────────────────
   useEffect(() => {
@@ -127,8 +124,9 @@ export default function DashboardPage() {
               onClick={() => {
                 if (item.path) {
                   window.history.pushState({}, '', item.path);
+                } else {
+                  setActiveNav(item.id);
                 }
-                setActiveNav(item.id);
               }}
               id={`nav-${item.id}`}
             >
@@ -224,8 +222,6 @@ export default function DashboardPage() {
                 color="245, 158, 11"
               />
             </section>
-
-            {isAdmin && <AdminUsersPanel />}
 
             {/* Nadolazeće konferencije */}
             <section className="section-block">
@@ -350,24 +346,17 @@ export default function DashboardPage() {
         )}
 
         {/* ── Ostali tabovi (placeholder) ──────────────────────────── */}
-        {['speakers', 'reports'].includes(activeNav) && (
+        {['speakers', 'reports', 'settings'].includes(activeNav) && (
           <div className="dash-content">
             <div className="coming-soon">
               <div className="coming-soon-icon">
                 {activeNav === 'speakers' && '🎙'}
                 {activeNav === 'reports' && '📊'}
+                {activeNav === 'settings' && '⚙'}
               </div>
               <h2>Uskoro dostupno</h2>
               <p>Ova sekcija je u razvoju.</p>
             </div>
-          </div>
-        )}
-
-        {activeNav === 'settings' && (
-          <div className="dash-content">
-            <section className="section-block user-info-section">
-              <SettingsPage />
-            </section>
           </div>
         )}
       </main>
