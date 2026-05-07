@@ -8,11 +8,11 @@ services:
       POSTGRES_USER: si_tim3
       POSTGRES_PASSWORD: si_tim3_db_pass
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - conferencemanagement-db-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U si_tim3 -d conference_management_db"]
+      test: ['CMD-SHELL', 'pg_isready -U si_tim3 -d conference_management_db']
       interval: 5s
       timeout: 5s
       retries: 10
@@ -27,17 +27,16 @@ services:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
       KC_HTTP_PORT: 8080
-      KC_HOSTNAME_STRICT: "false"
-      KC_HOSTNAME_STRICT_HTTPS: "false"
-      KC_HEALTH_ENABLED: "true"
+      KC_HOSTNAME_STRICT: 'false'
+      KC_HOSTNAME_STRICT_HTTPS: 'false'
+      KC_HEALTH_ENABLED: 'true'
       KC_PROXY: edge
-      #KC_HTTP_RELATIVE_PATH: /keycloak
     ports:
-      - "8080:8080"
+      - '8080:8080'
     volumes:
       - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/health/live"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:9000/health/live']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -54,7 +53,7 @@ services:
         condition: service_healthy
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      RUN_MIGRATIONS_ONLY: "true"
+      RUN_MIGRATIONS_ONLY: 'true'
       ConnectionStrings__DefaultConnection: Host=conferencemanagement.db;Port=5432;Database=conference_management_db;Username=si_tim3;Password=si_tim3_db_pass
 
   conferencemanagement.api:
@@ -77,14 +76,22 @@ services:
       Keycloak__Authority: http://keycloak:8080/realms/conference-app
       Keycloak__Audience: conference-backend
     ports:
-      - "8082:8080"
+      - '8082:8080'
 
   conferencemanagement.frontend:
-    image: ekurtovic5/conferencemanagement-frontend:latest
+    build:
+      context: ../../Frontend/conference-management
+      dockerfile: Dockerfile
+      args:
+        VITE_KEYCLOAK_URL: http://localhost:8080
+        VITE_KEYCLOAK_REALM: conference-app
+        VITE_KEYCLOAK_CLIENT_ID: conference-backend
+        VITE_API_URL: http://localhost:8082
+    image: conferencemanagement-frontend:local
     container_name: conferencemanagement.frontend
     restart: unless-stopped
     ports:
-      - "3000:80"
+      - '3000:80'
     depends_on:
       conferencemanagement.api:
         condition: service_started

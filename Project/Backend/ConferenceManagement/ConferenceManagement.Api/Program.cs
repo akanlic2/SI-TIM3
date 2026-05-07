@@ -23,6 +23,7 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins(
                 "http://localhost",
+                "http://localhost:3000",
                 "http://localhost:5173",
                 "http://localhost:5174"
             )
@@ -39,7 +40,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         var authority = keycloakSection["Authority"];
 
         options.Authority = authority;
-        options.MetadataAddress = "http://keycloak:8080/keycloak/realms/conference-app/.well-known/openid-configuration";
+        options.MetadataAddress = "http://keycloak:8080/realms/conference-app/.well-known/openid-configuration";
         options.Audience = keycloakSection["Audience"];
         options.RequireHttpsMetadata = false;
         options.TokenValidationParameters = new TokenValidationParameters
@@ -49,7 +50,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidIssuers = new[] {
                 authority,
                 authority.Replace("keycloak", "localhost"),
-                "http://localhost:8080/keycloak/realms/conference-app"
+                "http://localhost:8080/realms/conference-app"
             },
             NameClaimType = "sub",
             RoleClaimType = "role"

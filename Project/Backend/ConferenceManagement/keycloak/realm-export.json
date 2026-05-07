@@ -92,6 +92,7 @@
         "composites": {
           "realm": [
             "offline_access",
+            "ucesnik",
             "uma_authorization"
           ],
           "client": {
@@ -759,12 +760,14 @@
       "redirectUris": [
         "https://178.128.144.139.nip.io/*",
         "http://localhost/callback",
+        "http://localhost:3000/*",
         "http://localhost:5173/*",
         "http://localhost/*",
         "https://178.128.144.139.nip.io/callback"
       ],
       "webOrigins": [
         "http://localhost",
+        "http://localhost:3000",
         "http://localhost:5173",
         "https://178.128.144.139.nip.io"
       ],
@@ -1677,14 +1680,14 @@
         "subComponents": {},
         "config": {
           "allowed-protocol-mapper-types": [
-            "saml-role-list-mapper",
-            "oidc-usermodel-property-mapper",
-            "saml-user-attribute-mapper",
-            "saml-user-property-mapper",
             "oidc-address-mapper",
+            "saml-user-attribute-mapper",
+            "oidc-full-name-mapper",
             "oidc-sha256-pairwise-sub-mapper",
+            "saml-user-property-mapper",
+            "saml-role-list-mapper",
             "oidc-usermodel-attribute-mapper",
-            "oidc-full-name-mapper"
+            "oidc-usermodel-property-mapper"
           ]
         }
       },
@@ -1732,14 +1735,14 @@
         "subComponents": {},
         "config": {
           "allowed-protocol-mapper-types": [
-            "oidc-full-name-mapper",
-            "saml-role-list-mapper",
-            "oidc-address-mapper",
-            "oidc-usermodel-attribute-mapper",
-            "oidc-usermodel-property-mapper",
-            "saml-user-property-mapper",
             "saml-user-attribute-mapper",
-            "oidc-sha256-pairwise-sub-mapper"
+            "saml-role-list-mapper",
+            "saml-user-property-mapper",
+            "oidc-address-mapper",
+            "oidc-sha256-pairwise-sub-mapper",
+            "oidc-usermodel-attribute-mapper",
+            "oidc-full-name-mapper",
+            "oidc-usermodel-property-mapper"
           ]
         }
       },

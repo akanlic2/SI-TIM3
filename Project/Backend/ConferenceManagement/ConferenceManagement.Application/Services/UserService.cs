@@ -1,10 +1,9 @@
-using ConferenceManagement.Dal;
 using ConferenceManagement.Domain.Entities;
+using ConferenceManagement.Dal;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
 
 namespace ConferenceManagement.Application.Services
 {
@@ -12,8 +11,6 @@ namespace ConferenceManagement.Application.Services
     {
         Task<int> GetUserCountAsync();
         Task<List<UserDto>> GetAllUsersAsync();
-        Task<UserDto?> GetUserByIdAsync(Guid userId);
-        Task<bool> UpdateUserAsync(Guid userId, UpdateUserDto dto);
     }
 
     public class UserService : IUserService
@@ -32,59 +29,18 @@ namespace ConferenceManagement.Application.Services
         public async Task<List<UserDto>> GetAllUsersAsync()
         {
             return await _dbContext.Users
-                .Select(MapToDto)
+                .Select(u => new UserDto
+                {
+                    UserId = u.UserId,
+                    KeycloakUserId = u.KeycloakUserId,
+                    FirstName = u.FirstName,
+                    LastName = u.LastName,
+                    Email = u.Email,
+                    Role = u.Role,
+                    CreatedAt = u.CreatedAt
+                })
                 .ToListAsync();
         }
-
-        public async Task<UserDto?> GetUserByIdAsync(Guid userId)
-        {
-            return await _dbContext.Users
-                .Where(u => u.UserId == userId)
-                .Select(MapToDto)
-                .SingleOrDefaultAsync();
-        }
-
-        public async Task<bool> UpdateUserAsync(Guid userId, UpdateUserDto dto)
-        {
-            var user = await _dbContext.Users
-                .FirstOrDefaultAsync(u => u.UserId == userId);
-
-            if (user is null)
-            {
-                return false;
-            }
-
-            if (!string.IsNullOrWhiteSpace(dto.FirstName))
-            {
-                user.FirstName = dto.FirstName;
-            }
-
-            if (!string.IsNullOrWhiteSpace(dto.LastName))
-            {
-                user.LastName = dto.LastName;
-            }
-
-            if (!string.IsNullOrWhiteSpace(dto.Email))
-            {
-                user.Email = dto.Email;
-            }
-
-            user.UpdatedAt = DateTime.UtcNow;
-
-            await _dbContext.SaveChangesAsync();
-            return true;
-        }
-
-        private static Expression<Func<User, UserDto>> MapToDto = user => new UserDto
-        {
-            UserId = user.UserId,
-            KeycloakUserId = user.KeycloakUserId,
-            FirstName = user.FirstName,
-            LastName = user.LastName,
-            Email = user.Email,
-            Role = user.Role,
-            CreatedAt = user.CreatedAt
-        };
     }
 
     public class UserDto
@@ -96,14 +52,6 @@ namespace ConferenceManagement.Application.Services
         public string Email { get; set; } = string.Empty;
         public string Role { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }
-    }
-
-    public class UpdateUserDto
-    {
-        public string? FirstName { get; set; }
-        public string? LastName { get; set; }
-        public string? Email { get; set; }
-        public string? Role { get; set; }
     }
 }
 

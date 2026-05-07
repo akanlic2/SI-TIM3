@@ -115,14 +115,14 @@ export function ConferenceList({ conferences, isAdminOrOrganizer, onDeleteSucces
               <button
                 onClick={() => onEditClick(conference)}
                 className="btn-edit"
-                style={{ backgroundColor: '#EAB308', color: '#000', borderRadius: '9999px', padding: '8px 20px', border: 'none' }}
+                style={{ backgroundColor: '#EAB308', color: '#000', borderRadius: '9999px', padding: '8px 20px', border: 'none', cursor: 'pointer' }}
               >
                 Uredi
               </button>
               <button
                 onClick={() => handleDelete(conference.conferenceId)}
                 className="btn-delete"
-                style={{ backgroundColor: '#EF4444', color: '#fff', borderRadius: '9999px', padding: '8px 20px', border: 'none' }}
+                style={{ backgroundColor: '#EF4444', color: '#fff', borderRadius: '9999px', padding: '8px 20px', border: 'none', cursor: 'pointer' }}
               >
                 Obriši
               </button>

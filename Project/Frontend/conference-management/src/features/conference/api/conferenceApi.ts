@@ -1,8 +1,9 @@
 import axios from 'axios';
 import type { Conference, CreateConferenceData, UpdateConferenceData } from '../types';
 
-// API base URL - matches backend route
-const API_URL = 'http://localhost:5268/api/Conference';
+// API base URL - uses env variable, falls back to Docker port 8082
+const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8082';
+const API_URL = `${BASE_URL}/api/Conference`;
 
 export async function fetchConferences(): Promise<Conference[]> {
   const token = localStorage.getItem('kc_access_token');

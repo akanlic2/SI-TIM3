@@ -5,6 +5,23 @@ import { createConference, updateConference } from '../features/conference/api/c
 import type { Conference, CreateConferenceData } from '../features/conference/types';
 import '../features/conference/ConferencesPage.css';
 
+// Konvertuje ISO string u format koji datetime-local input prihvata: YYYY-MM-DDTHH:mm
+const toDatetimeLocal = (dateStr: string): string => {
+  if (!dateStr) return '';
+  try {
+    // Ako vec ima ispravan format, samo skrati na 16 znakova
+    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(dateStr)) {
+      return dateStr.slice(0, 16);
+    }
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return '';
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  } catch {
+    return '';
+  }
+};
+
 export default function ConferencesPage() {
   const { items, isLoading: isDataLoading, error, refresh } = useConferences();
   const { user, isLoading: isAuthLoading } = useAuth();
@@ -50,8 +67,8 @@ export default function ConferencesPage() {
       title: conference.title,
       description: conference.description,
       location: conference.location,
-      startDate: conference.startDate,
-      endDate: conference.endDate,
+      startDate: toDatetimeLocal(conference.startDate),
+      endDate: toDatetimeLocal(conference.endDate),
       maxParticipants: conference.maxParticipants,
       category: conference.category
     });
@@ -161,8 +178,10 @@ export default function ConferencesPage() {
                       type="datetime-local"
                       className="form-input"
                       style={{ minWidth: 0 }}
+                      min={toDatetimeLocal(new Date().toISOString())}
                       value={formData.startDate}
                       onChange={e => setFormData({...formData, startDate: e.target.value})}
+                      onKeyDown={e => e.preventDefault()}
                       required
                     />
                   </div>
@@ -172,8 +191,10 @@ export default function ConferencesPage() {
                       type="datetime-local"
                       className="form-input"
                       style={{ minWidth: 0 }}
+                      min={toDatetimeLocal(new Date().toISOString())}
                       value={formData.endDate}
                       onChange={e => setFormData({...formData, endDate: e.target.value})}
+                      onKeyDown={e => e.preventDefault()}
                       required
                     />
                   </div>
@@ -215,8 +236,8 @@ export default function ConferencesPage() {
                     min="1"
                     max="10000"
                     className="form-input"
-                    value={formData.maxParticipants}
-                    onChange={e => setFormData({...formData, maxParticipants: parseInt(e.target.value) || 50})}
+                    value={formData.maxParticipants || ''}
+                    onChange={e => setFormData({...formData, maxParticipants: e.target.value ? parseInt(e.target.value) : 0})}
                     required
                   />
                 </div>
