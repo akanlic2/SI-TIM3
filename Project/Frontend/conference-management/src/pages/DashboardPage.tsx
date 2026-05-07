@@ -1,6 +1,7 @@
 import { useEffect, useState, type CSSProperties } from 'react';
 import { useAuth } from '../auth/AuthProvider';
 import SettingsPage from './SettingsPage';
+import { AdminUsersPanel } from '../features/user';
 import './DashboardPage.css';
 
 // ─── Tip za konferenciju ───────────────────────────────────────────────────────
@@ -66,6 +67,7 @@ export default function DashboardPage() {
   const roles = user?.realm_access?.roles?.filter(
     (r) => !['default-roles-conference-app', 'offline_access', 'uma_authorization'].includes(r)
   ) ?? [];
+  const isAdmin = roles.some((role) => role.toLowerCase().includes('admin'));
 
   // ─── Dohvat konferencija ───────────────────────────────────────────────────
   useEffect(() => {
@@ -222,6 +224,8 @@ export default function DashboardPage() {
                 color="245, 158, 11"
               />
             </section>
+
+            {isAdmin && <AdminUsersPanel />}
 
             {/* Nadolazeće konferencije */}
             <section className="section-block">

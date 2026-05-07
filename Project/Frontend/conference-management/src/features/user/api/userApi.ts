@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { UpdateUserProfileData, UserProfile } from '../types';
+import type { UpdateUserProfileData, UserProfile, UserSummary } from '../types';
 
 export async function fetchUserProfile(userId: string, token: string): Promise<UserProfile | null> {
   try {
@@ -38,5 +38,26 @@ export async function updateUserProfile(userId: string, token: string, payload: 
       return message || `Status ${error.response?.status ?? 'unknown'}`;
     }
     return 'Greška pri čuvanju podataka.';
+  }
+}
+
+export async function fetchAllUsers(token: string): Promise<UserSummary[]> {
+  try {
+    const res = await axios.get('/api/users/all', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    const data = Array.isArray(res.data) ? res.data : [];
+
+    return data.map((item) => ({
+      id: item.id ?? item.sub ?? '',
+      firstName: item.firstName ?? item.given_name ?? '',
+      lastName: item.lastName ?? item.family_name ?? '',
+      username: item.username ?? item.preferred_username ?? '',
+      email: item.email ?? '',
+      roles: Array.isArray(item.roles) ? item.roles : Array.isArray(item.realm_access?.roles) ? item.realm_access.roles : [],
+    }));
+  } catch {
+    return [];
   }
 }
