@@ -201,6 +201,86 @@ Konsultacije i pomoć oko deploymenta aplikacije.
 ### Rizici, problemi ili greške koje su uočene
 - Nedostatak memorije na serveru, već smo na samom početku morali dodavati 2GB swap memorije.
 
+## Unos #6
+
+| Polje | Detalji |
+| --- | --- |
+| **Datum** | 5.05.2026 |
+| **Sprint broj** | Sprint 6 |
+| **Alat** | Github Copilot |
+| **Ko je koristio alat** | Lamija Dženetić |
+
+### Svrha korištenja
+Pomoć pri implementaciji funkcionalnosti za upravljanje konferencijama (dodavanje, uređivanje i brisanje konferencija).
+
+### Kratak opis zadatka ili upita
+Copilot je korišten kao podrška pri razvoju i implementaciji endpointa POST/conference, PUT/conferences/:id i DELETE/conferences/:id, uključujući organizaciju logike kroz odgovarajuće slojeve aplikacije i usklađivanje sa postojećom arhitekturom projekta.
+
+### Šta je AI predložio ili generisao
+- Conference entitet s ConferenceStatus enumom
+- CreateConferenceDto s Data Annotations validacijom
+- ConferenceService s ručnim mapiranjem i postavljanjem Status = Active
+- ConferenceRepository s EF Core implementacijom i snake_case mapiranjem
+- ConferencesController s [Authorize(Policy = "AdminOrOrganizerPolicy")] i 201 Created odgovorom
+- GlobalExceptionMiddleware za centralizovano upravljanje greškama
+- Registraciju servisa u Program.cs
+
+### Šta je tim prihvatio
+- Većinu generisanog koda uz manje izmjene
+- Strukturu foldera i nazive klasa
+- Pattern za upravljanje greškama putem middleware-a
+
+### Šta je tim izmijenio
+- Prilagođen namespace prema postojećoj strukturi projekta
+
+### Šta je tim odbacio
+- Prilagođeni nazivi klasa i fajlova prema postojećim konvencijama projekta
+
+### Rizici, problemi ili greške koje su uočene
+- Copilot je kreirao duplikat IConferenceRepository interfejsa u pogrešnom sloju — ručno obrisano
+
+---
+
+## Unos #7
+
+| Polje | Detalji |
+| --- | --- |
+| **Datum** | 4.05.2026 |
+| **Sprint broj** | Sprint 6 |
+| **Alat** | Github Copilot |
+| **Ko je koristio alat** | Enela Pirija |
+
+### Svrha korištenja
+Pomoć pri implementaciji frontend-a za upravljanje konferencijama (dodavanje, uređivanje i brisanje konferencija).
+
+### Kratak opis zadatka ili upita
+Copilot je korišten kao podrška pri razvoju i implementaciji React + TypeScript komponenti koje koriste useState za upravljanje formama, axios za API pozive i prilagođeni CSS/Tailwind stil za korisnički interfejs.
+
+### Šta je AI predložio ili generisao
+- Početne verzije form komponenti za kreiranje i uređivanje konferencija
+- Primjere validacije forme i upravljanja stanjem
+- API pozive za CRUD operacije nad konferencijama
+- Prijedloge za organizaciju hookova i komponenti
+- Stilizaciju kartica i modalnih formi
+
+### Šta je tim prihvatio
+- Strukturu API funkcija baziranih na axios biblioteci
+- Organizaciju komponenti i hookova
+- Dio stilizacije i rasporeda UI elemenata
+- Pattern za osvježavanje podataka nakon izmjena
+
+### Šta je tim izmijenio
+- Nije odbačeno ništa suštinsko - sve izmjene su bile tehničke korekcije verzija biblioteka.
+
+### Šta je tim odbacio
+- Prilagođeni su nazivi i tipovi polja kako bi odgovarali backend modelu
+- Ručno su ispravljene TypeScript i build greške
+- Validacija i upravljanje stanjem implementirani su pomoću useState umjesto dodatnih biblioteka
+
+### Rizici, problemi ili greške koje su uočene
+- Tokom razvoja Copilot je predlagao implementacije zasnovane na zastarjelim verzijama pojedinih biblioteka, što je dovelo do build i kompatibilnosnih grešaka
+
+
 ---
   
 *Dokument se ažurira tokom trajanja projekta. Svaki novi slučaj korištenja AI dodaje se kao novi unos.*
