@@ -186,7 +186,7 @@
 
 ## DL-009 – Frontend – Odabir biblioteke za forme
 
-**Datum:** 5.04.2026
+**Datum:** 4.04.2026
 
 **Opis problema:** Za frontend forme (kreiranje konferencije, uređivanje) trebalo je odlučiti kako upravljati stanjem forme, validacijom i submit logikom.
 
@@ -210,7 +210,7 @@
 
 ## DL-010 – Frontend - Odabir HTTP klijenta
 
-**Datum:** 07.05.2026.
+**Datum:** 04.05.2026.
 
 **Opis problema:** Trebalo je odabrati biblioteku za HTTP komunikaciju između React frontenda i ASP.NET Core backend-a.
 
