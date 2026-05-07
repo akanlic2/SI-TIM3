@@ -205,7 +205,7 @@ Konsultacije i pomoć oko deploymenta aplikacije.
 
 | Polje | Detalji |
 | --- | --- |
-| **Datum** | 5.05.2026 |
+| **Datum** | 4.05.2026 |
 | **Sprint broj** | Sprint 6 |
 | **Alat** | Github Copilot |
 | **Ko je koristio alat** | Lamija Dženetić |
