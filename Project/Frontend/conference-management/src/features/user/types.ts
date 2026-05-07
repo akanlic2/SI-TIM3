@@ -6,6 +6,10 @@ export interface UserProfile {
   email?: string;
 }
 
+export interface UserSummary extends UserProfile {
+  roles?: string[];
+}
+
 export interface UpdateUserProfileData {
   firstName?: string;
   lastName?: string;
