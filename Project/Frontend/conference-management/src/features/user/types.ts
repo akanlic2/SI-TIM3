@@ -1,0 +1,19 @@
+export interface UserProfile {
+  id?: string;
+  firstName?: string;
+  lastName?: string;
+  username?: string;
+  email?: string;
+}
+
+export interface UserSummary extends UserProfile {
+  roles?: string[];
+}
+
+export interface UpdateUserProfileData {
+  firstName?: string;
+  lastName?: string;
+  username?: string;
+  email?: string;
+  password?: string;
+}

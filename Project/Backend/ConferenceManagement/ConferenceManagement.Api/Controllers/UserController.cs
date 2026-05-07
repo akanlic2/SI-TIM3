@@ -11,10 +11,12 @@ namespace ConferenceManagement.Api.Controllers
     public class UserController : ControllerBase
     {
         private readonly IKeycloakService _keycloakService;
+        private readonly IUserService _userService;
 
-        public UserController(IKeycloakService keycloakService)
+        public UserController(IKeycloakService keycloakService, IUserService userService)
         {
             _keycloakService = keycloakService;
+            _userService = userService;
         }
 
         [HttpPost("login")]
@@ -32,6 +34,34 @@ namespace ConferenceManagement.Api.Controllers
                 return BadRequest(new { error = "No token provided." });
                 
             return Ok(new { message = "Logged out successfully." });
+        }
+
+        [Authorize(Policy = "ParticipantPolicy")]
+        [HttpGet("{id:guid}")]
+        public async Task<ActionResult<UserDto>> GetById(Guid id)
+        {
+            var user = await _userService.GetUserByIdAsync(id);
+
+            if (user is null)
+            {
+                return NotFound(new { Message = $"User with ID {id} not found." });
+            }
+
+            return Ok(user);
+        }
+
+        [Authorize(Policy = "ParticipantPolicy")]
+        [HttpPut("{id:guid}")]
+        public async Task<IActionResult> Update(Guid id, [FromBody] UpdateUserDto dto)
+        {
+            var updated = await _userService.UpdateUserAsync(id, dto);
+
+            if (!updated)
+            {
+                return NotFound(new { Message = $"User with ID {id} not found." });
+            }
+
+            return NoContent();
         }
     }
 }
