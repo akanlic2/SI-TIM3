@@ -1,0 +1,129 @@
+using ConferenceManagement.Api.Extensions;
+using ConferenceManagement.Api.Modules;
+using ConferenceManagement.Application.Interfaces;
+using ConferenceManagement.Application.Services;
+using ConferenceManagement.Dal;
+using ConferenceManagement.Dal.Repositories;
+using ConferenceManagement.Domain.Abstractions.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Scalar.AspNetCore;
+using System.Security.Claims;
+using System.Text;
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddOpenApi();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontendDev", policy =>
+    {
+        policy.WithOrigins(
+                "http://localhost",
+                "http://localhost:3000",
+                "http://localhost:5173",
+                "http://localhost:5174"
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        // Velika izmjena: lokalni JWT auth umjesto Keycloak validacije eksternog tokena.
+        var jwtSection = builder.Configuration.GetSection("Jwt");
+        var signingKey = jwtSection["Key"] ?? throw new InvalidOperationException("Jwt:Key is not configured.");
+
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey)),
+            ValidateIssuer = true,
+            ValidIssuer = jwtSection["Issuer"],
+            ValidateAudience = true,
+            ValidAudience = jwtSection["Audience"],
+            ValidateLifetime = true,
+            NameClaimType = ClaimTypes.Name,
+            RoleClaimType = ClaimTypes.Role
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnAuthenticationFailed = context =>
+            {
+                Console.WriteLine($"AUTH FAILED: {context.Exception.Message}");
+                return Task.CompletedTask;
+            }
+        };
+    });
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options
+        .UseNpgsql(
+            builder.Configuration.GetConnectionString("DefaultConnection"),
+            npgsqlOptions =>
+            {
+                npgsqlOptions.EnableRetryOnFailure(
+                    maxRetryCount: 5,
+                    maxRetryDelay: TimeSpan.FromSeconds(10),
+                    errorCodesToAdd: null);
+            })
+        .UseSnakeCaseNamingConvention()
+        .ConfigureWarnings(warnings => warnings.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)));
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IUserContextService, UserContextService>();
+builder.Services.AddScoped<IConferenceRepository, ConferenceRepository>();
+builder.Services.AddScoped<IConferenceService, ConferenceService>();
+builder.Services.AddScoped<IUserService, UserService>();
+
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("AdminSistemaPolicy", policy => policy.RequireRole("admin-sistema"))
+    .AddPolicy("OrganizerPolicy", policy => policy.RequireRole("organizator"))
+    .AddPolicy("AdminOrOrganizerPolicy", policy => policy.RequireRole("admin-sistema", "organizator"))
+    .AddPolicy("SpeakerPolicy", policy => policy.RequireRole("predavac"))
+    .AddPolicy("ParticipantPolicy", policy =>
+        policy.RequireAuthenticatedUser());
+
+var app = builder.Build();
+
+var runMigrationsOnly = builder.Configuration.GetValue<bool>("RUN_MIGRATIONS_ONLY");
+
+if (runMigrationsOnly)
+{
+    await app.Services.WaitForDatabaseAndApplyMigrationsAsync(app.Logger);
+    app.Logger.LogInformation("Migrations finished successfully. Exiting migrator container.");
+    return;
+}
+
+// Velika izmjena: osigurava da API pri standardnom startup-u automatski primijeni
+// sve pending migracije (npr. dodavanje username/password kolona za lokalni auth).
+await app.Services.WaitForDatabaseAndApplyMigrationsAsync(app.Logger);
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+    app.MapScalarApiReference(options =>
+    {
+        options.WithTitle("Conference Management API")
+               .WithTheme(ScalarTheme.BluePlanet)
+               .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
+    });
+}
+
+app.UseCors("FrontendDev");
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
+app.MapUserEndpoints();
+
+
+app.Run();

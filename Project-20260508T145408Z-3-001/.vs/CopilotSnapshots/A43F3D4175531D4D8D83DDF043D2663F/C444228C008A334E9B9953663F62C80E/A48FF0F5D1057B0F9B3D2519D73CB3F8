@@ -1,0 +1,59 @@
+﻿import axios from 'axios';
+import type { UpdateUserProfileData, UserProfile, UserSummary } from '../types';
+
+export async function fetchUserProfile(userId: string): Promise<UserProfile | null> {
+  try {
+    const res = await axios.get(`/api/user/${userId}`);
+    const data = res.data;
+
+    return {
+      id: data.userId ?? userId,
+      firstName: data.firstName ?? '',
+      lastName: data.lastName ?? '',
+      username: data.username ?? '',
+      email: data.email ?? '',
+      role: data.role ?? '',
+    };
+  } catch {
+    return null;
+  }
+}
+
+export async function updateUserProfile(userId: string, payload: UpdateUserProfileData): Promise<string | null> {
+  try {
+    await axios.put(`/api/user/${userId}`, payload, {
+      headers: { 'Content-Type': 'application/json' },
+    });
+    return null;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const message =
+        typeof error.response?.data === 'string'
+          ? error.response.data
+          : error.message;
+      return message || `Status ${error.response?.status ?? 'unknown'}`;
+    }
+    return 'Greška pri čuvanju podataka.';
+  }
+}
+
+export async function fetchAllUsers(): Promise<UserSummary[]> {
+  try {
+    const res = await axios.get('/api/users/all');
+
+    const rootData = res.data;
+    const data = Array.isArray(rootData) ? rootData : Array.isArray(rootData?.users) ? rootData.users : [];
+
+    return data.map((item) => ({
+      id: item.userId ?? '',
+      firstName: item.firstName ?? '',
+      lastName: item.lastName ?? '',
+      username: item.username ?? '',
+      email: item.email ?? '',
+      role: item.role ?? '',
+      roles: item.role ? [item.role] : [],
+    }));
+  } catch {
+    return [];
+  }
+}
