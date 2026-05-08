@@ -6,14 +6,8 @@ const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8082';
 const API_URL = `${BASE_URL}/api/Conference`;
 
 export async function fetchConferences(): Promise<Conference[]> {
-  const token = localStorage.getItem('kc_access_token');
-
   try {
-    const response = await axios.get<Conference[]>(API_URL, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+    const response = await axios.get<Conference[]>(API_URL);
 
     return response.data;
   } catch (error) {
@@ -23,14 +17,8 @@ export async function fetchConferences(): Promise<Conference[]> {
 }
 
 export async function fetchConferenceById(id: string): Promise<Conference | null> {
-  const token = localStorage.getItem('kc_access_token');
-
   try {
-    const response = await axios.get<Conference>(`${API_URL}/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+    const response = await axios.get<Conference>(`${API_URL}/${id}`);
 
     return response.data;
   } catch (error) {
@@ -40,33 +28,15 @@ export async function fetchConferenceById(id: string): Promise<Conference | null
 }
 
 export async function createConference(conferenceData: CreateConferenceData): Promise<Conference> {
-  const token = localStorage.getItem('kc_access_token');
-
-  const response = await axios.post<Conference>(API_URL, conferenceData, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
+  const response = await axios.post<Conference>(API_URL, conferenceData);
 
   return response.data;
 }
 
 export async function updateConference(id: string, conferenceData: UpdateConferenceData): Promise<void> {
-  const token = localStorage.getItem('kc_access_token');
-
-  await axios.put(`${API_URL}/${id}`, conferenceData, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
+  await axios.put(`${API_URL}/${id}`, conferenceData);
 }
 
 export async function deleteConference(id: string): Promise<void> {
-  const token = localStorage.getItem('kc_access_token');
-
-  await axios.delete(`${API_URL}/${id}`, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
+  await axios.delete(`${API_URL}/${id}`);
 }

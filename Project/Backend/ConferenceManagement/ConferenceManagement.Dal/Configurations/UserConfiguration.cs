@@ -13,12 +13,16 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(user => user.UserId)
             .ValueGeneratedOnAdd();
 
-        builder.Property(user => user.KeycloakUserId)
+        builder.Property(user => user.Username)
             .IsRequired()
             .HasMaxLength(100);
 
-        builder.HasIndex(user => user.KeycloakUserId)
+        builder.HasIndex(user => user.Username)
             .IsUnique();
+
+        builder.Property(user => user.Password)
+            .IsRequired()
+            .HasMaxLength(255);
 
         builder.Property(user => user.FirstName)
             .IsRequired()

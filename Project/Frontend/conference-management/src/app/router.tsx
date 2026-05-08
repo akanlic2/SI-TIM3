@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { AuthProvider, useAuth } from '../auth/AuthProvider';
-import CallbackPage from '../pages/CallbackPage';
 import DashboardPage from '../pages/DashboardPage';
 import ConferencesPage from '../pages/ConferencesPage';
-import { login } from '../auth/keycloak';
+import LoginPage from '../pages/LoginPage';
+import RegisterPage from '../pages/RegisterPage';
 
 // ─── Route resolver ───────────────────────────────────────────────────────────
 function AppRoutes() {
@@ -30,26 +30,26 @@ function AppRoutes() {
     };
   }, []);
 
-  // Handle redirects and login triggers in useEffect
+  // Velika izmjena: lokalni auth routing bez eksternog IdP callback flow-a.
   useEffect(() => {
     if (isLoading) return;
 
-    if (pathname === '/') {
-      if (isLoggedIn) {
-        window.history.replaceState({}, '', '/dashboard');
-        setPathname('/dashboard');
-      } else {
-        login();
-      }
-    } else if (pathname === '/dashboard' && !isLoggedIn) {
-      login();
+    const protectedRoutes = ['/dashboard', '/conferences'];
+
+    if (!isLoggedIn && protectedRoutes.includes(pathname)) {
+      window.history.replaceState({}, '', '/login');
+      setPathname('/login');
+      return;
+    }
+
+    if (isLoggedIn && (pathname === '/' || pathname === '/login' || pathname === '/register')) {
+      window.history.replaceState({}, '', '/dashboard');
+      setPathname('/dashboard');
     }
   }, [pathname, isLoggedIn, isLoading]);
 
-  // Callback stranica – uvijek dostupna (Keycloak redirect)
-  if (pathname === '/callback') {
-    return <CallbackPage />;
-  }
+  if (pathname === '/login') return <LoginPage />;
+  if (pathname === '/register') return <RegisterPage />;
 
   // Loading state
   if (isLoading) {
@@ -61,7 +61,6 @@ function AppRoutes() {
     );
   }
 
-  // Dashboard – samo ako je logovan
   if (pathname === '/dashboard') {
     if (isLoggedIn) return <DashboardPage />;
     return (
@@ -72,7 +71,6 @@ function AppRoutes() {
     );
   }
 
-  // Konferencije – samo ako je logovan
   if (pathname === '/conferences') {
     if (isLoggedIn) return <ConferencesPage />;
     return (
@@ -83,14 +81,8 @@ function AppRoutes() {
     );
   }
 
-  // Root ruta "/"
   if (pathname === '/') {
-    return (
-      <div className="global-loading">
-        <div className="global-spinner" />
-        <p>Preusmjeravanje...</p>
-      </div>
-    );
+    return <LoginPage />;
   }
 
   // 404 fallback

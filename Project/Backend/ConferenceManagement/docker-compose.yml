@@ -18,30 +18,6 @@ services:
       retries: 10
       start_period: 10s
 
-  keycloak:
-    image: quay.io/keycloak/keycloak:26.6.1
-    container_name: keycloak
-    command: start-dev --import-realm
-    restart: unless-stopped
-    environment:
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
-      KC_HTTP_PORT: 8080
-      KC_HOSTNAME_STRICT: 'false'
-      KC_HOSTNAME_STRICT_HTTPS: 'false'
-      KC_HEALTH_ENABLED: 'true'
-      KC_PROXY: edge
-    ports:
-      - '8080:8080'
-    volumes:
-      - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json
-    healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:9000/health/live']
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-
   conferencemanagement.migrator:
     build:
       context: .
@@ -55,6 +31,9 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       RUN_MIGRATIONS_ONLY: 'true'
       ConnectionStrings__DefaultConnection: Host=conferencemanagement.db;Port=5432;Database=conference_management_db;Username=si_tim3;Password=si_tim3_db_pass
+      Jwt__Key: ConferenceManagement_LocalAuth_SigningKey_2026_StrongKey
+      Jwt__Issuer: ConferenceManagement.Api
+      Jwt__Audience: ConferenceManagement.Client
 
   conferencemanagement.api:
     build:
@@ -67,14 +46,13 @@ services:
         condition: service_healthy
       conferencemanagement.migrator:
         condition: service_completed_successfully
-      keycloak:
-        condition: service_started
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__DefaultConnection: Host=conferencemanagement.db;Port=5432;Database=conference_management_db;Username=si_tim3;Password=si_tim3_db_pass
-      Keycloak__Authority: http://keycloak:8080/realms/conference-app
-      Keycloak__Audience: conference-backend
+      Jwt__Key: ConferenceManagement_LocalAuth_SigningKey_2026_StrongKey
+      Jwt__Issuer: ConferenceManagement.Api
+      Jwt__Audience: ConferenceManagement.Client
     ports:
       - '8082:8080'
 
@@ -83,9 +61,6 @@ services:
       context: ../../Frontend/conference-management
       dockerfile: Dockerfile
       args:
-        VITE_KEYCLOAK_URL: http://localhost:8080
-        VITE_KEYCLOAK_REALM: conference-app
-        VITE_KEYCLOAK_CLIENT_ID: conference-backend
         VITE_API_URL: http://localhost:8082
     image: conferencemanagement-frontend:local
     container_name: conferencemanagement.frontend
@@ -94,8 +69,6 @@ services:
       - '3000:80'
     depends_on:
       conferencemanagement.api:
-        condition: service_started
-      keycloak:
         condition: service_started
 
 volumes:

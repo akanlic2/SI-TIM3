@@ -9,7 +9,7 @@ interface UserSettingsPanelProps {
 }
 
 export function UserSettingsPanel({ title = 'Postavke naloga', targetUser = null }: UserSettingsPanelProps) {
-  const { user, token } = useAuth();
+  const { user } = useAuth();
   const {
     profile,
     setProfile,
@@ -21,7 +21,7 @@ export function UserSettingsPanel({ title = 'Postavke naloga', targetUser = null
     message,
     saveProfile,
     cancelEditing,
-  } = useUserProfile({ user, token, targetUser });
+  } = useUserProfile({ user, targetUser });
 
   return (
     <>

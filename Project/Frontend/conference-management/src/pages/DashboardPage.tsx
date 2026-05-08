@@ -56,7 +56,7 @@ export default function DashboardPage() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const displayName =
-    user?.name ?? user?.preferred_username ?? user?.email ?? 'Korisnik';
+    [user?.firstName, user?.lastName].filter(Boolean).join(' ') || user?.username || user?.email || 'Korisnik';
   const initials = displayName
     .split(' ')
     .map((n) => n[0])
@@ -64,9 +64,7 @@ export default function DashboardPage() {
     .slice(0, 2)
     .toUpperCase();
 
-  const roles = user?.realm_access?.roles?.filter(
-    (r) => !['default-roles-conference-app', 'offline_access', 'uma_authorization'].includes(r)
-  ) ?? [];
+  const roles = user?.role ? [user.role] : [];
   const isAdmin = roles.some((role) => role.toLowerCase().includes('admin'));
 
   // ─── Dohvat konferencija ───────────────────────────────────────────────────
@@ -84,7 +82,9 @@ export default function DashboardPage() {
   // ─── Logout ───────────────────────────────────────────────────────────────
   const handleLogout = async () => {
     setLoggingOut(true);
-    await logout();
+    logout();
+    window.history.replaceState({}, '', '/login');
+    window.dispatchEvent(new PopStateEvent('popstate'));
   };
 
   // ─── Formatiranje datuma ───────────────────────────────────────────────────
@@ -281,7 +281,7 @@ export default function DashboardPage() {
               <div className="user-info-grid">
                 <div className="info-item">
                   <span className="info-label">Korisničko ime</span>
-                  <span className="info-value">{user?.preferred_username ?? '—'}</span>
+                  <span className="info-value">{user?.username ?? '—'}</span>
                 </div>
                 <div className="info-item">
                   <span className="info-label">Email</span>
@@ -289,15 +289,15 @@ export default function DashboardPage() {
                 </div>
                 <div className="info-item">
                   <span className="info-label">Ime</span>
-                  <span className="info-value">{user?.given_name ?? '—'}</span>
+                  <span className="info-value">{user?.firstName ?? '—'}</span>
                 </div>
                 <div className="info-item">
                   <span className="info-label">Prezime</span>
-                  <span className="info-value">{user?.family_name ?? '—'}</span>
+                  <span className="info-value">{user?.lastName ?? '—'}</span>
                 </div>
                 <div className="info-item">
-                  <span className="info-label">Keycloak ID</span>
-                  <span className="info-value mono">{user?.sub?.slice(0, 16) ?? '—'}…</span>
+                  <span className="info-label">User ID</span>
+                  <span className="info-value mono">{user?.userId?.slice(0, 16) ?? '—'}…</span>
                 </div>
                 <div className="info-item">
                   <span className="info-label">Uloge</span>

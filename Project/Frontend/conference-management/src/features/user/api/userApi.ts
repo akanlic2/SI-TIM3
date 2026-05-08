@@ -1,32 +1,37 @@
 import axios from 'axios';
 import type { UpdateUserProfileData, UserProfile, UserSummary } from '../types';
 
-export async function fetchUserProfile(userId: string, token: string): Promise<UserProfile | null> {
+interface UserApiResponse {
+  userId?: string;
+  firstName?: string;
+  lastName?: string;
+  username?: string;
+  email?: string;
+  role?: string;
+}
+
+export async function fetchUserProfile(userId: string): Promise<UserProfile | null> {
   try {
-    const res = await axios.get(`/api/user/${userId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const res = await axios.get(`/api/user/${userId}`);
     const data = res.data;
 
     return {
-      id: data.id ?? data.sub ?? userId,
-      firstName: data.firstName ?? data.given_name ?? '',
-      lastName: data.lastName ?? data.family_name ?? '',
-      username: data.username ?? data.preferred_username ?? '',
+      id: data.userId ?? userId,
+      firstName: data.firstName ?? '',
+      lastName: data.lastName ?? '',
+      username: data.username ?? '',
       email: data.email ?? '',
+      role: data.role ?? '',
     };
   } catch {
     return null;
   }
 }
 
-export async function updateUserProfile(userId: string, token: string, payload: UpdateUserProfileData): Promise<string | null> {
+export async function updateUserProfile(userId: string, payload: UpdateUserProfileData): Promise<string | null> {
   try {
     await axios.put(`/api/user/${userId}`, payload, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
     });
     return null;
   } catch (error) {
@@ -41,21 +46,21 @@ export async function updateUserProfile(userId: string, token: string, payload: 
   }
 }
 
-export async function fetchAllUsers(token: string): Promise<UserSummary[]> {
+export async function fetchAllUsers(): Promise<UserSummary[]> {
   try {
-    const res = await axios.get('/api/users/all', {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const res = await axios.get('/api/users/all');
 
-    const data = Array.isArray(res.data) ? res.data : [];
+    const rootData = res.data;
+    const data = Array.isArray(rootData) ? rootData : Array.isArray(rootData?.users) ? rootData.users : [];
 
-    return data.map((item) => ({
-      id: item.id ?? item.sub ?? '',
-      firstName: item.firstName ?? item.given_name ?? '',
-      lastName: item.lastName ?? item.family_name ?? '',
-      username: item.username ?? item.preferred_username ?? '',
+    return (data as UserApiResponse[]).map((item) => ({
+      id: item.userId ?? '',
+      firstName: item.firstName ?? '',
+      lastName: item.lastName ?? '',
+      username: item.username ?? '',
       email: item.email ?? '',
-      roles: Array.isArray(item.roles) ? item.roles : Array.isArray(item.realm_access?.roles) ? item.realm_access.roles : [],
+      role: item.role ?? '',
+      roles: item.role ? [item.role] : [],
     }));
   } catch {
     return [];

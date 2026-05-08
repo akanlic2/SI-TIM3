@@ -1,53 +1,76 @@
-using ConferenceManagement.Dal;
+using ConferenceManagement.Application.DTOs.User;
+using ConferenceManagement.Application.Interfaces;
+using ConferenceManagement.Domain.Abstractions.Repositories;
 using ConferenceManagement.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
 
 namespace ConferenceManagement.Application.Services
 {
-    public interface IUserService
-    {
-        Task<int> GetUserCountAsync();
-        Task<List<UserDto>> GetAllUsersAsync();
-        Task<UserDto?> GetUserByIdAsync(Guid userId);
-        Task<bool> UpdateUserAsync(Guid userId, UpdateUserDto dto);
-    }
-
     public class UserService : IUserService
     {
-        private readonly ApplicationDbContext _dbContext;
-        public UserService(ApplicationDbContext dbContext)
+        private readonly IUserRepository _userRepository;
+
+        public UserService(IUserRepository userRepository)
         {
-            _dbContext = dbContext;
+            _userRepository = userRepository;
         }
 
         public async Task<int> GetUserCountAsync()
         {
-            return await _dbContext.Users.CountAsync();
+            return await _userRepository.GetCountAsync();
         }
 
         public async Task<List<UserDto>> GetAllUsersAsync()
         {
-            return await _dbContext.Users
-                .Select(MapToDto)
-                .ToListAsync();
+            var users = await _userRepository.GetAllAsync();
+            return users.Select(MapToDto).ToList();
         }
 
         public async Task<UserDto?> GetUserByIdAsync(Guid userId)
         {
-            return await _dbContext.Users
-                .Where(u => u.UserId == userId)
-                .Select(MapToDto)
-                .SingleOrDefaultAsync();
+            var user = await _userRepository.GetByIdAsync(userId);
+            return user != null ? MapToDto(user) : null;
+        }
+
+        public async Task<UserDto?> GetUserByUsernameOrEmailAndPasswordAsync(string usernameOrEmail, string password)
+        {
+            var user = await _userRepository.GetByUsernameOrEmailAndPasswordAsync(usernameOrEmail, password);
+            return user != null ? MapToDto(user) : null;
+        }
+
+        public async Task<UserDto> RegisterUserAsync(RegisterUserDto dto)
+        {
+            var role = string.IsNullOrWhiteSpace(dto.Role) ? "ucesnik" : dto.Role.Trim().ToLower();
+
+            var user = new User
+            {
+                UserId = Guid.NewGuid(),
+                Username = dto.Username.Trim(),
+                Password = dto.Password,
+                FirstName = dto.FirstName.Trim(),
+                LastName = dto.LastName.Trim(),
+                Email = dto.Email.Trim(),
+                Role = role,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            var createdUser = await _userRepository.AddAsync(user);
+
+            return MapToDto(createdUser);
+        }
+
+        public async Task<bool> UsernameExistsAsync(string username)
+        {
+            return await _userRepository.AnyByUsernameAsync(username);
+        }
+
+        public async Task<bool> EmailExistsAsync(string email)
+        {
+            return await _userRepository.AnyByEmailAsync(email);
         }
 
         public async Task<bool> UpdateUserAsync(Guid userId, UpdateUserDto dto)
         {
-            var user = await _dbContext.Users
-                .FirstOrDefaultAsync(u => u.UserId == userId);
+            var user = await _userRepository.GetByIdAsync(userId);
 
             if (user is null)
             {
@@ -69,41 +92,39 @@ namespace ConferenceManagement.Application.Services
                 user.Email = dto.Email;
             }
 
+            if (!string.IsNullOrWhiteSpace(dto.Username))
+            {
+                user.Username = dto.Username;
+            }
+
+            if (!string.IsNullOrWhiteSpace(dto.Password))
+            {
+                user.Password = dto.Password;
+            }
+
+            if (!string.IsNullOrWhiteSpace(dto.Role))
+            {
+                user.Role = dto.Role;
+            }
+
             user.UpdatedAt = DateTime.UtcNow;
 
-            await _dbContext.SaveChangesAsync();
+            await _userRepository.UpdateAsync(user);
             return true;
         }
 
-        private static Expression<Func<User, UserDto>> MapToDto = user => new UserDto
+        private static UserDto MapToDto(User user)
         {
-            UserId = user.UserId,
-            KeycloakUserId = user.KeycloakUserId,
-            FirstName = user.FirstName,
-            LastName = user.LastName,
-            Email = user.Email,
-            Role = user.Role,
-            CreatedAt = user.CreatedAt
-        };
-    }
-
-    public class UserDto
-    {
-        public Guid UserId { get; set; }
-        public string KeycloakUserId { get; set; } = string.Empty;
-        public string FirstName { get; set; } = string.Empty;
-        public string LastName { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string Role { get; set; } = string.Empty;
-        public DateTime CreatedAt { get; set; }
-    }
-
-    public class UpdateUserDto
-    {
-        public string? FirstName { get; set; }
-        public string? LastName { get; set; }
-        public string? Email { get; set; }
-        public string? Role { get; set; }
+            return new UserDto
+            {
+                UserId = user.UserId,
+                Username = user.Username,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                Role = user.Role,
+                CreatedAt = user.CreatedAt
+            };
+        }
     }
 }
-

@@ -13,7 +13,7 @@ afterEach(() => {
 });
 
 // ─── Mock window.location ─────────────────────────────────────────────────────
-// Keycloak auth koristi window.location.href za redirect, pa trebamo mock
+// Auth flow koristi window.location.href za redirect, pa trebamo mock
 const locationMock = {
   ...window.location,
   href: 'http://localhost:5173',

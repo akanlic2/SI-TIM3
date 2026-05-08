@@ -1,8 +1,15 @@
-using Microsoft.AspNetCore.Mvc;
-using ConferenceManagement.Application.Services;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using ConferenceManagement.Application.Interfaces;
+using ConferenceManagement.Application.DTOs.User;
+using Microsoft.IdentityModel.Tokens;
 
 namespace ConferenceManagement.Api.Controllers
 {
@@ -10,30 +17,104 @@ namespace ConferenceManagement.Api.Controllers
     [Route("api/[controller]")]
     public class UserController : ControllerBase
     {
-        private readonly IKeycloakService _keycloakService;
         private readonly IUserService _userService;
+        private readonly IConfiguration _configuration;
 
-        public UserController(IKeycloakService keycloakService, IUserService userService)
+        public UserController(IUserService userService, IConfiguration configuration)
         {
-            _keycloakService = keycloakService;
             _userService = userService;
+            _configuration = configuration;
         }
 
-        [HttpPost("login")]
-        public IActionResult Login()
+        [AllowAnonymous]
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
-            return Ok(new { message = "Login is handled via Keycloak authentication flow." });
+            // Velika izmjena: prelazak sa eksternog IdP na lokalnu registraciju korisnika u bazi.
+            if (string.IsNullOrWhiteSpace(request.Username) ||
+                string.IsNullOrWhiteSpace(request.Password) ||
+                string.IsNullOrWhiteSpace(request.FirstName) ||
+                string.IsNullOrWhiteSpace(request.LastName) ||
+                string.IsNullOrWhiteSpace(request.Email))
+            {
+                return BadRequest(new { error = "All required fields must be provided." });
+            }
+
+            if (await _userService.UsernameExistsAsync(request.Username))
+            {
+                return Conflict(new { error = "Username already exists." });
+            }
+
+            if (await _userService.EmailExistsAsync(request.Email))
+            {
+                return Conflict(new { error = "Email already exists." });
+            }
+
+            var createdUser = await _userService.RegisterUserAsync(new RegisterUserDto
+            {
+                Username = request.Username,
+                Password = request.Password,
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                Email = request.Email,
+                Role = request.Role
+            });
+
+            return Ok(createdUser);
+        }
+
+        [AllowAnonymous]
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginRequest request)
+        {
+            var user = await _userService.GetUserByUsernameOrEmailAndPasswordAsync(request.UsernameOrEmail, request.Password);
+
+            if (user is null)
+            {
+                return Unauthorized(new { error = "Invalid credentials." });
+            }
+
+            var token = GenerateJwtToken(user);
+
+            return Ok(new
+            {
+                token,
+                user
+            });
         }
 
         [Authorize]
         [HttpPost("logout")]
-        public async Task<IActionResult> Logout()
+        public IActionResult Logout()
         {
-            var token = Request.Headers["Authorization"].ToString();
-            if (string.IsNullOrEmpty(token))
-                return BadRequest(new { error = "No token provided." });
-                
             return Ok(new { message = "Logged out successfully." });
+        }
+
+        [Authorize]
+        [HttpGet("current")]
+        public async Task<ActionResult<UserDto>> Current()
+        {
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new { error = "Invalid token payload." });
+            }
+
+            var user = await _userService.GetUserByIdAsync(userId);
+            if (user is null)
+            {
+                return NotFound(new { Message = "User not found." });
+            }
+
+            return Ok(user);
+        }
+
+        [Authorize(Policy = "ParticipantPolicy")] // Or whatever policy was needed. UserModule used multiple policies, but ParticipantPolicy is the least restrictive for authenticated users.
+        [HttpGet("/api/users/all")]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var users = await _userService.GetAllUsersAsync();
+            return Ok(new { users, count = users.Count });
         }
 
         [Authorize(Policy = "ParticipantPolicy")]
@@ -62,6 +143,54 @@ namespace ConferenceManagement.Api.Controllers
             }
 
             return NoContent();
+        }
+
+        private string GenerateJwtToken(UserDto user)
+        {
+            var key = _configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT key is missing.");
+            var issuer = _configuration["Jwt:Issuer"] ?? "ConferenceManagement.Api";
+            var audience = _configuration["Jwt:Audience"] ?? "ConferenceManagement.Client";
+            var expiresMinutes = int.TryParse(_configuration["Jwt:ExpiresMinutes"], out var parsed) ? parsed : 120;
+
+            var claims = new List<Claim>
+            {
+                new(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+                new(ClaimTypes.Name, user.Username),
+                new(ClaimTypes.Email, user.Email),
+                new(ClaimTypes.Role, user.Role),
+                new("userId", user.UserId.ToString()),
+                new("username", user.Username),
+                new("email", user.Email),
+                new("role", user.Role)
+            };
+
+            var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
+            var credentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer: issuer,
+                audience: audience,
+                claims: claims,
+                expires: DateTime.UtcNow.AddMinutes(expiresMinutes),
+                signingCredentials: credentials);
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public class RegisterRequest
+        {
+            public string Username { get; set; } = string.Empty;
+            public string Password { get; set; } = string.Empty;
+            public string FirstName { get; set; } = string.Empty;
+            public string LastName { get; set; } = string.Empty;
+            public string Email { get; set; } = string.Empty;
+            public string? Role { get; set; }
+        }
+
+        public class LoginRequest
+        {
+            public string UsernameOrEmail { get; set; } = string.Empty;
+            public string Password { get; set; } = string.Empty;
         }
     }
 }

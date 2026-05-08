@@ -1,37 +1,38 @@
 import { useEffect, useMemo, useState } from 'react';
 import { fetchUserProfile, updateUserProfile } from '../api/userApi';
-import type { TokenClaims } from '../../../auth/keycloak';
+import type { AuthUser } from '../../../auth/authService';
 import type { UserProfile } from '../types';
 
 interface UseUserProfileParams {
-  user: TokenClaims | null;
-  token: string | null;
+  user: AuthUser | null;
   targetUser?: UserProfile | null;
 }
 
-function toInitialProfile(user: TokenClaims | null, targetUser?: UserProfile | null): UserProfile {
+function toInitialProfile(user: AuthUser | null, targetUser?: UserProfile | null): UserProfile {
   if (targetUser) {
     return {
-      id: targetUser.id ?? user?.sub,
+      id: targetUser.id ?? user?.userId,
       firstName: targetUser.firstName ?? '',
       lastName: targetUser.lastName ?? '',
       username: targetUser.username ?? '',
       email: targetUser.email ?? '',
+      role: targetUser.role ?? '',
     };
   }
 
   return {
-    id: user?.sub,
-    firstName: user?.given_name ?? '',
-    lastName: user?.family_name ?? '',
-    username: user?.preferred_username ?? '',
+    id: user?.userId,
+    firstName: user?.firstName ?? '',
+    lastName: user?.lastName ?? '',
+    username: user?.username ?? '',
     email: user?.email ?? '',
+    role: user?.role ?? '',
   };
 }
 
-export function useUserProfile({ user, token, targetUser }: UseUserProfileParams) {
+export function useUserProfile({ user, targetUser }: UseUserProfileParams) {
   const initialProfile = useMemo(() => toInitialProfile(user, targetUser), [user, targetUser]);
-  const userId = initialProfile.id ?? user?.sub;
+  const userId = initialProfile.id ?? user?.userId;
 
   const [profile, setProfile] = useState<UserProfile>(initialProfile);
   const [loading, setLoading] = useState(false);
@@ -48,10 +49,10 @@ export function useUserProfile({ user, token, targetUser }: UseUserProfileParams
 
   useEffect(() => {
     async function load() {
-      if (!token || !userId) return;
+      if (!userId) return;
 
       setLoading(true);
-      const loadedProfile = await fetchUserProfile(userId, token);
+      const loadedProfile = await fetchUserProfile(userId);
       if (loadedProfile) {
         setProfile((prev) => ({ ...prev, ...loadedProfile }));
       }
@@ -59,7 +60,7 @@ export function useUserProfile({ user, token, targetUser }: UseUserProfileParams
     }
 
     load();
-  }, [token, userId]);
+  }, [userId]);
 
   const cancelEditing = () => {
     setEditing(false);
@@ -68,12 +69,12 @@ export function useUserProfile({ user, token, targetUser }: UseUserProfileParams
   };
 
   const saveProfile = async () => {
-    if (!token || !userId) return;
+    if (!userId) return;
 
     setLoading(true);
     setMessage(null);
 
-    const error = await updateUserProfile(userId, token, {
+    const error = await updateUserProfile(userId, {
       firstName: profile.firstName,
       lastName: profile.lastName,
       username: profile.username,

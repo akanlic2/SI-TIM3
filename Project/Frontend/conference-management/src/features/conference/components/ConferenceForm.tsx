@@ -1,13 +1,13 @@
 import { useState } from 'react';
-import type { Conference } from '../types';
+import type { CreateConferenceData } from '../types';
 
-export function ConferenceForm({ onSave, onCancel }: { onSave: (data: Omit<Conference, 'id'>) => void, onCancel: () => void }) {
+export function ConferenceForm({ onSave, onCancel }: { onSave: (data: CreateConferenceData) => void, onCancel: () => void }) {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     location: '',
-    startsAt: '',
-    endsAt: '',
+    startDate: '',
+    endDate: '',
     maxParticipants: 100,
     category: 'IT'
   });
@@ -46,7 +46,7 @@ export function ConferenceForm({ onSave, onCancel }: { onSave: (data: Omit<Confe
               type="datetime-local" 
               required
               className="w-full bg-[#0d1117] border border-gray-600 rounded p-2 text-white text-xs"
-              onChange={(e) => setFormData({...formData, endsAt: e.target.value})}
+              onChange={(e) => setFormData({...formData, endDate: e.target.value})}
             />
           </div>
         </div>

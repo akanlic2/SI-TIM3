@@ -1,6 +1,4 @@
 using ConferenceManagement.Api.Extensions;
-using ConferenceManagement.Api.Middlewear;
-using ConferenceManagement.Api.Modules;
 using ConferenceManagement.Application.Interfaces;
 using ConferenceManagement.Application.Services;
 using ConferenceManagement.Dal;
@@ -10,6 +8,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
+using System.Security.Claims;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,26 +36,21 @@ builder.Services.AddCors(options =>
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        var keycloakSection = builder.Configuration.GetSection("Keycloak");
-        var authority = keycloakSection["Authority"];
+        // Velika izmjena: lokalni JWT auth umjesto Keycloak validacije eksternog tokena.
+        var jwtSection = builder.Configuration.GetSection("Jwt");
+        var signingKey = jwtSection["Key"] ?? throw new InvalidOperationException("Jwt:Key is not configured.");
 
-        options.Authority = authority;
-        options.MetadataAddress = "http://keycloak:8080/realms/conference-app/.well-known/openid-configuration";
-        options.Audience = keycloakSection["Audience"];
-        options.RequireHttpsMetadata = false;
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateAudience = false,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey)),
             ValidateIssuer = true,
-            ValidIssuers = new[] {
-                authority,
-                authority.Replace("keycloak", "localhost"),
-                "http://localhost:8080/realms/conference-app"
-            },
-            NameClaimType = "sub",
-            RoleClaimType = "role"
-
-           
+            ValidIssuer = jwtSection["Issuer"],
+            ValidateAudience = true,
+            ValidAudience = jwtSection["Audience"],
+            ValidateLifetime = true,
+            NameClaimType = ClaimTypes.Name,
+            RoleClaimType = ClaimTypes.Role
         };
 
         options.Events = new JwtBearerEvents
@@ -84,27 +79,16 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUserContextService, UserContextService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IConferenceRepository, ConferenceRepository>();
 builder.Services.AddScoped<IConferenceService, ConferenceService>();
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IKeycloakService, KeycloakService>();
-builder.Services.AddHttpClient<IKeycloakService, KeycloakService>();
-builder.Services.AddTransient<Microsoft.AspNetCore.Authentication.IClaimsTransformation, ConferenceManagement.Api.Middlewear.KeycloakRolesTransformer>();
 
 builder.Services.AddAuthorizationBuilder()
-    .AddPolicy("AdminSistemaPolicy", policy =>
-        policy.RequireAssertion(context =>
-            context.User.HasClaim(System.Security.Claims.ClaimTypes.Role, "admin-sistema")))
-    .AddPolicy("OrganizerPolicy", policy =>
-        policy.RequireAssertion(context =>
-            context.User.HasClaim(System.Security.Claims.ClaimTypes.Role, "organizator")))
-    .AddPolicy("AdminOrOrganizerPolicy", policy =>
-        policy.RequireAssertion(context =>
-            context.User.HasClaim(System.Security.Claims.ClaimTypes.Role, "admin-sistema") ||
-            context.User.HasClaim(System.Security.Claims.ClaimTypes.Role, "organizator")))
-    .AddPolicy("SpeakerPolicy", policy =>
-        policy.RequireAssertion(context =>
-            context.User.HasClaim(System.Security.Claims.ClaimTypes.Role, "predavac")))
+    .AddPolicy("AdminSistemaPolicy", policy => policy.RequireRole("admin-sistema"))
+    .AddPolicy("OrganizerPolicy", policy => policy.RequireRole("organizator"))
+    .AddPolicy("AdminOrOrganizerPolicy", policy => policy.RequireRole("admin-sistema", "organizator"))
+    .AddPolicy("SpeakerPolicy", policy => policy.RequireRole("predavac"))
     .AddPolicy("ParticipantPolicy", policy =>
         policy.RequireAuthenticatedUser());
 
@@ -118,6 +102,10 @@ if (runMigrationsOnly)
     app.Logger.LogInformation("Migrations finished successfully. Exiting migrator container.");
     return;
 }
+
+// Velika izmjena: osigurava da API pri standardnom startup-u automatski primijeni
+// sve pending migracije (npr. dodavanje username/password kolona za lokalni auth).
+await app.Services.WaitForDatabaseAndApplyMigrationsAsync(app.Logger);
 
 if (app.Environment.IsDevelopment())
 {
@@ -133,10 +121,8 @@ if (app.Environment.IsDevelopment())
 app.UseCors("FrontendDev");
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseMiddleware<KeycloakUserSyncMiddleware>();
 
 app.MapControllers();
-app.MapUserEndpoints();
 
 
 app.Run();

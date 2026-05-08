@@ -10,31 +10,30 @@ function isAdminRole(roles: string[] | undefined): boolean {
 }
 
 export function AdminUsersPanel() {
-  const { user, token } = useAuth();
-  const adminRoles = user?.realm_access?.roles;
-  const canView = isAdminRole(adminRoles);
+  const { user } = useAuth();
+  const canView = isAdminRole(user?.role ? [user.role] : []);
   const [users, setUsers] = useState<UserSummary[]>([]);
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(false);
 
   const currentUserDisplayName = useMemo(
-    () => user?.name ?? user?.preferred_username ?? user?.email ?? 'Admin',
+    () => user?.username ?? user?.email ?? 'Admin',
     [user],
   );
 
   useEffect(() => {
     async function loadUsers() {
-      if (!canView || !token) return;
+      if (!canView) return;
 
       setLoading(true);
-      const allUsers = await fetchAllUsers(token);
+      const allUsers = await fetchAllUsers();
       setUsers(allUsers);
       setSelectedUser((prev) => prev ?? allUsers[0] ?? null);
       setLoading(false);
     }
 
     loadUsers();
-  }, [canView, token]);
+  }, [canView]);
 
   if (!canView) return null;
 

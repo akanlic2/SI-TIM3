@@ -4,6 +4,7 @@ export interface UserProfile {
   lastName?: string;
   username?: string;
   email?: string;
+  role?: string;
 }
 
 export interface UserSummary extends UserProfile {

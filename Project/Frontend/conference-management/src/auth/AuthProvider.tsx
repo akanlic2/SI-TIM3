@@ -1,72 +1,73 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
-import {
-  getAccessToken,
-  isAuthenticated,
-  login,
-  logout as keycloakLogout,
-  parseToken,
-  refreshToken,
-  type TokenClaims,
-} from './keycloak';
+import { authService, type AuthUser, type LoginRequest, type RegisterRequest } from './authService';
 
-// ─── Auth Context Type ────────────────────────────────────────────────────────
 interface AuthContextValue {
   isLoggedIn: boolean;
   isLoading: boolean;
-  user: TokenClaims | null;
+  user: AuthUser | null;
   token: string | null;
-  logout: () => Promise<void>;
-  loginRedirect: () => Promise<void>;
+  logout: () => void;
+  login: (request: LoginRequest) => Promise<boolean>;
+  register: (request: RegisterRequest) => Promise<boolean>;
+  refreshCurrentUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-// ─── AuthProvider ─────────────────────────────────────────────────────────────
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState<TokenClaims | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [token, setToken] = useState<string | null>(null);
 
-  const initAuth = useCallback(async () => {
+  const refreshCurrentUser = useCallback(async () => {
+    const currentUser = await authService.getCurrentUser();
+    setUser(currentUser);
+  }, []);
+
+  const initAuth = useCallback(async (): Promise<void> => {
     setIsLoading(true);
 
-    if (isAuthenticated()) {
-      const t = getAccessToken()!;
-      setToken(t);
-      setUser(parseToken(t));
+    if (authService.isAuthenticated()) {
+      setToken(authService.getToken());
+      await refreshCurrentUser();
       setIsLoggedIn(true);
-    } else {
-      // Pokušavamo refresh
-      const refreshed = await refreshToken();
-      if (refreshed) {
-        const t = getAccessToken()!;
-        setToken(t);
-        setUser(parseToken(t));
-        setIsLoggedIn(true);
-      } else {
-        setIsLoggedIn(false);
-        setUser(null);
-        setToken(null);
-      }
+      setIsLoading(false);
+      return;
     }
 
+    setIsLoggedIn(false);
+    setUser(null);
+    setToken(null);
     setIsLoading(false);
-  }, []);
+  }, [refreshCurrentUser]);
 
   useEffect(() => {
     initAuth();
   }, [initAuth]);
 
-  const handleLogout = useCallback(async () => {
-    await keycloakLogout();
-    // Namjerno ne mijenjamo state ovdje jer keycloakLogout radi window.location.href
-    // Ako promijenimo state u false, Router bi nas odmah redirektao na login() prije nego
-    // što se browser preusmjeri na Keycloak logout!
+  const logout = useCallback(() => {
+    authService.logout();
+    setIsLoggedIn(false);
+    setUser(null);
+    setToken(null);
   }, []);
 
-  const loginRedirect = useCallback(async () => {
-    await login();
+  const login = useCallback(async (request: LoginRequest): Promise<boolean> => {
+    const loggedInUser = await authService.login(request);
+    if (!loggedInUser) {
+      return false;
+    }
+
+    setToken(authService.getToken());
+    setUser(loggedInUser);
+    setIsLoggedIn(true);
+    return true;
+  }, []);
+
+  const register = useCallback(async (request: RegisterRequest): Promise<boolean> => {
+    await authService.register(request);
+    return true;
   }, []);
 
   return (
@@ -76,8 +77,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isLoading,
         user,
         token,
-        logout: handleLogout,
-        loginRedirect,
+        logout,
+        login,
+        register,
+        refreshCurrentUser,
       }}
     >
       {children}
@@ -85,7 +88,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-// ─── useAuth Hook ─────────────────────────────────────────────────────────────
 export function useAuth(): AuthContextValue {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error('useAuth must be used inside AuthProvider');

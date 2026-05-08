@@ -1,16 +1,16 @@
 using Microsoft.AspNetCore.Mvc;
-using ConferenceManagement.Application.Services;
+using ConferenceManagement.Application.Interfaces;
 using System.Threading.Tasks;
 
-namespace ConferenceManagement.Api.Modules
+namespace ConferenceManagement.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class DashboardModule : ControllerBase
+    public class DashboardController : ControllerBase
     {
         private readonly IUserService _userService;
 
-        public DashboardModule(IUserService userService)
+        public DashboardController(IUserService userService)
         {
             _userService = userService;
         }

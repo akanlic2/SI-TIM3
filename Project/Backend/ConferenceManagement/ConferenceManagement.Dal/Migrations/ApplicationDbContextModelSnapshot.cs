@@ -100,11 +100,11 @@ namespace ConferenceManagement.Dal.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("first_name");
 
-                    b.Property<string>("KeycloakUserId")
+                    b.Property<string>("Password")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("keycloak_user_id");
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("password");
 
                     b.Property<string>("LastName")
                         .IsRequired()
@@ -118,6 +118,12 @@ namespace ConferenceManagement.Dal.Migrations
                         .HasColumnType("character varying(50)")
                         .HasColumnName("role");
 
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("username");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
@@ -129,9 +135,9 @@ namespace ConferenceManagement.Dal.Migrations
                         .IsUnique()
                         .HasDatabaseName("ix_users_email");
 
-                    b.HasIndex("KeycloakUserId")
+                    b.HasIndex("Username")
                         .IsUnique()
-                        .HasDatabaseName("ix_users_keycloak_user_id");
+                        .HasDatabaseName("ix_users_username");
 
                     b.ToTable("users", (string)null);
                 });

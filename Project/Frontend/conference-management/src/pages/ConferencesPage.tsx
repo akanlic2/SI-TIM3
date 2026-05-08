@@ -41,8 +41,8 @@ export default function ConferencesPage() {
     category: 'IT'
   });
 
-  const roles = user?.realm_access?.roles || [];
-  const isAdminOrOrganizer = roles.includes('admin-sistema') || roles.includes('organizator');
+  const role = user?.role?.toLowerCase() ?? '';
+  const isAdminOrOrganizer = role === 'admin-sistema' || role === 'organizator';
 
   const resetForm = () => {
     setFormData({
