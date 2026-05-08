@@ -1,5 +1,7 @@
 using ConferenceManagement.Api.Controllers;
 using ConferenceManagement.Application.Services;
+using ConferenceManagement.Application.Interfaces;
+using ConferenceManagement.Application.DTOs.User;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;

@@ -1,12 +1,14 @@
-using Microsoft.AspNetCore.Mvc;
-using ConferenceManagement.Application.Services;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using ConferenceManagement.Application.Interfaces;
+using ConferenceManagement.Application.DTOs.User;
 using Microsoft.IdentityModel.Tokens;
 
 namespace ConferenceManagement.Api.Controllers
@@ -48,24 +50,17 @@ namespace ConferenceManagement.Api.Controllers
                 return Conflict(new { error = "Email already exists." });
             }
 
-            try
+            var createdUser = await _userService.RegisterUserAsync(new RegisterUserDto
             {
-                var createdUser = await _userService.RegisterUserAsync(new RegisterUserDto
-                {
-                    Username = request.Username,
-                    Password = request.Password,
-                    FirstName = request.FirstName,
-                    LastName = request.LastName,
-                    Email = request.Email,
-                    Role = request.Role
-                });
+                Username = request.Username,
+                Password = request.Password,
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                Email = request.Email,
+                Role = request.Role
+            });
 
-                return Ok(createdUser);
-            }
-            catch (DbUpdateException)
-            {
-                return Conflict(new { error = "Username or email already exists." });
-            }
+            return Ok(createdUser);
         }
 
         [AllowAnonymous]
@@ -112,6 +107,14 @@ namespace ConferenceManagement.Api.Controllers
             }
 
             return Ok(user);
+        }
+
+        [Authorize(Policy = "ParticipantPolicy")] // Or whatever policy was needed. UserModule used multiple policies, but ParticipantPolicy is the least restrictive for authenticated users.
+        [HttpGet("/api/users/all")]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var users = await _userService.GetAllUsersAsync();
+            return Ok(new { users, count = users.Count });
         }
 
         [Authorize(Policy = "ParticipantPolicy")]

@@ -1,5 +1,4 @@
 using ConferenceManagement.Api.Extensions;
-using ConferenceManagement.Api.Modules;
 using ConferenceManagement.Application.Interfaces;
 using ConferenceManagement.Application.Services;
 using ConferenceManagement.Dal;
@@ -80,6 +79,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUserContextService, UserContextService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IConferenceRepository, ConferenceRepository>();
 builder.Services.AddScoped<IConferenceService, ConferenceService>();
 builder.Services.AddScoped<IUserService, UserService>();
@@ -123,7 +123,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapUserEndpoints();
 
 
 app.Run();
