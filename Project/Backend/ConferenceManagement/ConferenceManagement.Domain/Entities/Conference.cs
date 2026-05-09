@@ -11,4 +11,12 @@ public class Conference
     public string Category { get; set; } = string.Empty;
     public int MaxParticipants { get; set; }
     public string Status { get; set; } = "Planned";
+
+    public ICollection<Session> Sessions { get; set; }
+    public ICollection<ConferenceRegistration> ConferenceRegistrations { get; set; }
+    public ICollection<Material> Materials { get; set; }
+    public ICollection<LogisticsTask> LogisticsTasks { get; set; }
+    public ICollection<AgendaItem> AgendaItems { get; set; }
+    public ICollection<User> Organizers { get; set; }
+
 }
