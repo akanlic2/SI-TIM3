@@ -87,6 +87,21 @@ public class ConferenceService : IConferenceService
             throw new KeyNotFoundException($"Konferencija sa ID-jem {id} nije pronađena.");
         }
 
+        if (dto.StartDate > dto.EndDate)
+        {
+            throw new ArgumentException("Datum početka mora biti prije datuma završetka.");
+        }
+
+        if (dto.StartDate <= DateTime.UtcNow)
+        {
+            throw new ArgumentException("Datum početka mora biti u budućnosti.");
+        }
+
+        if (dto.MaxParticipants <= 0)
+        {
+            throw new ArgumentException("Maksimalan broj učesnika mora biti veći od 0.");
+        }
+
         conference.Title = dto.Title;
         conference.Description = dto.Description;
         conference.StartDate = dto.StartDate.ToUniversalTime();
