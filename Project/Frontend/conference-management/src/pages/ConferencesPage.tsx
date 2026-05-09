@@ -41,8 +41,69 @@ export default function ConferencesPage() {
     category: 'IT'
   });
 
+  // State za validacijske greške
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+
   const role = user?.role?.toLowerCase() ?? '';
   const isAdminOrOrganizer = role === 'admin-sistema' || role === 'organizator';
+
+  // Validacijska funkcija
+  const validateForm = (): boolean => {
+    const errors: Record<string, string> = {};
+
+    // Title validation
+    if (!formData.title || formData.title.trim() === '') {
+      errors.title = 'Naziv je obavezan';
+    } else if (formData.title.trim().length < 3) {
+      errors.title = 'Naziv mora sadržati najmanje 3 karaktera';
+    } else if (formData.title.length > 100) {
+      errors.title = 'Naziv ne može biti duži od 100 karaktera';
+    }
+
+    // Description validation
+    if (!formData.description || formData.description.trim() === '') {
+      errors.description = 'Opis je obavezan';
+    } else if (formData.description.trim().length < 10) {
+      errors.description = 'Opis mora sadržati najmanje 10 karaktera';
+    } else if (formData.description.length > 500) {
+      errors.description = 'Opis ne može biti duži od 500 karaktera';
+    }
+
+    // Location validation
+    if (!formData.location || formData.location.trim() === '') {
+      errors.location = 'Lokacija je obavezna';
+    }
+
+    // Start date validation
+    if (!formData.startDate) {
+      errors.startDate = 'Datum početka je obavezan';
+    } else {
+      const startDateTime = new Date(formData.startDate);
+      const now = new Date();
+      if (startDateTime <= now) {
+        errors.startDate = 'Datum početka mora biti u budućnosti';
+      }
+    }
+
+    // End date validation
+    if (!formData.endDate) {
+      errors.endDate = 'Datum završetka je obavezan';
+    } else if (formData.startDate) {
+      const startDateTime = new Date(formData.startDate);
+      const endDateTime = new Date(formData.endDate);
+      if (endDateTime <= startDateTime) {
+        errors.endDate = 'Datum završetka mora biti nakon datuma početka';
+      }
+    }
+
+    // Max participants validation
+    if (!formData.maxParticipants || formData.maxParticipants <= 0) {
+      errors.maxParticipants = 'Broj učesnika mora biti veći od 0';
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const resetForm = () => {
     setFormData({
@@ -55,6 +116,7 @@ export default function ConferencesPage() {
       category: 'IT'
     });
     setEditingConference(null);
+    setValidationErrors({});
   };
 
   const handleCreateClick = () => {
@@ -78,6 +140,12 @@ export default function ConferencesPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate form before submission
+    if (!validateForm()) {
+      return;
+    }
+
     try {
       if (editingConference) {
         // Update existing conference
@@ -164,11 +232,14 @@ export default function ConferencesPage() {
                   <input
                     type="text"
                     placeholder="n.pr. Tech Spark 2026"
-                    className="form-input"
+                    className={`form-input ${validationErrors.title ? 'border-red-500 bg-red-500/10' : ''}`}
                     value={formData.title}
                     onChange={e => setFormData({...formData, title: e.target.value})}
                     required
                   />
+                  {validationErrors.title && (
+                    <p className="text-red-400 text-sm mt-1">{validationErrors.title}</p>
+                  )}
                 </div>
 
                 <div className="form-grid" style={{ width: '100%', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
@@ -176,7 +247,7 @@ export default function ConferencesPage() {
                     <label className="form-label">Datum početka</label>
                     <input
                       type="datetime-local"
-                      className="form-input"
+                      className={`form-input ${validationErrors.startDate ? 'border-red-500 bg-red-500/10' : ''}`}
                       style={{ minWidth: 0 }}
                       min={toDatetimeLocal(new Date().toISOString())}
                       value={formData.startDate}
@@ -184,12 +255,15 @@ export default function ConferencesPage() {
                       onKeyDown={e => e.preventDefault()}
                       required
                     />
+                    {validationErrors.startDate && (
+                      <p className="text-red-400 text-sm mt-1">{validationErrors.startDate}</p>
+                    )}
                   </div>
                   <div className="form-group" style={{ minWidth: 0 }}>
                     <label className="form-label">Datum završetka</label>
                     <input
                       type="datetime-local"
-                      className="form-input"
+                      className={`form-input ${validationErrors.endDate ? 'border-red-500 bg-red-500/10' : ''}`}
                       style={{ minWidth: 0 }}
                       min={toDatetimeLocal(new Date().toISOString())}
                       value={formData.endDate}
@@ -197,6 +271,9 @@ export default function ConferencesPage() {
                       onKeyDown={e => e.preventDefault()}
                       required
                     />
+                    {validationErrors.endDate && (
+                      <p className="text-red-400 text-sm mt-1">{validationErrors.endDate}</p>
+                    )}
                   </div>
                 </div>
 
@@ -205,11 +282,14 @@ export default function ConferencesPage() {
                   <input
                     type="text"
                     placeholder="n.pr. Sarajevo, Hotel Europe"
-                    className="form-input"
+                    className={`form-input ${validationErrors.location ? 'border-red-500 bg-red-500/10' : ''}`}
                     value={formData.location}
                     onChange={e => setFormData({...formData, location: e.target.value})}
                     required
                   />
+                  {validationErrors.location && (
+                    <p className="text-red-400 text-sm mt-1">{validationErrors.location}</p>
+                  )}
                 </div>
 
                 <div className="form-group">
@@ -235,21 +315,27 @@ export default function ConferencesPage() {
                     type="number"
                     min="1"
                     max="10000"
-                    className="form-input"
+                    className={`form-input ${validationErrors.maxParticipants ? 'border-red-500 bg-red-500/10' : ''}`}
                     value={formData.maxParticipants || ''}
                     onChange={e => setFormData({...formData, maxParticipants: e.target.value ? parseInt(e.target.value) : 0})}
                     required
                   />
+                  {validationErrors.maxParticipants && (
+                    <p className="text-red-400 text-sm mt-1">{validationErrors.maxParticipants}</p>
+                  )}
                 </div>
 
                 <div className="form-group">
                   <label className="form-label">Kratki opis</label>
                   <textarea
                     placeholder="O čemu se radi na ovoj konferenciji..."
-                    className="form-textarea"
+                    className={`form-textarea ${validationErrors.description ? 'border-red-500 bg-red-500/10' : ''}`}
                     value={formData.description}
                     onChange={e => setFormData({...formData, description: e.target.value})}
                   />
+                  {validationErrors.description && (
+                    <p className="text-red-400 text-sm mt-1">{validationErrors.description}</p>
+                  )}
                 </div>
 
                 <div className="form-actions">
