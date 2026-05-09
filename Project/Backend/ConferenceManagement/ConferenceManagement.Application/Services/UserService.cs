@@ -58,14 +58,14 @@ namespace ConferenceManagement.Application.Services
             return MapToDto(createdUser);
         }
 
-        public async Task<bool> UsernameExistsAsync(string username)
+        public async Task<bool> UsernameExistsAsync(string username, Guid? userId = null)
         {
-            return await _userRepository.AnyByUsernameAsync(username);
+            return await _userRepository.AnyByUsernameAsync(username, userId);
         }
 
-        public async Task<bool> EmailExistsAsync(string email)
+        public async Task<bool> EmailExistsAsync(string email, Guid? userId = null)
         {
-            return await _userRepository.AnyByEmailAsync(email);
+            return await _userRepository.AnyByEmailAsync(email, userId);
         }
 
         public async Task<bool> UpdateUserAsync(Guid userId, UpdateUserDto dto)

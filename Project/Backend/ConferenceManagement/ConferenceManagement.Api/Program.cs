@@ -85,9 +85,9 @@ builder.Services.AddScoped<IConferenceService, ConferenceService>();
 builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddAuthorizationBuilder()
-    .AddPolicy("AdminSistemaPolicy", policy => policy.RequireRole("admin-sistema"))
+    .AddPolicy("AdminPolicy", policy => policy.RequireRole("admin"))
     .AddPolicy("OrganizerPolicy", policy => policy.RequireRole("organizator"))
-    .AddPolicy("AdminOrOrganizerPolicy", policy => policy.RequireRole("admin-sistema", "organizator"))
+    .AddPolicy("AdminOrOrganizerPolicy", policy => policy.RequireRole("admin", "organizator"))
     .AddPolicy("SpeakerPolicy", policy => policy.RequireRole("predavac"))
     .AddPolicy("ParticipantPolicy", policy =>
         policy.RequireAuthenticatedUser());

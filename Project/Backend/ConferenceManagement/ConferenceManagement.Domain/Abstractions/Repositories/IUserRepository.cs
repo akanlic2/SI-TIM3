@@ -10,6 +10,6 @@ public interface IUserRepository
     Task<User?> GetByUsernameOrEmailAndPasswordAsync(string usernameOrEmail, string password, CancellationToken cancellationToken = default);
     Task<User> AddAsync(User user, CancellationToken cancellationToken = default);
     Task UpdateAsync(User user, CancellationToken cancellationToken = default);
-    Task<bool> AnyByUsernameAsync(string username, CancellationToken cancellationToken = default);
-    Task<bool> AnyByEmailAsync(string email, CancellationToken cancellationToken = default);
+    Task<bool> AnyByUsernameAsync(string username, Guid? excludeUserId = null, CancellationToken cancellationToken = default);
+    Task<bool> AnyByEmailAsync(string email, Guid? excludeUserId = null, CancellationToken cancellationToken = default);
 }

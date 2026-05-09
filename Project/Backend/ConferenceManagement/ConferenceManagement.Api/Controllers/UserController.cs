@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using ConferenceManagement.Application.Interfaces;
 using ConferenceManagement.Application.DTOs.User;
 using Microsoft.IdentityModel.Tokens;
+using ConferenceManagement.Application.Services;
 
 namespace ConferenceManagement.Api.Controllers
 {
@@ -18,11 +19,13 @@ namespace ConferenceManagement.Api.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly IUserContextService _userContextService;
         private readonly IConfiguration _configuration;
 
-        public UserController(IUserService userService, IConfiguration configuration)
+        public UserController(IUserService userService, IUserContextService userContextService, IConfiguration configuration)
         {
             _userService = userService;
+            _userContextService = userContextService;
             _configuration = configuration;
         }
 
@@ -37,17 +40,17 @@ namespace ConferenceManagement.Api.Controllers
                 string.IsNullOrWhiteSpace(request.LastName) ||
                 string.IsNullOrWhiteSpace(request.Email))
             {
-                return BadRequest(new { error = "All required fields must be provided." });
+                return BadRequest(new { error = "Sva obavezna polja moraju biti ispunjena" });
             }
 
             if (await _userService.UsernameExistsAsync(request.Username))
             {
-                return Conflict(new { error = "Username already exists." });
+                return Conflict(new { error = "Korisničko ime već postoji." });
             }
 
             if (await _userService.EmailExistsAsync(request.Email))
             {
-                return Conflict(new { error = "Email already exists." });
+                return Conflict(new { error = "Email već postoji." });
             }
 
             var createdUser = await _userService.RegisterUserAsync(new RegisterUserDto
@@ -71,7 +74,7 @@ namespace ConferenceManagement.Api.Controllers
 
             if (user is null)
             {
-                return Unauthorized(new { error = "Invalid credentials." });
+                return Unauthorized(new { error = "Nevalidni podaci" });
             }
 
             var token = GenerateJwtToken(user);
@@ -87,7 +90,7 @@ namespace ConferenceManagement.Api.Controllers
         [HttpPost("logout")]
         public IActionResult Logout()
         {
-            return Ok(new { message = "Logged out successfully." });
+            return Ok(new { message = "Uspješna odjava" });
         }
 
         [Authorize]
@@ -97,19 +100,19 @@ namespace ConferenceManagement.Api.Controllers
             var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!Guid.TryParse(userIdClaim, out var userId))
             {
-                return Unauthorized(new { error = "Invalid token payload." });
+                return Unauthorized(new { error = "Token nije validan" });
             }
 
             var user = await _userService.GetUserByIdAsync(userId);
             if (user is null)
             {
-                return NotFound(new { Message = "User not found." });
+                return NotFound(new { Message = "Korisnik nije pronađen" });
             }
 
             return Ok(user);
         }
 
-        [Authorize(Policy = "ParticipantPolicy")] // Or whatever policy was needed. UserModule used multiple policies, but ParticipantPolicy is the least restrictive for authenticated users.
+        [Authorize(Policy = "AdminPolicy")]
         [HttpGet("/api/users/all")]
         public async Task<IActionResult> GetAllUsers()
         {
@@ -121,11 +124,17 @@ namespace ConferenceManagement.Api.Controllers
         [HttpGet("{id:guid}")]
         public async Task<ActionResult<UserDto>> GetById(Guid id)
         {
+            if (!Guid.TryParse(_userContextService.GetUserId(), out var userId) ||
+                (userId != id && !User.IsInRole("admin")))
+            {
+                return Forbid();
+            }
+
             var user = await _userService.GetUserByIdAsync(id);
 
             if (user is null)
             {
-                return NotFound(new { Message = $"User with ID {id} not found." });
+                return NotFound(new { Message = $"Korisnik sa ID {id} nije pronađen." });
             }
 
             return Ok(user);
@@ -135,11 +144,30 @@ namespace ConferenceManagement.Api.Controllers
         [HttpPut("{id:guid}")]
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdateUserDto dto)
         {
+            if (!Guid.TryParse(_userContextService.GetUserId(), out var userId) ||
+                (userId != id && !User.IsInRole("admin")))
+            {
+                return Forbid();
+            }
+
+            var username = dto.Username ?? "";
+            var email = dto.Email ?? "";
+
+            if (await _userService.UsernameExistsAsync(username, id))
+            {
+                return Conflict(new { error = "Korisničko ime već postoji." });
+            }
+
+            if (await _userService.EmailExistsAsync(email, id))
+            {
+                return Conflict(new { error = "Email već postoji." });
+            }
+
             var updated = await _userService.UpdateUserAsync(id, dto);
 
             if (!updated)
             {
-                return NotFound(new { Message = $"User with ID {id} not found." });
+                return NotFound(new { Message = $"Korisnik sa ID {id} nije pronađen." });
             }
 
             return NoContent();
