@@ -35,14 +35,14 @@ public class ConferenceService : IConferenceService
 
     public async Task<ConferenceDto> CreateAsync(CreateConferenceDto dto, CancellationToken cancellationToken = default)
     {
-        if (dto.StartDate > dto.EndDate)
+        if (dto.StartDate >= dto.EndDate)
         {
-            throw new ArgumentException("Start date cannot be after end date.");
+            throw new ArgumentException("Datum početka mora biti prije datuma završetka.");
         }
 
         if (dto.MaxParticipants <= 0)
         {
-            throw new ArgumentException("Max participants must be greater than 0.");
+            throw new ArgumentException("Maksimalan broj učesnika mora biti veći od 0.");
         }
 
         var conference = new Conference
@@ -85,6 +85,21 @@ public class ConferenceService : IConferenceService
         if (conference == null)
         {
             throw new KeyNotFoundException($"Konferencija sa ID-jem {id} nije pronađena.");
+        }
+
+        if (dto.StartDate > dto.EndDate)
+        {
+            throw new ArgumentException("Datum početka mora biti prije datuma završetka.");
+        }
+
+        if (dto.StartDate <= DateTime.UtcNow)
+        {
+            throw new ArgumentException("Datum početka mora biti u budućnosti.");
+        }
+
+        if (dto.MaxParticipants <= 0)
+        {
+            throw new ArgumentException("Maksimalan broj učesnika mora biti veći od 0.");
         }
 
         conference.Title = dto.Title;
