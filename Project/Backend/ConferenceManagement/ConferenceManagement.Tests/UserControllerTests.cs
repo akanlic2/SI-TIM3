@@ -409,7 +409,7 @@ namespace ConferenceManagement.Tests
             var identity = new ClaimsIdentity(new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, adminUserId.ToString()),
-                new Claim(ClaimTypes.Role, "admin")
+                new Claim(ClaimTypes.Role, "admin-sistema")
             });
             var principal = new ClaimsPrincipal(identity);
 
@@ -547,7 +547,7 @@ namespace ConferenceManagement.Tests
             var identity = new ClaimsIdentity(new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, adminUserId.ToString()),
-                new Claim(ClaimTypes.Role, "admin")
+                new Claim(ClaimTypes.Role, "admin-sistema") 
             });
             var principal = new ClaimsPrincipal(identity);
 

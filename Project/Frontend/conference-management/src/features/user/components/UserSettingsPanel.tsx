@@ -98,7 +98,7 @@ export function UserSettingsPanel({ title = 'Postavke naloga', targetUser = null
               <option value="ucesnik">Učesnik</option>
               <option value="predavac">Predavač</option>
               <option value="organizator">Organizator</option>
-              <option value="admin">Admin</option>
+              <option value="admin-sistema">Admin</option>
             </select>
           </div>
         )}

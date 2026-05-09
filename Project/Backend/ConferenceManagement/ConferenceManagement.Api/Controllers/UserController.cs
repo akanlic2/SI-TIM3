@@ -125,7 +125,7 @@ namespace ConferenceManagement.Api.Controllers
         public async Task<ActionResult<UserDto>> GetById(Guid id)
         {
             if (!Guid.TryParse(_userContextService.GetUserId(), out var userId) ||
-                (userId != id && !User.IsInRole("admin")))
+                (userId != id && !User.IsInRole("admin-sistema")))
             {
                 return Forbid();
             }
@@ -145,7 +145,7 @@ namespace ConferenceManagement.Api.Controllers
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdateUserDto dto)
         {
             if (!Guid.TryParse(_userContextService.GetUserId(), out var userId) ||
-                (userId != id && !User.IsInRole("admin")))
+                (userId != id && !User.IsInRole("admin-sistema")))
             {
                 return Forbid();
             }
