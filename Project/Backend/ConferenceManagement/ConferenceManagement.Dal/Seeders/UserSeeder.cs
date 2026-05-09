@@ -17,7 +17,7 @@ public static class UserSeeder
                 FirstName = "Ajdin",
                 LastName = "Kanlic",
                 Email = "administrator@gmail.com",
-                Role = "admin",
+                Role = "admin-sistema",
                 CreatedAt = DateTime.UtcNow
             },
             new User
