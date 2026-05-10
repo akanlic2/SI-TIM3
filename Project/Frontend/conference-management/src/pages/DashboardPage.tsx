@@ -70,11 +70,14 @@ export default function DashboardPage() {
   // ─── Dohvat konferencija ───────────────────────────────────────────────────
   useEffect(() => {
     if (!token) return;
-    fetch('/api/Conference', {
+    fetch('/api/Conference?pageSize=1000', {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((r) => (r.ok ? r.json() : []))
-      .then((data) => setConferences(Array.isArray(data) ? data : []))
+      .then((data) => {
+        const confArray = Array.isArray(data) ? data : Array.isArray(data?.items) ? data.items : [];
+        setConferences(confArray);
+      })
       .catch(() => setConferences([]))
       .finally(() => setIsLoadingConferences(false));
   }, [token]);
@@ -254,7 +257,11 @@ export default function DashboardPage() {
                 </div>
               ) : (
                 <div className="conference-list">
-                  {conferences.slice(0, 5).map((conf) => (
+                  {conferences
+                    .filter(c => new Date(c.startDate) >= new Date())
+                    .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
+                    .slice(0, 5)
+                    .map((conf) => (
                     <div key={conf.conferenceId} className="conference-row" id={`conf-${conf.conferenceId}`}>
                       <div className="conf-left">
                         <div className="conf-dot" />

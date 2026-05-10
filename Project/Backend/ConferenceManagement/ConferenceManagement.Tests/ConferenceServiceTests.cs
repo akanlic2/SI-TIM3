@@ -10,15 +10,99 @@ namespace ConferenceManagement.Tests;
 public class ConferenceServiceTests
 {
     private readonly Mock<IConferenceRepository> _repositoryMock;
+    private readonly Mock<IUserContextService> _userContextMock;
     private readonly ConferenceService _service;
+
+    private static Conference ActiveConference => new()
+    {
+        ConferenceId = Guid.NewGuid(),
+        Title = "AI Summit",
+        Description = "Active conference",
+        Location = "Sarajevo",
+        Category = "IT",
+        StartDate = DateTime.UtcNow.AddDays(10),
+        EndDate = DateTime.UtcNow.AddDays(11),
+        MaxParticipants = 100,
+        Status = "Active"
+    };
+
+    private static Conference DraftConference => new()
+    {
+        ConferenceId = Guid.NewGuid(),
+        Title = "Draft Conference",
+        Description = "Draft conference",
+        Location = "Mostar",
+        Category = "Business",
+        StartDate = DateTime.UtcNow.AddDays(20),
+        EndDate = DateTime.UtcNow.AddDays(21),
+        MaxParticipants = 150,
+        Status = "Draft"
+    };
 
     public ConferenceServiceTests()
     {
         _repositoryMock = new Mock<IConferenceRepository>();
-        _service = new ConferenceService(_repositoryMock.Object);
+        _userContextMock = new Mock<IUserContextService>();
+
+        // Servis sada prima oba dependency-a kako zahtijeva tvoj kod
+        _service = new ConferenceService(_repositoryMock.Object, _userContextMock.Object);
     }
 
-    // ===================== CREATE =====================
+    // ===================== GET & AUTHORIZATION (Tvoji testovi) =====================
+
+    [Fact]
+    public async Task GetPagedAsync_AdminSeesActiveDraftAndInactive()
+    {
+        _userContextMock
+            .Setup(x => x.GetUserRoles())
+            .Returns(new List<string> { "admin-sistema" });
+
+        _repositoryMock
+            .Setup(x => x.GetPagedFilteredAsync(
+                It.IsAny<int>(),
+                It.IsAny<int>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                true,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((new List<Conference>
+            {
+                ActiveConference,
+                DraftConference
+            }, 2));
+
+        var result = await _service.GetPagedAsync(new ConferenceQueryDto
+        {
+            Page = 1,
+            PageSize = 6
+        });
+
+        Assert.Equal(2, result.TotalCount);
+        Assert.Equal(2, result.Items.Count);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_AdminCanSeeDraftConference()
+    {
+        var draft = DraftConference;
+
+        _userContextMock
+            .Setup(x => x.GetUserRoles())
+            .Returns(new List<string> { "admin-sistema" });
+
+        _repositoryMock
+            .Setup(x => x.GetByIdAsync(draft.ConferenceId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(draft);
+
+        var result = await _service.GetByIdAsync(draft.ConferenceId);
+
+        Assert.NotNull(result);
+        Assert.Equal("Draft", result!.Status);
+    }
+
+    // ===================== CREATE (Kombinovani testovi) =====================
 
     [Fact]
     public async Task CreateAsync_ValidData_ReturnsConferenceDto()
@@ -57,6 +141,23 @@ public class ConferenceServiceTests
         Assert.Equal(dto.Title, result.Title);
         Assert.Equal(dto.Location, result.Location);
         Assert.Equal(dto.MaxParticipants, result.MaxParticipants);
+    }
+
+    [Fact]
+    public async Task CreateAsync_InvalidDates_ThrowsArgumentException()
+    {
+        var dto = new CreateConferenceDto
+        {
+            Title = "Test konferencija",
+            Description = "Opis test konferencije",
+            Location = "Sarajevo",
+            Category = "IT",
+            StartDate = DateTime.UtcNow.AddDays(5),
+            EndDate = DateTime.UtcNow.AddDays(4),
+            MaxParticipants = 100
+        };
+
+        await Assert.ThrowsAsync<ArgumentException>(() => _service.CreateAsync(dto));
     }
 
     [Fact]

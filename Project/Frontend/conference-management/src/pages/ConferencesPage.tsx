@@ -5,32 +5,48 @@ import { createConference, updateConference } from '../features/conference/api/c
 import type { Conference, CreateConferenceData } from '../features/conference/types';
 import '../features/conference/ConferencesPage.css';
 
-// Konvertuje ISO string u format koji datetime-local input prihvata: YYYY-MM-DDTHH:mm
 const toDatetimeLocal = (dateStr: string): string => {
   if (!dateStr) return '';
   try {
-    // Ako vec ima ispravan format, samo skrati na 16 znakova
     if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(dateStr)) {
       return dateStr.slice(0, 16);
     }
+
     const d = new Date(dateStr);
     if (isNaN(d.getTime())) return '';
+
     const pad = (n: number) => String(n).padStart(2, '0');
-    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(
+      d.getHours()
+    )}:${pad(d.getMinutes())}`;
   } catch {
     return '';
   }
 };
 
 export default function ConferencesPage() {
-  const { items, isLoading: isDataLoading, error, refresh } = useConferences();
+  const {
+    items,
+    isLoading: isDataLoading,
+    error,
+    refresh,
+    page,
+    setPage,
+    totalPages,
+    search,
+    setSearch,
+    location,
+    setLocation,
+    category,
+    setCategory,
+  } = useConferences();
+
   const { user, isLoading: isAuthLoading } = useAuth();
 
-  // State za kontrolu vidljivosti forme
   const [showForm, setShowForm] = useState(false);
   const [editingConference, setEditingConference] = useState<Conference | null>(null);
 
-  // State za podatke konferencije
   const [formData, setFormData] = useState<CreateConferenceData>({
     title: '',
     description: '',
@@ -38,20 +54,17 @@ export default function ConferencesPage() {
     startDate: '',
     endDate: '',
     maxParticipants: 50,
-    category: 'IT'
+    category: 'IT',
   });
 
-  // State za validacijske greške
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
-  const role = user?.role?.toLowerCase() ?? '';
-  const isAdminOrOrganizer = role === 'admin-sistema' || role === 'organizator';
+const role = user?.role?.toLowerCase() ?? '';
+const isAdminOrOrganizer = role === 'admin-sistema' || role === 'organizator';
 
-  // Validacijska funkcija
   const validateForm = (): boolean => {
     const errors: Record<string, string> = {};
 
-    // Title validation
     if (!formData.title || formData.title.trim() === '') {
       errors.title = 'Naziv je obavezan';
     } else if (formData.title.trim().length < 3) {
@@ -60,7 +73,6 @@ export default function ConferencesPage() {
       errors.title = 'Naziv ne može biti duži od 100 karaktera';
     }
 
-    // Description validation
     if (!formData.description || formData.description.trim() === '') {
       errors.description = 'Opis je obavezan';
     } else if (formData.description.trim().length < 10) {
@@ -69,34 +81,32 @@ export default function ConferencesPage() {
       errors.description = 'Opis ne može biti duži od 500 karaktera';
     }
 
-    // Location validation
     if (!formData.location || formData.location.trim() === '') {
       errors.location = 'Lokacija je obavezna';
     }
 
-    // Start date validation
     if (!formData.startDate) {
       errors.startDate = 'Datum početka je obavezan';
     } else {
       const startDateTime = new Date(formData.startDate);
       const now = new Date();
+
       if (startDateTime <= now) {
         errors.startDate = 'Datum početka mora biti u budućnosti';
       }
     }
 
-    // End date validation
     if (!formData.endDate) {
       errors.endDate = 'Datum završetka je obavezan';
     } else if (formData.startDate) {
       const startDateTime = new Date(formData.startDate);
       const endDateTime = new Date(formData.endDate);
+
       if (endDateTime <= startDateTime) {
         errors.endDate = 'Datum završetka mora biti nakon datuma početka';
       }
     }
 
-    // Max participants validation
     if (!formData.maxParticipants || formData.maxParticipants <= 0) {
       errors.maxParticipants = 'Broj učesnika mora biti veći od 0';
     }
@@ -113,8 +123,9 @@ export default function ConferencesPage() {
       startDate: '',
       endDate: '',
       maxParticipants: 50,
-      category: 'IT'
+      category: 'IT',
     });
+
     setEditingConference(null);
     setValidationErrors({});
   };
@@ -132,53 +143,52 @@ export default function ConferencesPage() {
       startDate: toDatetimeLocal(conference.startDate),
       endDate: toDatetimeLocal(conference.endDate),
       maxParticipants: conference.maxParticipants,
-      category: conference.category
+      category: conference.category,
     });
+
     setEditingConference(conference);
     setShowForm(true);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Validate form before submission
-    if (!validateForm()) {
-      return;
-    }
+
+    if (!validateForm()) return;
 
     try {
       if (editingConference) {
-        // Update existing conference
         await updateConference(editingConference.conferenceId, formData);
-        alert("Konferencija uspješno ažurirana! 🎉");
+        alert('Konferencija uspješno ažurirana! 🎉');
       } else {
-        // Create new conference
         await createConference(formData);
-        alert("Konferencija uspješno kreirana! 🎉");
+        alert('Konferencija uspješno kreirana! 🎉');
       }
 
-      // Reset and close form
       setShowForm(false);
       resetForm();
-
-      // Refresh the list
       refresh();
     } catch (err) {
-      console.error("Greška pri spašavanju konferencije:", err);
-      alert("Došlo je do greške prilikom spašavanja konferencije.");
+      console.error('Greška pri spašavanju konferencije:', err);
+      alert('Došlo je do greške prilikom spašavanja konferencije.');
     }
   };
 
   if (isAuthLoading) {
-    return <div className="p-8 text-white bg-[#0b0e14] min-h-screen font-sans">Učitavanje autorizacije...</div>;
+    return (
+      <div className="p-8 text-white bg-[#0b0e14] min-h-screen font-sans">
+        Učitavanje autorizacije...
+      </div>
+    );
   }
 
   return (
     <main className="conferences-page">
-      {/* Header sekcija */}
       <div className="conferences-header">
         <div className="conferences-header-content">
-          <div className="conferences-title-section" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div
+            className="conferences-title-section"
+            style={{ display: 'flex', alignItems: 'center', gap: '16px' }}
+          >
             <button
               type="button"
               onClick={() => window.history.back()}
@@ -194,31 +204,27 @@ export default function ConferencesPage() {
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                cursor: 'pointer'
+                cursor: 'pointer',
               }}
             >
               ←
             </button>
+
             <div>
               <h1>Konferencije</h1>
-              <p>Upravljajte predstojećim događajima i njihovim detaljima</p>
+              <p>Pregledajte konferencije, pretražite ih i otvorite detalje</p>
             </div>
           </div>
 
           {isAdminOrOrganizer && (
-            <button
-              onClick={handleCreateClick}
-              className="btn-primary"
-            >
+            <button onClick={handleCreateClick} className="btn-primary">
               + Kreiraj konferenciju
             </button>
           )}
         </div>
       </div>
 
-      {/* Content */}
       <div className="conferences-content">
-        {/* Modal za formu */}
         {showForm && (
           <div className="modal-overlay" style={{ overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
             <div className="modal-content" style={{ maxHeight: '90vh', overflowY: 'auto' }}>
@@ -231,10 +237,10 @@ export default function ConferencesPage() {
                   <label className="form-label">Naziv konferencije</label>
                   <input
                     type="text"
-                    placeholder="n.pr. Tech Spark 2026"
+                    placeholder="npr. Tech Spark 2026"
                     className={`form-input ${validationErrors.title ? 'border-red-500 bg-red-500/10' : ''}`}
                     value={formData.title}
-                    onChange={e => setFormData({...formData, title: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     required
                   />
                   {validationErrors.title && (
@@ -242,33 +248,35 @@ export default function ConferencesPage() {
                   )}
                 </div>
 
-                <div className="form-grid" style={{ width: '100%', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div
+                  className="form-grid"
+                  style={{ width: '100%', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}
+                >
                   <div className="form-group" style={{ minWidth: 0 }}>
                     <label className="form-label">Datum početka</label>
                     <input
                       type="datetime-local"
                       className={`form-input ${validationErrors.startDate ? 'border-red-500 bg-red-500/10' : ''}`}
-                      style={{ minWidth: 0 }}
                       min={toDatetimeLocal(new Date().toISOString())}
                       value={formData.startDate}
-                      onChange={e => setFormData({...formData, startDate: e.target.value})}
-                      onKeyDown={e => e.preventDefault()}
+                      onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                      onKeyDown={(e) => e.preventDefault()}
                       required
                     />
                     {validationErrors.startDate && (
                       <p className="text-red-400 text-sm mt-1">{validationErrors.startDate}</p>
                     )}
                   </div>
+
                   <div className="form-group" style={{ minWidth: 0 }}>
                     <label className="form-label">Datum završetka</label>
                     <input
                       type="datetime-local"
                       className={`form-input ${validationErrors.endDate ? 'border-red-500 bg-red-500/10' : ''}`}
-                      style={{ minWidth: 0 }}
                       min={toDatetimeLocal(new Date().toISOString())}
                       value={formData.endDate}
-                      onChange={e => setFormData({...formData, endDate: e.target.value})}
-                      onKeyDown={e => e.preventDefault()}
+                      onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                      onKeyDown={(e) => e.preventDefault()}
                       required
                     />
                     {validationErrors.endDate && (
@@ -281,10 +289,10 @@ export default function ConferencesPage() {
                   <label className="form-label">Lokacija</label>
                   <input
                     type="text"
-                    placeholder="n.pr. Sarajevo, Hotel Europe"
+                    placeholder="npr. Sarajevo, Hotel Europe"
                     className={`form-input ${validationErrors.location ? 'border-red-500 bg-red-500/10' : ''}`}
                     value={formData.location}
-                    onChange={e => setFormData({...formData, location: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                     required
                   />
                   {validationErrors.location && (
@@ -297,7 +305,7 @@ export default function ConferencesPage() {
                   <select
                     className="form-select"
                     value={formData.category}
-                    onChange={e => setFormData({...formData, category: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                     required
                   >
                     <option value="IT">IT</option>
@@ -317,7 +325,12 @@ export default function ConferencesPage() {
                     max="10000"
                     className={`form-input ${validationErrors.maxParticipants ? 'border-red-500 bg-red-500/10' : ''}`}
                     value={formData.maxParticipants || ''}
-                    onChange={e => setFormData({...formData, maxParticipants: e.target.value ? parseInt(e.target.value) : 0})}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        maxParticipants: e.target.value ? parseInt(e.target.value) : 0,
+                      })
+                    }
                     required
                   />
                   {validationErrors.maxParticipants && (
@@ -331,7 +344,7 @@ export default function ConferencesPage() {
                     placeholder="O čemu se radi na ovoj konferenciji..."
                     className={`form-textarea ${validationErrors.description ? 'border-red-500 bg-red-500/10' : ''}`}
                     value={formData.description}
-                    onChange={e => setFormData({...formData, description: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   />
                   {validationErrors.description && (
                     <p className="text-red-400 text-sm mt-1">{validationErrors.description}</p>
@@ -339,17 +352,10 @@ export default function ConferencesPage() {
                 </div>
 
                 <div className="form-actions">
-                  <button
-                    type="button"
-                    onClick={() => setShowForm(false)}
-                    className="btn-secondary"
-                  >
+                  <button type="button" onClick={() => setShowForm(false)} className="btn-secondary">
                     Odustani
                   </button>
-                  <button
-                    type="submit"
-                    className="btn-primary-sm"
-                  >
+                  <button type="submit" className="btn-primary-sm">
                     {editingConference ? 'Sačuvaj promjene' : 'Sačuvaj konferenciju'}
                   </button>
                 </div>
@@ -358,13 +364,60 @@ export default function ConferencesPage() {
           </div>
         )}
 
-        {/* Conference List Container */}
+        <div
+          style={{
+            display: 'flex',
+            gap: '12px',
+            marginBottom: '24px',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+          }}
+        >
+          <input
+            type="text"
+            placeholder="Pretraži po nazivu ili opisu..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+            className="form-input"
+            style={{ maxWidth: '280px' }}
+          />
+
+          <input
+            type="text"
+            placeholder="Filtriraj po lokaciji..."
+            value={location}
+            onChange={(e) => {
+              setLocation(e.target.value);
+              setPage(1);
+            }}
+            className="form-input"
+            style={{ maxWidth: '230px' }}
+          />
+
+          <select
+            value={category}
+            onChange={(e) => {
+              setCategory(e.target.value);
+              setPage(1);
+            }}
+            className="form-select"
+            style={{ maxWidth: '190px' }}
+          >
+            <option value="">Sve kategorije</option>
+            <option value="IT">IT</option>
+            <option value="Business">Business</option>
+            <option value="Science">Science</option>
+            <option value="Health">Health</option>
+            <option value="Education">Education</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
         <div>
-          {error && (
-            <div className="error-message">
-              Greška: {error}
-            </div>
-          )}
+          {error && <div className="error-message">Greška: {error}</div>}
 
           {isDataLoading ? (
             <div className="loading-container">
@@ -372,17 +425,48 @@ export default function ConferencesPage() {
               <p className="loading-text">Učitavanje konferencija iz baze...</p>
             </div>
           ) : (
-            <ConferenceList
-              conferences={items}
-              isAdminOrOrganizer={isAdminOrOrganizer}
-              onDeleteSuccess={refresh}
-              onEditClick={handleEditClick}
-            />
+            <>
+              <ConferenceList
+                conferences={items}
+                isAdminOrOrganizer={isAdminOrOrganizer}
+                onDeleteSuccess={refresh}
+                onEditClick={handleEditClick}
+              />
+
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  gap: '16px',
+                  marginTop: '32px',
+                }}
+              >
+                <button
+                  disabled={page <= 1}
+                  onClick={() => setPage(page - 1)}
+                  className="btn-secondary"
+                >
+                  Prethodna
+                </button>
+
+                <span style={{ color: 'white' }}>
+                  Stranica {page} od {totalPages}
+                </span>
+
+                <button
+                  disabled={page >= totalPages}
+                  onClick={() => setPage(page + 1)}
+                  className="btn-secondary"
+                >
+                  Sljedeća
+                </button>
+              </div>
+            </>
           )}
         </div>
       </div>
     </main>
   );
 }
-
  

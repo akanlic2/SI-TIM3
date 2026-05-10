@@ -1,4 +1,5 @@
-﻿using ConferenceManagement.Application.DTOs.Conference;
+﻿using ConferenceManagement.Application.DTOs.Common;
+using ConferenceManagement.Application.DTOs.Conference;
 using ConferenceManagement.Application.Interfaces;
 using ConferenceManagement.Domain.Abstractions.Repositories;
 using ConferenceManagement.Domain.Entities;
@@ -8,10 +9,14 @@ namespace ConferenceManagement.Application.Services;
 public class ConferenceService : IConferenceService
 {
     private readonly IConferenceRepository _conferenceRepository;
+    private readonly IUserContextService _userContextService;
 
-    public ConferenceService(IConferenceRepository conferenceRepository)
+    public ConferenceService(
+        IConferenceRepository conferenceRepository,
+        IUserContextService userContextService)
     {
         _conferenceRepository = conferenceRepository;
+        _userContextService = userContextService;
     }
 
     public async Task<List<ConferenceDto>> GetAllAsync(CancellationToken cancellationToken = default)
@@ -19,6 +24,31 @@ public class ConferenceService : IConferenceService
         var conferences = await _conferenceRepository.GetAllAsync(cancellationToken);
 
         return conferences.Select(MapToDto).ToList();
+    }
+
+    public async Task<PagedResultDto<ConferenceDto>> GetPagedAsync(
+        ConferenceQueryDto query,
+        CancellationToken cancellationToken = default)
+    {
+        
+        var (items, totalCount) =
+            await _conferenceRepository.GetPagedFilteredAsync(
+                query.Page,
+                query.PageSize,
+                query.Search,
+                query.Location,
+                query.Category,
+                query.Status,
+                includeInactiveAndDraft: true,
+                cancellationToken);
+
+        return new PagedResultDto<ConferenceDto>
+        {
+            Items = items.Select(MapToDto).ToList(),
+            TotalCount = totalCount,
+            Page = query.Page,
+            PageSize = query.PageSize
+        };
     }
 
     public async Task<ConferenceDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
@@ -49,7 +79,7 @@ public class ConferenceService : IConferenceService
         {
             Title = dto.Title,
             Description = dto.Description,
-            StartDate = dto.StartDate.ToUniversalTime(), 
+            StartDate = dto.StartDate.ToUniversalTime(),
             EndDate = dto.EndDate.ToUniversalTime(),
             Location = dto.Location,
             Category = dto.Category,
@@ -57,25 +87,10 @@ public class ConferenceService : IConferenceService
             Status = "Planned"
         };
 
-        var createdConference = await _conferenceRepository.AddAsync(conference, cancellationToken);
+        var createdConference =
+            await _conferenceRepository.AddAsync(conference, cancellationToken);
 
         return MapToDto(createdConference);
-    }
-
-    private static ConferenceDto MapToDto(Conference conference)
-    {
-        return new ConferenceDto
-        {
-            ConferenceId = conference.ConferenceId,
-            Title = conference.Title,
-            Description = conference.Description,
-            StartDate = conference.StartDate,
-            EndDate = conference.EndDate,
-            Location = conference.Location,
-            Category = conference.Category,
-            MaxParticipants = conference.MaxParticipants,
-            Status = conference.Status
-        };
     }
 
     public async Task UpdateAsync(Guid id, UpdateConferenceDto dto, CancellationToken cancellationToken = default)
@@ -122,7 +137,22 @@ public class ConferenceService : IConferenceService
             throw new KeyNotFoundException($"Conference with ID {id} not found.");
         }
 
-        // Pozivamo repozitorij za brisanje
         await _conferenceRepository.DeleteAsync(conference, cancellationToken);
+    }
+
+    private static ConferenceDto MapToDto(Conference conference)
+    {
+        return new ConferenceDto
+        {
+            ConferenceId = conference.ConferenceId,
+            Title = conference.Title,
+            Description = conference.Description,
+            StartDate = conference.StartDate,
+            EndDate = conference.EndDate,
+            Location = conference.Location,
+            Category = conference.Category,
+            MaxParticipants = conference.MaxParticipants,
+            Status = conference.Status
+        };
     }
 }
