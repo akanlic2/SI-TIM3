@@ -36,10 +36,15 @@ export async function updateUserProfile(userId: string, payload: UpdateUserProfi
     return null;
   } catch (error) {
     if (axios.isAxiosError(error)) {
+      const responseData = error.response?.data;
       const message =
-        typeof error.response?.data === 'string'
-          ? error.response.data
-          : error.message;
+        typeof responseData === 'string'
+          ? responseData
+          : typeof responseData?.error === 'string'
+            ? responseData.error
+            : typeof responseData?.message === 'string'
+              ? responseData.message
+              : error.message;
       return message || `Status ${error.response?.status ?? 'unknown'}`;
     }
     return 'Greška pri čuvanju podataka.';

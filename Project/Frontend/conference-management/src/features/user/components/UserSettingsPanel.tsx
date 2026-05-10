@@ -8,8 +8,16 @@ interface UserSettingsPanelProps {
   targetUser?: UserProfile | null;
 }
 
+function isAdminRole(roles: string[] | undefined): boolean {
+  return roles?.some((role) => role.toLowerCase().includes('admin')) ?? false;
+}
+
 export function UserSettingsPanel({ title = 'Postavke naloga', targetUser = null }: UserSettingsPanelProps) {
   const { user } = useAuth();
+  const canEditRole =
+    isAdminRole(user?.role ? [user.role] : []) &&
+    !!targetUser?.id &&
+    targetUser.id !== user?.userId;
   const {
     profile,
     setProfile,
@@ -21,7 +29,7 @@ export function UserSettingsPanel({ title = 'Postavke naloga', targetUser = null
     message,
     saveProfile,
     cancelEditing,
-  } = useUserProfile({ user, targetUser });
+  } = useUserProfile({ user, targetUser, allowRoleUpdate: canEditRole });
 
   return (
     <>
@@ -77,6 +85,23 @@ export function UserSettingsPanel({ title = 'Postavke naloga', targetUser = null
             disabled={!editing}
           />
         </div>
+
+        {canEditRole && (
+          <div className="field-row">
+            <label>Uloga</label>
+            <select
+              value={profile.role ?? ''}
+              onChange={(e) => setProfile({ ...profile, role: e.target.value })}
+              disabled={!editing}
+            >
+              <option value="">Odaberite ulogu</option>
+              <option value="ucesnik">Učesnik</option>
+              <option value="predavac">Predavač</option>
+              <option value="organizator">Organizator</option>
+              <option value="admin-sistema">Admin</option>
+            </select>
+          </div>
+        )}
 
         <div className="field-row">
           <label>Lozinka</label>

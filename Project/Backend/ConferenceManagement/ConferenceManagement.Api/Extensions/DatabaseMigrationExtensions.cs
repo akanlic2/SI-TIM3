@@ -1,4 +1,5 @@
 ﻿using ConferenceManagement.Dal;
+using ConferenceManagement.Dal.Seeders;
 using Microsoft.EntityFrameworkCore;
 
 namespace ConferenceManagement.Api.Extensions;
@@ -55,6 +56,9 @@ public static class DatabaseMigrationExtensions
                 await dbContext.Database.ExecuteSqlRawAsync(
                     "CREATE UNIQUE INDEX IF NOT EXISTS ix_users_username ON users (username);",
                     cancellationToken);
+
+                // Seed default users
+                await UserSeeder.SeedUsersAsync(dbContext, cancellationToken);
 
                 logger.LogInformation("Database is ready and migrations were applied.");
                 return;

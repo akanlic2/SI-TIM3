@@ -51,7 +51,7 @@ public class UserRepository : IUserRepository
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<bool> AnyByUsernameAsync(string username, CancellationToken cancellationToken = default)
+    public async Task<bool> AnyByUsernameAsync(string username, Guid? excludeUserId = null, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(username))
         {
@@ -59,10 +59,10 @@ public class UserRepository : IUserRepository
         }
 
         var normalized = username.Trim().ToLower();
-        return await _dbContext.Users.AnyAsync(u => u.Username.ToLower() == normalized, cancellationToken);
+        return await _dbContext.Users.AnyAsync(u => u.Username.ToLower() == normalized && u.UserId != excludeUserId, cancellationToken);
     }
 
-    public async Task<bool> AnyByEmailAsync(string email, CancellationToken cancellationToken = default)
+    public async Task<bool> AnyByEmailAsync(string email, Guid? excludeUserId = null, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(email))
         {
@@ -70,6 +70,6 @@ public class UserRepository : IUserRepository
         }
 
         var normalized = email.Trim().ToLower();
-        return await _dbContext.Users.AnyAsync(u => u.Email.ToLower() == normalized, cancellationToken);
+        return await _dbContext.Users.AnyAsync(u => u.Email.ToLower() == normalized && u.UserId != excludeUserId, cancellationToken);
     }
 }

@@ -9,7 +9,7 @@ public interface IUserService
     Task<UserDto?> GetUserByIdAsync(Guid userId);
     Task<UserDto?> GetUserByUsernameOrEmailAndPasswordAsync(string usernameOrEmail, string password);
     Task<UserDto> RegisterUserAsync(RegisterUserDto dto);
-    Task<bool> UsernameExistsAsync(string username);
-    Task<bool> EmailExistsAsync(string email);
+    Task<bool> UsernameExistsAsync(string username, Guid? userId = null);
+    Task<bool> EmailExistsAsync(string email, Guid? userId = null);
     Task<bool> UpdateUserAsync(Guid userId, UpdateUserDto dto);
 }

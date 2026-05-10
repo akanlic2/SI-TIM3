@@ -17,4 +17,5 @@ export interface UpdateUserProfileData {
   username?: string;
   email?: string;
   password?: string;
+  role?: string;
 }

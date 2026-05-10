@@ -6,6 +6,7 @@ import type { UserProfile } from '../types';
 interface UseUserProfileParams {
   user: AuthUser | null;
   targetUser?: UserProfile | null;
+  allowRoleUpdate?: boolean;
 }
 
 function toInitialProfile(user: AuthUser | null, targetUser?: UserProfile | null): UserProfile {
@@ -30,7 +31,7 @@ function toInitialProfile(user: AuthUser | null, targetUser?: UserProfile | null
   };
 }
 
-export function useUserProfile({ user, targetUser }: UseUserProfileParams) {
+export function useUserProfile({ user, targetUser, allowRoleUpdate = false }: UseUserProfileParams) {
   const initialProfile = useMemo(() => toInitialProfile(user, targetUser), [user, targetUser]);
   const userId = initialProfile.id ?? user?.userId;
 
@@ -79,6 +80,7 @@ export function useUserProfile({ user, targetUser }: UseUserProfileParams) {
       lastName: profile.lastName,
       username: profile.username,
       email: profile.email,
+      ...(allowRoleUpdate ? { role: profile.role } : {}),
       ...(password.trim() ? { password } : {}),
     });
 
