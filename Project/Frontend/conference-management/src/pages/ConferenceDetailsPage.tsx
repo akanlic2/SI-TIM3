@@ -61,9 +61,18 @@ export default function ConferenceDetailsPage() {
             <p>Detalji konferencije</p>
           </div>
 
-          <button onClick={goBack} className="btn-secondary">
-            ← Nazad
-          </button>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button onClick={() => {
+              window.history.pushState({}, '', `/conferences/${id}/sessions`);
+              window.dispatchEvent(new PopStateEvent('popstate'));
+            }} className="btn-primary">
+              📅 Sesije
+            </button>
+
+            <button onClick={goBack} className="btn-secondary">
+              ← Nazad
+            </button>
+          </div>
         </div>
       </div>
 

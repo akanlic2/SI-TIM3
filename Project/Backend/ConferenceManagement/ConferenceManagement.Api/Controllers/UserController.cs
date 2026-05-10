@@ -220,5 +220,20 @@ namespace ConferenceManagement.Api.Controllers
             public string UsernameOrEmail { get; set; } = string.Empty;
             public string Password { get; set; } = string.Empty;
         }
+
+        [Authorize]
+        [HttpGet("by-role")]
+        public async Task<IActionResult> GetUsersByRole([FromQuery] string role)
+        {
+            if (string.IsNullOrWhiteSpace(role))
+            {
+                return BadRequest(new { error = "Parametar 'role' je obavezan." });
+            }
+
+            // POZIV NOVE METODE:
+            var users = await _userService.GetUsersByRoleAsync(role);
+            
+            return Ok(new { role, users, count = users.Count });
+}
     }
 }

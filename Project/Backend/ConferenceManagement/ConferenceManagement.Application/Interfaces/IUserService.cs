@@ -12,4 +12,5 @@ public interface IUserService
     Task<bool> UsernameExistsAsync(string username, Guid? userId = null);
     Task<bool> EmailExistsAsync(string email, Guid? userId = null);
     Task<bool> UpdateUserAsync(Guid userId, UpdateUserDto dto);
+    Task<List<UserDto>> GetUsersByRoleAsync(string role);
 }
