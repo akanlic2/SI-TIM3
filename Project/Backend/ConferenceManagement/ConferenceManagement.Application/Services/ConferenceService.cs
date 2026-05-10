@@ -23,19 +23,6 @@ public class ConferenceService : IConferenceService
     {
         var conferences = await _conferenceRepository.GetAllAsync(cancellationToken);
 
-        var isAdmin = _userContextService
-      .GetUserRoles()
-      .Any(r =>
-          r.Equals("admin-sistema", StringComparison.OrdinalIgnoreCase) ||
-          r.Equals("admin", StringComparison.OrdinalIgnoreCase));
-
-        if (!isAdmin)
-        {
-            conferences = conferences
-                .Where(c => c.Status.ToLower() == "active")
-                .ToList();
-        }
-
         return conferences.Select(MapToDto).ToList();
     }
 
@@ -43,12 +30,7 @@ public class ConferenceService : IConferenceService
         ConferenceQueryDto query,
         CancellationToken cancellationToken = default)
     {
-        var isAdmin = _userContextService
-      .GetUserRoles()
-      .Any(r =>
-          r.Equals("admin-sistema", StringComparison.OrdinalIgnoreCase) ||
-          r.Equals("admin", StringComparison.OrdinalIgnoreCase));
-
+        
         var (items, totalCount) =
             await _conferenceRepository.GetPagedFilteredAsync(
                 query.Page,
@@ -57,7 +39,7 @@ public class ConferenceService : IConferenceService
                 query.Location,
                 query.Category,
                 query.Status,
-                includeInactiveAndDraft: isAdmin,
+                includeInactiveAndDraft: true,
                 cancellationToken);
 
         return new PagedResultDto<ConferenceDto>
@@ -74,17 +56,6 @@ public class ConferenceService : IConferenceService
         var conference = await _conferenceRepository.GetByIdAsync(id, cancellationToken);
 
         if (conference is null)
-        {
-            return null;
-        }
-
-        var isAdmin = _userContextService
-    .GetUserRoles()
-    .Any(r =>
-        r.Equals("admin-sistema", StringComparison.OrdinalIgnoreCase) ||
-        r.Equals("admin", StringComparison.OrdinalIgnoreCase));
-
-        if (!isAdmin && conference.Status.ToLower() != "active")
         {
             return null;
         }
@@ -113,7 +84,7 @@ public class ConferenceService : IConferenceService
             Location = dto.Location,
             Category = dto.Category,
             MaxParticipants = dto.MaxParticipants,
-            Status = "Draft"
+            Status = "Planned"
         };
 
         var createdConference =
