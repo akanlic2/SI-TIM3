@@ -1,5 +1,6 @@
 import type { Conference } from '../types'
 import { deleteConference } from '../api/conferenceApi'
+import { useAuth } from '../../../auth/AuthProvider'
 
 interface ConferenceListProps {
   conferences: Conference[]
@@ -8,16 +9,27 @@ interface ConferenceListProps {
   onEditClick: (conference: Conference) => void
 }
 
-export function ConferenceList({ conferences, isAdminOrOrganizer, onDeleteSuccess, onEditClick }: ConferenceListProps) {
+export function ConferenceList({
+  conferences = [],
+  isAdminOrOrganizer,
+  onDeleteSuccess,
+  onEditClick,
+}: ConferenceListProps) {
+  const { user } = useAuth()
+
+  const role = user?.role?.toLowerCase() ?? ''
+
+  const isParticipant = role === 'ucesnik'
+  const isSpeaker = role === 'predavac'
 
   const handleDelete = async (id: string) => {
-    if (window.confirm("Da li ste sigurni da želite obrisati ovu konferenciju?")) {
+    if (window.confirm('Da li ste sigurni da želite obrisati ovu konferenciju?')) {
       try {
-        await deleteConference(id);
-        onDeleteSuccess();
+        await deleteConference(id)
+        onDeleteSuccess()
       } catch (error) {
-        console.error("Delete failed:", error)
-        alert("Greška prilikom brisanja. Provjerite konzolu.");
+        console.error('Delete failed:', error)
+        alert('Greška prilikom brisanja. Provjerite konzolu.')
       }
     }
   }
@@ -29,14 +41,19 @@ export function ConferenceList({ conferences, isAdminOrOrganizer, onDeleteSucces
         month: 'short',
         year: 'numeric',
         hour: '2-digit',
-        minute: '2-digit'
-      }).format(new Date(dateString));
+        minute: '2-digit',
+      }).format(new Date(dateString))
     } catch {
-      return dateString;
+      return dateString
     }
   }
 
-  if (conferences.length === 0) {
+  const openDetails = (conferenceId: string) => {
+    window.history.pushState({}, '', `/conferences/${conferenceId}`)
+    window.dispatchEvent(new PopStateEvent('popstate'))
+  }
+
+  if (!conferences || conferences.length === 0) {
     return (
       <div className="conference-empty-state">
         <div className="conference-empty-icon">🗓</div>
@@ -53,81 +70,242 @@ export function ConferenceList({ conferences, isAdminOrOrganizer, onDeleteSucces
           key={conference.conferenceId}
           className="conference-card"
         >
-          {/* Header with Title and Status */}
+          {/* Header */}
           <div className="conference-card-header">
             <h3 className="conference-card-title">{conference.title}</h3>
-            <span className={`conference-status conference-status-${conference.status.toLowerCase()}`}>
+
+            <span
+              className={`conference-status conference-status-${conference.status.toLowerCase()}`}
+            >
               {conference.status}
             </span>
           </div>
 
-          {/* Description */}
-          {conference.description && (
-            <p className="conference-card-description">{conference.description}</p>
+          {/* Speaker Badge */}
+          {isSpeaker && (
+            <div style={{ marginBottom: '12px' }}>
+              <span
+                style={{
+                  backgroundColor: '#2563EB',
+                  color: 'white',
+                  padding: '6px 12px',
+                  borderRadius: '9999px',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                }}
+              >
+                Predavač
+              </span>
+            </div>
           )}
 
-          {/* Info Grid */}
+          {/* Description */}
+          {conference.description && (
+            <p className="conference-card-description">
+              {conference.description}
+            </p>
+          )}
+
+          {/* Info */}
           <div className="conference-card-info">
-            <div className="conference-info-row" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <div
+              className="conference-info-row"
+              style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '0.75rem',
+                flexWrap: 'wrap',
+              }}
+            >
               <span className="conference-info-icon">📍</span>
-              <div className="conference-info-content" style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
+
+              <div
+                className="conference-info-content"
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.15rem',
+                }}
+              >
                 <span className="conference-info-label">Lokacija</span>
                 <p className="conference-info-value">{conference.location}</p>
               </div>
             </div>
 
-            <div className="conference-info-row" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <div
+              className="conference-info-row"
+              style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '0.75rem',
+                flexWrap: 'wrap',
+              }}
+            >
               <span className="conference-info-icon">📅</span>
-              <div className="conference-info-content" style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
+
+              <div
+                className="conference-info-content"
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.15rem',
+                }}
+              >
                 <span className="conference-info-label">Početak</span>
-                <p className="conference-info-value">{formatDate(conference.startDate)}</p>
+                <p className="conference-info-value">
+                  {formatDate(conference.startDate)}
+                </p>
               </div>
             </div>
 
-            <div className="conference-info-row" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <div
+              className="conference-info-row"
+              style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '0.75rem',
+                flexWrap: 'wrap',
+              }}
+            >
               <span className="conference-info-icon">🏁</span>
-              <div className="conference-info-content" style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
+
+              <div
+                className="conference-info-content"
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.15rem',
+                }}
+              >
                 <span className="conference-info-label">Završetak</span>
-                <p className="conference-info-value">{formatDate(conference.endDate)}</p>
+                <p className="conference-info-value">
+                  {formatDate(conference.endDate)}
+                </p>
               </div>
             </div>
 
-            <div className="conference-info-row" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <div
+              className="conference-info-row"
+              style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '0.75rem',
+                flexWrap: 'wrap',
+              }}
+            >
               <span className="conference-info-icon">🏷️</span>
-              <div className="conference-info-content" style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
+
+              <div
+                className="conference-info-content"
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.15rem',
+                }}
+              >
                 <span className="conference-info-label">Kategorija</span>
                 <p className="conference-info-value">{conference.category}</p>
               </div>
             </div>
 
-            <div className="conference-info-row" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <div
+              className="conference-info-row"
+              style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '0.75rem',
+                flexWrap: 'wrap',
+              }}
+            >
               <span className="conference-info-icon">👥</span>
-              <div className="conference-info-content" style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
-                <span className="conference-info-label">Maksimalno učesnika</span>
-                <p className="conference-info-value">{conference.maxParticipants}</p>
+
+              <div
+                className="conference-info-content"
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.15rem',
+                }}
+              >
+                <span className="conference-info-label">
+                  Maksimalno učesnika
+                </span>
+
+                <p className="conference-info-value">
+                  {conference.maxParticipants}
+                </p>
               </div>
             </div>
           </div>
 
-          {/* Buttons */}
-          {isAdminOrOrganizer && (
-            <div className="conference-card-actions" style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', paddingTop: '16px', borderTop: '1px solid rgba(148,163,184,0.2)' }}>
+          {/* Actions */}
+          <div
+            className="conference-card-actions"
+            style={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              gap: '12px',
+              paddingTop: '16px',
+              borderTop: '1px solid rgba(148,163,184,0.2)',
+              flexWrap: 'wrap',
+            }}
+          >
+            {/* Details */}
+            <button
+              onClick={() => openDetails(conference.conferenceId)}
+              className="btn-secondary"
+            >
+              Detalji
+            </button>
+
+            {/* Participant */}
+            {isParticipant && (
               <button
-                onClick={() => onEditClick(conference)}
-                className="btn-edit"
-                style={{ backgroundColor: '#EAB308', color: '#000', borderRadius: '9999px', padding: '8px 20px', border: 'none', cursor: 'pointer' }}
+                className="btn-primary-sm"
+                style={{
+                  backgroundColor: '#10B981',
+                  color: 'white',
+                }}
               >
-                Uredi
+                Prijavi se
               </button>
-              <button
-                onClick={() => handleDelete(conference.conferenceId)}
-                className="btn-delete"
-                style={{ backgroundColor: '#EF4444', color: '#fff', borderRadius: '9999px', padding: '8px 20px', border: 'none', cursor: 'pointer' }}
-              >
-                Obriši
-              </button>
-            </div>
-          )}
+            )}
+
+            {/* Admin / Organizer */}
+            {isAdminOrOrganizer && (
+              <>
+                <button
+                  onClick={() => onEditClick(conference)}
+                  className="btn-edit"
+                  style={{
+                    backgroundColor: '#EAB308',
+                    color: '#000',
+                    borderRadius: '9999px',
+                    padding: '8px 20px',
+                    border: 'none',
+                    cursor: 'pointer',
+                  }}
+                >
+                  Uredi
+                </button>
+
+                <button
+                  onClick={() => handleDelete(conference.conferenceId)}
+                  className="btn-delete"
+                  style={{
+                    backgroundColor: '#EF4444',
+                    color: '#fff',
+                    borderRadius: '9999px',
+                    padding: '8px 20px',
+                    border: 'none',
+                    cursor: 'pointer',
+                  }}
+                >
+                  Obriši
+                </button>
+              </>
+            )}
+          </div>
         </div>
       ))}
     </div>

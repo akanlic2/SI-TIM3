@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react';
 import { AuthProvider, useAuth } from '../auth/AuthProvider';
 import DashboardPage from '../pages/DashboardPage';
 import ConferencesPage from '../pages/ConferencesPage';
+import ConferenceDetailsPage from '../pages/ConferenceDetailsPage';
 import LoginPage from '../pages/LoginPage';
 import RegisterPage from '../pages/RegisterPage';
 
-// ─── Route resolver ───────────────────────────────────────────────────────────
 function AppRoutes() {
   const [pathname, setPathname] = useState(window.location.pathname);
   const { isLoggedIn, isLoading } = useAuth();
@@ -14,12 +14,10 @@ function AppRoutes() {
     const onPopState = () => setPathname(window.location.pathname);
     const onPushState = () => setPathname(window.location.pathname);
 
-    // Listen for browser navigation
     window.addEventListener('popstate', onPopState);
 
-    // Listen for programmatic navigation (pushState)
     const originalPushState = window.history.pushState;
-    window.history.pushState = function(state, title, url) {
+    window.history.pushState = function (state, title, url) {
       originalPushState.call(this, state, title, url);
       onPushState();
     };
@@ -30,13 +28,15 @@ function AppRoutes() {
     };
   }, []);
 
-  // Velika izmjena: lokalni auth routing bez eksternog IdP callback flow-a.
   useEffect(() => {
     if (isLoading) return;
 
-    const protectedRoutes = ['/dashboard', '/conferences'];
+    const isProtectedRoute =
+      pathname === '/dashboard' ||
+      pathname === '/conferences' ||
+      pathname.startsWith('/conferences/');
 
-    if (!isLoggedIn && protectedRoutes.includes(pathname)) {
+    if (!isLoggedIn && isProtectedRoute) {
       window.history.replaceState({}, '', '/login');
       setPathname('/login');
       return;
@@ -51,7 +51,6 @@ function AppRoutes() {
   if (pathname === '/login') return <LoginPage />;
   if (pathname === '/register') return <RegisterPage />;
 
-  // Loading state
   if (isLoading) {
     return (
       <div className="global-loading">
@@ -81,11 +80,20 @@ function AppRoutes() {
     );
   }
 
+  if (pathname.startsWith('/conferences/')) {
+    if (isLoggedIn) return <ConferenceDetailsPage />;
+    return (
+      <div className="global-loading">
+        <div className="global-spinner" />
+        <p>Preusmjeravanje na prijavu...</p>
+      </div>
+    );
+  }
+
   if (pathname === '/') {
     return <LoginPage />;
   }
 
-  // 404 fallback
   return (
     <div className="global-loading">
       <p style={{ color: '#7a8bb0', fontSize: '1.1rem' }}>404 – Stranica nije pronađena</p>
@@ -94,7 +102,6 @@ function AppRoutes() {
   );
 }
 
-// ─── Router export ────────────────────────────────────────────────────────────
 export function Router() {
   return (
     <AuthProvider>

@@ -7,5 +7,16 @@ public interface IConferenceRepository : IGenericRepository<Conference>
     
     new Task<Conference?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     
-    Task<List<Conference>> GetByCategoryAsync(string category, CancellationToken cancellationToken = default);
+   
+   Task<List<Conference>> GetByCategoryAsync(string category, CancellationToken cancellationToken = default);
+
+    Task<(List<Conference> Items, int TotalCount)> GetPagedFilteredAsync(
+    int page,
+    int pageSize,
+    string? search,
+    string? location,
+    string? category,
+    string? status,
+    bool includeInactiveAndDraft,
+    CancellationToken cancellationToken = default);
 }

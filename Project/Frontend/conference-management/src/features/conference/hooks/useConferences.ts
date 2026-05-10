@@ -1,31 +1,67 @@
 import { useEffect, useState, useCallback } from 'react'
 import { fetchConferences } from '../api/conferenceApi'
-import type { ConferenceState } from '../types'
-
-const initialState: ConferenceState = {
-  items: [],
-  isLoading: true,
-  error: null,
-}
+import type { Conference } from '../types'
 
 export function useConferences() {
-  const [state, setState] = useState<ConferenceState>(initialState)
-  const [counter, setCounter] = useState(0)
+  const [items, setItems] = useState<Conference[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  const [page, setPage] = useState(1)
+  const [pageSize] = useState(6)
+  const [totalPages, setTotalPages] = useState(1)
+
+  const [search, setSearch] = useState('')
+  const [location, setLocation] = useState('')
+  const [category, setCategory] = useState('')
+
+  const load = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      setError(null)
+
+      const result = await fetchConferences({
+        page,
+        pageSize,
+        search: search || undefined,
+        location: location || undefined,
+        category: category || undefined,
+      })
+
+      const conferences = Array.isArray(result) ? result : result.items ?? []
+
+      setItems(conferences)
+      setTotalPages(Array.isArray(result) ? 1 : result.totalPages || 1)
+    } catch (error) {
+      console.error(error)
+      setItems([])
+      setError('Failed to load conferences.')
+    } finally {
+      setIsLoading(false)
+    }
+  }, [page, pageSize, search, location, category])
 
   useEffect(() => {
-    setState(prev => ({ ...prev, isLoading: true }))
-    fetchConferences()
-      .then((items) => {
-        setState({ items, isLoading: false, error: null })
-      })
-      .catch(() => {
-        setState({ items: [], isLoading: false, error: 'Failed to load conferences.' })
-      })
-  }, [counter])
+    load()
+  }, [load])
 
   const refresh = useCallback(() => {
-    setCounter(c => c + 1)
-  }, [])
+    load()
+  }, [load])
 
-  return { ...state, refresh }
+  return {
+    items,
+    isLoading,
+    error,
+    refresh,
+    page,
+    setPage,
+    totalPages,
+    search,
+    setSearch,
+    location,
+    setLocation,
+    category,
+    setCategory,
+  }
 }
