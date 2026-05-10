@@ -83,6 +83,9 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IConferenceRepository, ConferenceRepository>();
 builder.Services.AddScoped<IConferenceService, ConferenceService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ISessionRepository, SessionRepository>();
+builder.Services.AddScoped<ISessionService, SessionService>();
+builder.Services.AddScoped<ISessionRegistrationRepository, SessionRegistrationRepository>();
 
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("AdminPolicy", policy => policy.RequireRole("admin-sistema"))
