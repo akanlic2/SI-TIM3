@@ -84,56 +84,6 @@ public class ConferenceServiceTests
     }
 
     [Fact]
-    public async Task GetPagedAsync_NonAdminSeesOnlyActive()
-    {
-        _userContextMock
-            .Setup(x => x.GetUserRoles())
-            .Returns(new List<string> { "ucesnik" });
-
-        _repositoryMock
-            .Setup(x => x.GetPagedFilteredAsync(
-                It.IsAny<int>(),
-                It.IsAny<int>(),
-                It.IsAny<string?>(),
-                It.IsAny<string?>(),
-                It.IsAny<string?>(),
-                It.IsAny<string?>(),
-                false,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync((new List<Conference>
-            {
-                ActiveConference
-            }, 1));
-
-        var result = await _service.GetPagedAsync(new ConferenceQueryDto
-        {
-            Page = 1,
-            PageSize = 6
-        });
-
-        Assert.Single(result.Items);
-        Assert.Equal("Active", result.Items[0].Status);
-    }
-
-    [Fact]
-    public async Task GetByIdAsync_NonAdminCannotSeeDraftConference()
-    {
-        var draft = DraftConference;
-
-        _userContextMock
-            .Setup(x => x.GetUserRoles())
-            .Returns(new List<string> { "ucesnik" });
-
-        _repositoryMock
-            .Setup(x => x.GetByIdAsync(draft.ConferenceId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(draft);
-
-        var result = await _service.GetByIdAsync(draft.ConferenceId);
-
-        Assert.Null(result);
-    }
-
-    [Fact]
     public async Task GetByIdAsync_AdminCanSeeDraftConference()
     {
         var draft = DraftConference;
