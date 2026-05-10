@@ -2,6 +2,7 @@
 using ConferenceManagement.Application.DTOs.Conference;
 using ConferenceManagement.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using ConferenceManagement.Application.DTOs.Common;
 
 namespace ConferenceManagement.Api.Controllers;
 
@@ -17,10 +18,13 @@ public class ConferenceController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<ConferenceDto>>> GetAll(CancellationToken cancellationToken)
+    [Authorize(Policy = "ParticipantPolicy")]
+    public async Task<ActionResult<PagedResultDto<ConferenceDto>>> GetAll(
+        [FromQuery] ConferenceQueryDto query,
+        CancellationToken cancellationToken)
     {
-        var conferences = await _conferenceService.GetAllAsync(cancellationToken);
-        return Ok(conferences);
+        var result = await _conferenceService.GetPagedAsync(query, cancellationToken);
+        return Ok(result);
     }
 
     [HttpGet("{id:guid}")]
