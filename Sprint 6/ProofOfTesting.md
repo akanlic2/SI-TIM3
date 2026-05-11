@@ -1,146 +1,175 @@
 # Proof of Testing
- 
-**Test Framework:** xUnit  
-**Mocking Library:** Moq  
-**Total Tests:** 34
+  
+**Test framework:** xUnit  
+**Biblioteka za mockovanje:** Moq  
+**Ukupan broj testova:** 58
 
 ---
 
-## 1. ConferenceServiceTests
+## 1. UserServiceTests
 
-**Class under test:** `ConferenceService`  
-**Dependencies mocked:** `IConferenceRepository`, `IUserContextService`
+**Klasa koja se testira:** `UserService`  
+**Zavisnost koja se mockuje:** `IUserRepository`
 
-### 1.1 Get & Authorization
+### 1.1 Dohvatanje broja korisnika
 
-| # | Test Name | Description | Expected Outcome |
-|---|-----------|-------------|-----------------|
-| 1 | `GetPagedAsync_AdminSeesActiveDraftAndInactive` | Admin user requests a paged list of conferences with `includeAll = true` | Returns a result with `TotalCount = 2` and `Items.Count = 2`, including both Active and Draft conferences |
-| 2 | `GetByIdAsync_AdminCanSeeDraftConference` | Admin user requests a conference by ID where the conference has status `Draft` | Returns a non-null result with `Status = "Draft"` |
+| # | Naziv testa | Opis | Očekivani ishod |
+|---|-------------|------|-----------------|
+| 1 | `GetUserCountAsync_Returns_Count_From_Repository` | Repozitorij vraća 5 korisnika | Vraća `5`; `GetCountAsync` pozvan tačno jednom |
+| 2 | `GetUserCountAsync_Returns_Zero_When_No_Users_Exist` | Repozitorij vraća 0 | Vraća `0` |
 
-### 1.2 Create
+### 1.2 Dohvatanje svih korisnika
 
-| # | Test Name | Description | Expected Outcome |
-|---|-----------|-------------|-----------------|
-| 3 | `CreateAsync_ValidData_ReturnsConferenceDto` | Creates a conference with valid title, dates, location, category, and participant count | Returns a non-null `ConferenceDto` with matching Title, Location, and MaxParticipants |
-| 4 | `CreateAsync_InvalidDates_ThrowsArgumentException` | Attempts to create a conference where StartDate (day +5) is after EndDate (day +4) | Throws `ArgumentException` |
-| 5 | `CreateAsync_StartDateAfterEndDate_ThrowsArgumentException` | Attempts to create a conference where StartDate (day +3) is after EndDate (day +1) | Throws `ArgumentException` |
-| 6 | `CreateAsync_StartDateEqualsEndDate_ThrowsArgumentException` | Attempts to create a conference where StartDate equals EndDate | Throws `ArgumentException` |
-| 7 | `CreateAsync_MaxParticipantsZero_ThrowsArgumentException` | Attempts to create a conference with MaxParticipants set to 0 | Throws `ArgumentException` |
-| 8 | `CreateAsync_MaxParticipantsNegative_ThrowsArgumentException` | Attempts to create a conference with MaxParticipants set to -10 | Throws `ArgumentException` |
+| # | Naziv testa | Opis | Očekivani ishod |
+|---|-------------|------|-----------------|
+| 3 | `GetAllUsersAsync_Returns_All_Users_Mapped_To_Dto` | Repozitorij vraća dva `User` entiteta | Vraća listu od 2 `UserDto` zapisa sa odgovarajućim UserId, Username i Email; `GetAllAsync` pozvan jednom |
+| 4 | `GetAllUsersAsync_Returns_Empty_List_When_No_Users_Exist` | Repozitorij vraća praznu listu | Vraća nepraznu, praznu listu |
+| 5 | `GetAllUsersAsync_Maps_All_User_Fields_Correctly` | Repozitorij vraća jednog korisnika sa svim popunjenim poljima | Sva polja na vraćenom `UserDto` (UserId, Username, FirstName, LastName, Email, Role, CreatedAt) tačno odgovaraju izvornom entitetu |
 
-### 1.3 Update
+### 1.3 Dohvatanje korisnika po ID-u
 
-| # | Test Name | Description | Expected Outcome |
-|---|-----------|-------------|-----------------|
-| 9 | `UpdateAsync_ValidData_UpdatesSuccessfully` | Updates an existing conference with a new title, description, location, dates, and participant count | `UpdateAsync` on the repository is called exactly once |
-| 10 | `UpdateAsync_ConferenceNotFound_ThrowsKeyNotFoundException` | Attempts to update a conference with an ID that does not exist in the repository | Throws `KeyNotFoundException` |
+| # | Naziv testa | Opis | Očekivani ishod |
+|---|-------------|------|-----------------|
+| 6 | `GetUserByIdAsync_Returns_User_When_User_Exists` | Repozitorij vraća odgovarajući `User` za dati ID | Vraća neprazan `UserDto` sa odgovarajućim UserId i Username; `GetByIdAsync` pozvan jednom |
+| 7 | `GetUserByIdAsync_Returns_Null_When_User_Does_Not_Exist` | Repozitorij vraća null za dati ID | Vraća `null` |
 
-### 1.4 Delete
+### 1.4 Dohvatanje korisnika po korisničkom imenu/emailu i lozinci
 
-| # | Test Name | Description | Expected Outcome |
-|---|-----------|-------------|-----------------|
-| 11 | `DeleteAsync_ExistingConference_DeletesSuccessfully` | Deletes a conference that exists in the repository | `DeleteAsync` on the repository is called exactly once |
-| 12 | `DeleteAsync_ConferenceNotFound_ThrowsKeyNotFoundException` | Attempts to delete a conference with an ID that does not exist in the repository | Throws `KeyNotFoundException` |
+| # | Naziv testa | Opis | Očekivani ishod |
+|---|-------------|------|-----------------|
+| 8 | `GetUserByUsernameOrEmailAndPasswordAsync_Returns_User_When_User_Exists` | Repozitorij pronalazi korisnika po korisničkom imenu i lozinci | Vraća neprazan `UserDto` sa ispravnim UserId i Username |
+| 9 | `GetUserByUsernameOrEmailAndPasswordAsync_Returns_User_When_Email_And_Password_Match` | Repozitorij pronalazi korisnika po emailu i lozinci | Vraća neprazan `UserDto` sa odgovarajućim Email |
+| 10 | `GetUserByUsernameOrEmailAndPasswordAsync_Returns_Null_When_Credentials_Invalid` | Repozitorij vraća null za neprepoznate podatke za prijavu | Vraća `null` |
 
-<img width="688" height="327" alt="image" src="https://github.com/user-attachments/assets/4f8ecbe9-3d0d-4918-8510-50bb1a0f8ba1" />
+### 1.5 Registracija korisnika
 
----
+| # | Naziv testa | Opis | Očekivani ishod |
+|---|-------------|------|-----------------|
+| 11 | `RegisterUserAsync_Creates_User_With_Default_Role_When_Role_Not_Provided` | DTO za registraciju ima `Role = null` | Vraćeni `UserDto` ima `Role = "ucesnik"`; `AddAsync` pozvan jednom |
+| 12 | `RegisterUserAsync_Creates_User_With_Provided_Role_In_Lowercase` | DTO za registraciju ima `Role = "ORGANIZER"` | Vraćeni `UserDto` ima `Role = "organizer"` |
+| 13 | `RegisterUserAsync_Trims_Whitespace_From_User_Fields` | Sva string polja u DTO-u sadrže razmake na početku i kraju | Korisnik sačuvan u repozitoriju ima sva polja otrimbovana; uloga normalizovana na mala slova |
+| 14 | `RegisterUserAsync_Creates_User_With_New_UserId` | Poslan validan DTO za registraciju | Uhvaćeni `User` entitet i vraćeni `UserDto` imaju ne-prazan GUID kao UserId |
+| 15 | `RegisterUserAsync_Sets_CreatedAt_To_Current_Time` | Poslan validan DTO za registraciju | `CreatedAt` na uhvaćenom entitetu pada unutar vremenskog prozora koji okružuje poziv metode |
+| 16 | `RegisterUserAsync_Returns_UserDto_With_All_Fields` | Repozitorij vraća potpuno popunjen `User` | Sva polja na vraćenom `UserDto` tačno odgovaraju sačuvanom entitetu |
+| 17 | `RegisterUserAsync_With_Empty_Role_String_Uses_Default_Role` | DTO za registraciju ima `Role = ""` | Uhvaćeni entitet ima `Role = "ucesnik"` |
+| 18 | `RegisterUserAsync_With_Whitespace_Role_String_Uses_Default_Role` | DTO za registraciju ima `Role = "   "` | Uhvaćeni entitet ima `Role = "ucesnik"` |
 
-## 2. UserControllerTests
+### 1.6 Provjera postojanja korisničkog imena
 
-**Class under test:** `UserController`  
-**Dependencies mocked:** `IUserService`, `IUserContextService`, `IConfiguration` (JWT settings)
+| # | Naziv testa | Opis | Očekivani ishod |
+|---|-------------|------|-----------------|
+| 19 | `UsernameExistsAsync_Returns_True_When_Username_Exists` | Repozitorij potvrđuje da je korisničko ime zauzeto | Vraća `true`; `AnyByUsernameAsync` pozvan jednom sa ispravnim argumentima |
+| 20 | `UsernameExistsAsync_Returns_False_When_Username_Does_Not_Exist` | Repozitorij vraća false za korisničko ime | Vraća `false` |
+| 21 | `UsernameExistsAsync_Passes_UserId_When_Provided` | Pozvan sa korisničkim imenom i opcionalnim UserId (za scenarije ažuriranja) | Vraća `true`; `AnyByUsernameAsync` pozvan sa i korisničkim imenom i UserId |
 
-### 2.1 Registration
+### 1.7 Provjera postojanja emaila
 
-| # | Test Name | Description | Expected Outcome |
-|---|-----------|-------------|-----------------|
-| 13 | `Register_Returns_BadRequest_When_Required_Fields_Missing` | Submits a registration request with an empty username field | Returns `400 Bad Request` |
-| 14 | `Register_Returns_Conflict_When_Username_Exists` | Submits a registration request with a username that already exists in the system | Returns `409 Conflict` |
-| 15 | `Register_Returns_Conflict_When_Email_Exists` | Submits a registration request with a unique username but an email address already in use | Returns `409 Conflict` |
-| 16 | `Register_Returns_Ok_With_Valid_Data` | Submits a fully valid registration request; service confirms username and email are both available and creates the user | Returns `200 OK` with a non-null response body |
+| # | Naziv testa | Opis | Očekivani ishod |
+|---|-------------|------|-----------------|
+| 22 | `EmailExistsAsync_Returns_True_When_Email_Exists` | Repozitorij potvrđuje da je email zauzet | Vraća `true`; `AnyByEmailAsync` pozvan jednom sa ispravnim argumentima |
+| 23 | `EmailExistsAsync_Returns_False_When_Email_Does_Not_Exist` | Repozitorij vraća false za email | Vraća `false` |
+| 24 | `EmailExistsAsync_Passes_UserId_When_Provided` | Pozvan sa emailom i opcionalnim UserId (za scenarije ažuriranja) | Vraća `true`; `AnyByEmailAsync` pozvan sa i emailom i UserId |
 
-### 2.2 Authentication
+### 1.8 Ažuriranje korisnika
 
-| # | Test Name | Description | Expected Outcome |
-|---|-----------|-------------|-----------------|
-| 17 | `Login_Returns_Unauthorized_For_Invalid_Credentials` | Attempts login with credentials the service does not recognize (returns null) | Returns `401 Unauthorized` |
-| 18 | `Login_Returns_Token_For_Valid_Credentials` | Logs in with valid credentials; service returns a populated `UserDto` | Returns `200 OK` with a non-null response body |
-| 19 | `Login_Returns_Ok_With_Token_And_User_Data` | Logs in with valid username and password; verifies response object is present | Returns `200 OK` with a non-null response body |
+| # | Naziv testa | Opis | Očekivani ishod |
+|---|-------------|------|-----------------|
+| 25 | `UpdateUserAsync_Returns_False_When_User_Does_Not_Exist` | Repozitorij vraća null za dati UserId | Vraća `false`; `UpdateAsync` nikad pozvan |
+| 26 | `UpdateUserAsync_Updates_FirstName_When_Provided` | DTO sadržava novi `FirstName` | Vraća `true`; uhvaćeni entitet ima ažurirani `FirstName`; `UpdateAsync` pozvan jednom |
+| 27 | `UpdateUserAsync_Updates_LastName_When_Provided` | DTO sadržava novi `LastName` | Vraća `true`; uhvaćeni entitet ima ažurirani `LastName` |
+| 28 | `UpdateUserAsync_Updates_Email_When_Provided` | DTO sadržava novi `Email` | Vraća `true`; uhvaćeni entitet ima ažurirani `Email` |
+| 29 | `UpdateUserAsync_Updates_Username_When_Provided` | DTO sadržava novi `Username` | Vraća `true`; uhvaćeni entitet ima ažurirani `Username` |
+| 30 | `UpdateUserAsync_Updates_Password_When_Provided` | DTO sadržava novu `Password` | Vraća `true`; uhvaćeni entitet ima ažuriranu `Password` |
+| 31 | `UpdateUserAsync_Updates_Role_When_Provided` | DTO sadržava novu `Role` | Vraća `true`; uhvaćeni entitet ima ažuriranu `Role` |
+| 32 | `UpdateUserAsync_Does_Not_Update_Fields_When_Not_Provided` | Sva DTO polja su null | Vraća `true`; originalni `FirstName` i `LastName` ostaju nepromijenjeni na uhvaćenom entitetu |
+| 33 | `UpdateUserAsync_Does_Not_Update_Field_When_Empty_String_Provided` | DTO ima `FirstName = ""` | Vraća `true`; `FirstName` na uhvaćenom entitetu zadržava originalnu vrijednost |
+| 34 | `UpdateUserAsync_Does_Not_Update_Field_When_Whitespace_Provided` | DTO ima `LastName = "   "` | Vraća `true`; `LastName` na uhvaćenom entitetu zadržava originalnu vrijednost |
+| 35 | `UpdateUserAsync_Updates_Multiple_Fields_When_Provided` | DTO sadržava nove vrijednosti za FirstName, LastName, Email i Username istovremeno | Vraća `true`; sva četiri polja ispravno ažurirana na uhvaćenom entitetu |
+| 36 | `UpdateUserAsync_Sets_UpdatedAt_Timestamp` | Poslan validan zahtjev za ažuriranje sa `UpdatedAt` inicijalno null | Vraća `true`; `UpdatedAt` na uhvaćenom entitetu nije null i pada unutar vremenskog prozora |
+| 37 | `UpdateUserAsync_Calls_Repository_Update_Method` | Poslan validan zahtjev za ažuriranje | Vraća `true`; `UpdateAsync` pozvan tačno jednom |
 
-### 2.3 Logout
+### 1.9 Edge cases i sekvencijalne operacije
 
-| # | Test Name | Description | Expected Outcome |
-|---|-----------|-------------|-----------------|
-| 20 | `Logout_Returns_Ok` | Calls the logout endpoint | Returns `200 OK` with a non-null response body |
+| # | Naziv testa | Opis | Očekivani ishod |
+|---|-------------|------|-----------------|
+| 38 | `Multiple_Operations_Work_Sequentially` | Registracija korisnika, dohvatanje po ID-u, pa provjera emaila u nizu | Sve tri operacije vraćaju ispravne neprazne rezultate; UserId registrovanog i dohvaćenog korisnika se podudaraju |
+| 39 | `UpdateUserAsync_Preserves_Unmodified_Fields` | Samo `FirstName` je navedeno u DTO-u; `Password` i `Role` su izostavljeni | Vraća `true`; originalni `Password` i `Role` ostaju nepromijenjeni na uhvaćenom entitetu |
 
-### 2.4 Current User
-
-| # | Test Name | Description | Expected Outcome |
-|---|-----------|-------------|-----------------|
-| 21 | `Current_Returns_Unauthorized_When_Invalid_Token` | Calls `/current` with an unauthenticated (empty) `ClaimsPrincipal` | Returns `401 Unauthorized` |
-| 22 | `Current_Returns_NotFound_When_User_Does_Not_Exist` | Calls `/current` with a valid JWT identity but the user ID is not found in the service | Returns `404 Not Found` |
-| 23 | `Current_Returns_Ok_When_User_Exists` | Calls `/current` with a valid JWT identity and the service returns a matching `UserDto` | Returns `200 OK` with a non-null user object |
-
-### 2.5 Get All Users
-
-| # | Test Name | Description | Expected Outcome |
-|---|-----------|-------------|-----------------|
-| 24 | `GetAllUsers_Returns_Ok_With_Users` | Requests the full list of users; service returns two `UserDto` records | Returns `200 OK` with a non-null response body |
-
-### 2.6 Get User By ID
-
-| # | Test Name | Description | Expected Outcome |
-|---|-----------|-------------|-----------------|
-| 25 | `GetById_Returns_Forbidden_When_Unauthorized` | Authenticated user requests a profile belonging to a different user ID without admin role | Returns `403 Forbidden` |
-| 26 | `GetById_Returns_NotFound_When_User_Does_Not_Exist` | Authenticated user requests their own profile but the service returns null | Returns `404 Not Found` |
-| 27 | `GetById_Returns_Ok_When_User_Exists_And_Authorized` | Authenticated user requests their own profile and the service returns a matching `UserDto` | Returns `200 OK` with a non-null user object |
-| 28 | `GetById_Returns_Ok_When_Admin_Requests_Different_User` | Admin user (role `admin-sistema`) requests a profile belonging to a different user ID | Returns `200 OK` with a non-null user object |
-
-### 2.7 Update User
-
-| # | Test Name | Description | Expected Outcome |
-|---|-----------|-------------|-----------------|
-| 29 | `Update_Returns_Forbidden_When_Unauthorized` | Authenticated user attempts to update a profile belonging to a different user ID without admin role | Returns `403 Forbidden` |
-| 30 | `Update_Returns_Conflict_When_Username_Exists` | User attempts to update their profile to a username already taken by another account | Returns `409 Conflict` |
-| 31 | `Update_Returns_Conflict_When_Email_Exists` | User attempts to update their profile to an email address already in use by another account | Returns `409 Conflict` |
-| 32 | `Update_Returns_NotFound_When_User_Does_Not_Exist` | User submits a valid update request but the service cannot find the user record (returns false) | Returns `404 Not Found` |
-| 33 | `Update_Returns_NoContent_When_User_Updated_Successfully` | User submits a valid update request and the service confirms the update (returns true) | Returns `204 No Content` |
-| 34 | `Update_Returns_NoContent_When_Admin_Updates_Different_User` | Admin user (role `admin-sistema`) successfully updates the profile of a different user | Returns `204 No Content` |
-
-<img width="676" height="576" alt="image" src="https://github.com/user-attachments/assets/1c4b6101-d5af-43fb-8306-f480d9139b60" />
+<img width="699" height="579" alt="image" src="https://github.com/user-attachments/assets/45cba567-a595-449a-bf34-975facd722bd" />
+<img width="680" height="427" alt="image" src="https://github.com/user-attachments/assets/832edf91-9d03-4832-bba6-1e40ccb0f260" />
 
 ---
 
-## 3. Coverage Summary
+## 2. ConferenceServiceTests
 
-| Area | Tests | Pass Criteria |
-|------|-------|---------------|
-| Conference retrieval & authorization | 2 | Admin role grants access to Draft and inactive conferences |
-| Conference creation validation | 6 | Invalid date ranges and non-positive participant counts are rejected |
-| Conference update & delete | 4 | Repository interactions verified; not-found cases throw correct exceptions |
-| User registration | 4 | Missing fields, duplicate username, and duplicate email all rejected correctly |
-| User authentication | 3 | Invalid credentials blocked; valid credentials produce a token response |
-| Logout | 1 | Endpoint responds with success |
-| Current user resolution | 3 | Unauthenticated, missing, and valid user cases handled correctly |
-| Get all users | 1 | Full user list returned successfully |
-| Get user by ID | 4 | Authorization enforced; admin bypass confirmed; not-found handled |
-| Update user | 6 | Authorization, uniqueness constraints, not-found, and success cases all covered |
-| **Total** | **34** | |
+**Klasa koja se testira:** `ConferenceService`  
+**Zavisnosti koje se mockuju:** `IConferenceRepository`, `IUserContextService`
 
-<img width="1603" height="659" alt="image" src="https://github.com/user-attachments/assets/8c0c5f75-4437-49f8-a030-777310d167c8" />
+### 2.1 Dohvatanje i autorizacija
+
+| # | Naziv testa | Opis | Očekivani ishod |
+|---|-------------|------|-----------------|
+| 40 | `GetPagedAsync_AdminSeesActiveDraftAndInactive` | Admin korisnik traži stranicu konferencija sa `includeAll = true` | Vraća `TotalCount = 2` i `Items.Count = 2`, uključujući i Active i Draft konferencije |
+| 41 | `GetByIdAsync_AdminCanSeeDraftConference` | Admin traži konferenciju po ID-u čiji je status `Draft` | Vraća neprazan rezultat sa `Status = "Draft"` |
+
+### 2.2 Kreiranje
+
+| # | Naziv testa | Opis | Očekivani ishod |
+|---|-------------|------|-----------------|
+| 42 | `CreateAsync_ValidData_ReturnsConferenceDto` | Navedeni su validan naslov, datumi, lokacija, kategorija i broj učesnika | Vraća neprazan `ConferenceDto` sa odgovarajućim Title, Location i MaxParticipants |
+| 43 | `CreateAsync_InvalidDates_ThrowsArgumentException` | StartDate (dan +5) je nakon EndDate (dan +4) | Baca `ArgumentException` |
+| 44 | `CreateAsync_StartDateAfterEndDate_ThrowsArgumentException` | StartDate (dan +3) je nakon EndDate (dan +1) | Baca `ArgumentException` |
+| 45 | `CreateAsync_StartDateEqualsEndDate_ThrowsArgumentException` | StartDate je jednak EndDate | Baca `ArgumentException` |
+| 46 | `CreateAsync_MaxParticipantsZero_ThrowsArgumentException` | MaxParticipants postavljen na 0 | Baca `ArgumentException` |
+| 47 | `CreateAsync_MaxParticipantsNegative_ThrowsArgumentException` | MaxParticipants postavljen na -10 | Baca `ArgumentException` |
+
+### 2.3 Ažuriranje
+
+| # | Naziv testa | Opis | Očekivani ishod |
+|---|-------------|------|-----------------|
+| 48 | `UpdateAsync_ValidData_UpdatesSuccessfully` | Postojeća konferencija ažurirana sa novim naslovom, opisom, lokacijom, datumima i brojem učesnika | `UpdateAsync` na repozitoriju pozvan tačno jednom |
+| 49 | `UpdateAsync_ConferenceNotFound_ThrowsKeyNotFoundException` | ID konferencije nije pronađen u repozitoriju | Baca `KeyNotFoundException` |
+
+### 2.4 Brisanje
+
+| # | Naziv testa | Opis | Očekivani ishod |
+|---|-------------|------|-----------------|
+| 50 | `DeleteAsync_ExistingConference_DeletesSuccessfully` | Konferencija postoji u repozitoriju | `DeleteAsync` na repozitoriju pozvan tačno jednom |
+| 51 | `DeleteAsync_ConferenceNotFound_ThrowsKeyNotFoundException` | ID konferencije nije pronađen u repozitoriju | Baca `KeyNotFoundException` |
+
+<img width="675" height="325" alt="image" src="https://github.com/user-attachments/assets/6dea02bf-948f-4dfb-800e-e7baecee1b7c" />
 
 ---
 
-## 4. Test Environment
+## 3. Pregled pokrivenosti
 
-| Setting | Value |
-|---------|-------|
+| Oblast | Testovi | Kriterij prolaza |
+|--------|---------|-----------------|
+| Dohvatanje broja korisnika | 2 | Delegiranje repozitoriju i granični slučaj nule provjereni |
+| Dohvatanje i mapiranje liste korisnika | 3 | Mapiranje svih DTO polja provjereno; prazna lista obrađena |
+| Pretraga korisnika po ID-u | 2 | Slučajevi postojećeg i nepostojećeg korisnika obrađeni |
+| Pretraga korisnika po podacima za prijavu | 3 | Podudaranje po korisničkom imenu, emailu i nevažeći podaci obrađeni |
+| Registracija korisnika | 8 | Zadana uloga, normalizacija velikih slova, trimbovanje razmaka, generisanje ID-a, timestamp i mapiranje DTO-a provjereni |
+| Provjera jedinstvenosti korisničkog imena | 3 | Postoji, ne postoji i opcionalno isključivanje po UserId pokriveno |
+| Provjera jedinstvenosti emaila | 3 | Postoji, ne postoji i opcionalno isključivanje po UserId pokriveno |
+| Ažuriranje korisnika | 13 | Ažuriranja po polju, zaštita od praznih vrijednosti, ažuriranje više polja, timestamp i poziv repozitorija provjereni |
+| Granični slučajevi i sekvencijalne operacije | 2 | Višeoperacijski tokovi i čuvanje polja potvrđeni |
+| Dohvatanje konferencija i autorizacija | 2 | Admin uloga daje pristup Draft konferencijama |
+| Validacija kreiranja konferencije | 6 | Neispravni datumski rasponi i negativan/nulti broj učesnika odbijeni |
+| Ažuriranje i brisanje konferencije | 4 | Interakcije sa repozitorijem provjerene; slučajevi nepostojanja bacaju ispravne iznimke |
+| **Ukupno** | **51** | |
+
+<img width="1612" height="482" alt="image" src="https://github.com/user-attachments/assets/0cedb13c-16ab-4214-b585-dbb9aba04664" />
+
+---
+
+## 4. Testno okruženje
+
+| Postavka | Vrijednost |
+|----------|------------|
 | Test runner | xUnit |
-| Mock framework | Moq |
-| JWT Issuer (mock) | `ConferenceManagement.Api` |
-| JWT Audience (mock) | `ConferenceManagement.Client` |
-| JWT Expiry (mock) | 120 minutes |
-| HTTP context | `DefaultHttpContext` (in-memory) |
-| Auth identity | `ClaimsIdentity` / `ClaimsPrincipal` (manually constructed per test) |
+| Framework za mockovanje | Moq |
+| HTTP kontekst | `DefaultHttpContext` (in-memory) |
+| Zadana uloga korisnika | `ucesnik` |
+| Provjere timestampa | Ograđeni `DateTime.UtcNow` prije/poslije poziva metode |
+| Uhvaćeni entiteti | Moq `Callback` korišten za inspekciju objekata proslijeđenih repozitoriju |
