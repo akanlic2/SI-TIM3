@@ -7,7 +7,8 @@ public class Session
     public Guid RoomId { get; set; }
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
-    public int Duration { get; set; }
+    public DateTime StartTime { get; set; }
+    public DateTime EndTime { get; set; }
     public string SessionType { get; set; } = string.Empty;
     public string Status { get; set; } = string.Empty;
 

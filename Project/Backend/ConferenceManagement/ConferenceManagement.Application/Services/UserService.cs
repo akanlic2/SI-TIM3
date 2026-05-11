@@ -126,5 +126,14 @@ namespace ConferenceManagement.Application.Services
                 CreatedAt = user.CreatedAt
             };
         }
+
+        public async Task<List<UserDto>> GetUsersByRoleAsync(string role)
+        {
+            var users = await _userRepository.GetAllAsync();
+            return users
+                .Where(u => u.Role.Equals(role, StringComparison.OrdinalIgnoreCase))
+                .Select(MapToDto)
+                .ToList();
+        }
     }
 }

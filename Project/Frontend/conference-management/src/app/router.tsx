@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from '../auth/AuthProvider';
 import DashboardPage from '../pages/DashboardPage';
 import ConferencesPage from '../pages/ConferencesPage';
 import ConferenceDetailsPage from '../pages/ConferenceDetailsPage';
+import SessionsPage from '../pages/SessionsPage';
 import LoginPage from '../pages/LoginPage';
 import RegisterPage from '../pages/RegisterPage';
 
@@ -72,6 +73,16 @@ function AppRoutes() {
 
   if (pathname === '/conferences') {
     if (isLoggedIn) return <ConferencesPage />;
+    return (
+      <div className="global-loading">
+        <div className="global-spinner" />
+        <p>Preusmjeravanje na prijavu...</p>
+      </div>
+    );
+  }
+
+  if (pathname.startsWith('/conferences/') && pathname.endsWith('/sessions')) {
+    if (isLoggedIn) return <SessionsPage />;
     return (
       <div className="global-loading">
         <div className="global-spinner" />

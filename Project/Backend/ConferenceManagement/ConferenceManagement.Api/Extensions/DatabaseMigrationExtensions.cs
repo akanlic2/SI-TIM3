@@ -59,6 +59,8 @@ public static class DatabaseMigrationExtensions
 
                 // Seed default users
                 await UserSeeder.SeedUsersAsync(dbContext, cancellationToken);
+                // Seed deafult rooms
+                await RoomSeeder.SeedRoomsAsync(dbContext, cancellationToken);
 
                 logger.LogInformation("Database is ready and migrations were applied.");
                 return;
