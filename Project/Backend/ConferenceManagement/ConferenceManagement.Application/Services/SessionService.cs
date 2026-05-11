@@ -127,10 +127,19 @@ public class SessionService : ISessionService
         {
             SessionId = s.SessionId,
             Title = s.Title,
+            Description = s.Description,
             StartTime = s.StartTime,
             EndTime = s.EndTime,
             SessionType = s.SessionType,
-            Status = s.Status
+            Status = s.Status,
+            RoomId = s.RoomId,
+            RoomName = s.Room?.Name,
+            AssignedSpeakerId = s.SessionRegistrations
+                .FirstOrDefault(r => r.IsSpeaker)?.UserId,
+            SpeakerName = s.SessionRegistrations
+                .FirstOrDefault(r => r.IsSpeaker)?.User != null
+                ? $"{s.SessionRegistrations.First(r => r.IsSpeaker).User.FirstName} {s.SessionRegistrations.First(r => r.IsSpeaker).User.LastName}"
+                : null
         }).ToList();
     }
 }

@@ -41,7 +41,10 @@ public class SessionRepository : ISessionRepository
     {
         return await _context.Sessions
             .Where(s => s.ConferenceId == conferenceId)
-            .OrderBy(s => s.StartTime) // Sortiramo po vremenu početka
+            .Include(s => s.Room)
+            .Include(s => s.SessionRegistrations)
+                .ThenInclude(r => r.User)
+            .OrderBy(s => s.StartTime)
             .ToListAsync();
     }
     public async Task SaveChangesAsync() => await _context.SaveChangesAsync();

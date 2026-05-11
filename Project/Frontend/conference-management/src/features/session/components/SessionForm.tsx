@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { createSession, updateSession, assignSpeaker } from '../api/sessionApi';
+import axios from 'axios';
 import { useUsers } from '../hooks/useUsers';
-import type { Session, CreateSessionData, UpdateSessionData, AssignSpeakerData } from '../types';
+import type { Session, CreateSessionData } from '../types';
 
 interface SessionFormProps {
   conferenceId: string;
@@ -9,11 +10,11 @@ interface SessionFormProps {
   onSuccess: () => void;
   onCancel: () => void;
 }
+
 function toDatetimeLocal(isoString: string): string {
   if (!isoString) return '';
   return new Date(isoString).toISOString().slice(0, 16);
 }
-
 
 export function SessionForm({ conferenceId, editingSession, onSuccess, onCancel }: SessionFormProps) {
   const { items: users } = useUsers();
@@ -26,25 +27,27 @@ export function SessionForm({ conferenceId, editingSession, onSuccess, onCancel 
     startTime: '',
     endTime: '',
     conferenceId,
-    roomId: '', // TODO: handle rooms
+    roomId: '',
     sessionType: 'Lecture',
   });
 
   const [assignedSpeakerId, setAssignedSpeakerId] = useState<string>('');
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
- useEffect(() => {
-  if (editingSession) {
-    setFormData({
-      title: editingSession.title,
-      description: editingSession.description || '',
-      startTime: toDatetimeLocal(editingSession.startTime),  // ← promjena
-      endTime: toDatetimeLocal(editingSession.endTime),      // ← promjena
-      conferenceId,
-      roomId: '',
-      sessionType: editingSession.sessionType,
-    });
-    } else {
+  useEffect(() => {
+    if (editingSession && users.length > 0) {
+      setFormData({
+        title: editingSession.title,
+        description: editingSession.description || '',
+        startTime: toDatetimeLocal(editingSession.startTime),
+        endTime: toDatetimeLocal(editingSession.endTime),
+        conferenceId,
+        roomId: editingSession.roomId || '',
+        sessionType: editingSession.sessionType,
+      });
+      setAssignedSpeakerId(editingSession.assignedSpeakerId || '');
+      setValidationErrors({});
+    } else if (!editingSession) {
       setFormData({
         title: '',
         description: '',
@@ -55,9 +58,9 @@ export function SessionForm({ conferenceId, editingSession, onSuccess, onCancel 
         sessionType: 'Lecture',
       });
       setAssignedSpeakerId('');
+      setValidationErrors({});
     }
-    setValidationErrors({});
-  }, [editingSession, conferenceId]);
+  }, [editingSession, conferenceId, users]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -125,11 +128,23 @@ export function SessionForm({ conferenceId, editingSession, onSuccess, onCancel 
         await updateSession(editingSession.sessionId, updateData);
         savedSessionId = editingSession.sessionId;
       } else {
-        const createdSession = await createSession(formData);
-        if (!createdSession) {
-          throw new Error('Neuspjelo kreiranje sesije');
+        try {
+          const createdSession = await createSession(formData);
+          if (!createdSession) {
+            throw new Error('Neuspjelo kreiranje sesije');
+          }
+          savedSessionId = createdSession.sessionId;
+        } catch (error) {
+          if (axios.isAxiosError(error) && error.response?.data) {
+            setSubmitError(error.response.data);
+          } else if (error instanceof Error) {
+            setSubmitError(error.message);
+          } else {
+            setSubmitError('Greška pri kreiranju sesije.');
+          }
+          setIsSubmitting(false);
+          return;
         }
-        savedSessionId = createdSession.sessionId;
       }
 
       if (assignedSpeakerId && savedSessionId) {
@@ -233,7 +248,6 @@ export function SessionForm({ conferenceId, editingSession, onSuccess, onCancel 
           required
         >
           <option value="">Odaberite salu</option>
-          {/* Seeded room GUIDs from backend */}
           <option value="11111111-1111-1111-1111-111111111111">Amfiteatar 1</option>
           <option value="22222222-2222-2222-2222-222222222222">Sala 203 (Lab)</option>
           <option value="33333333-3333-3333-3333-333333333333">Konferencijska Sala A</option>

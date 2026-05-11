@@ -185,6 +185,32 @@ export function SessionList({
               </div>
             </div>
 
+            {session.roomName && (
+              <div
+                className="session-info-row"
+                style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '0.75rem',
+                  flexWrap: 'wrap',
+                }}
+              >
+                <span className="session-info-icon">🏢</span>
+
+                <div
+                  className="session-info-content"
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.15rem',
+                  }}
+                >
+                  <span className="session-info-label">Sala</span>
+                  <p className="session-info-value">{session.roomName}</p>
+                </div>
+              </div>
+            )}
+
             {session.speakerName && (
               <div
                 className="session-info-row"

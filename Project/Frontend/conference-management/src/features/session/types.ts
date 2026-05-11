@@ -7,6 +7,9 @@ export interface Session {
   sessionType: string;
   status: string;
   speakerName?: string;
+  roomName?: string;
+  roomId?: string;
+  assignedSpeakerId?: string;
 }
 
 export interface CreateSessionData {

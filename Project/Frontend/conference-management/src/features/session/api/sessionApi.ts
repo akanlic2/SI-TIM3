@@ -14,18 +14,20 @@ export async function fetchSessions(conferenceId: string): Promise<Session[]> {
   }
 }
 
-export async function createSession(sessionData: CreateSessionData): Promise<Session | null> {
+export async function createSession(sessionData: CreateSessionData): Promise<{ sessionId: string } | null> {
   try {
     const payload = {
       ...sessionData,
       startTime: new Date(sessionData.startTime).toISOString(),
       endTime: new Date(sessionData.endTime).toISOString(),
     };
-    const response = await axios.post<Session>(`${BASE_URL}/api/sessions`, payload);
-    return response.data;
+    const response = await axios.post<string>(`${BASE_URL}/api/sessions`, payload);
+    return { sessionId: response.data };
   } catch (error) {
-    console.error('Greška pri kreiranju sesije:', error);
-    return null;
+    if (axios.isAxiosError(error) && error.response?.data) {
+      throw new Error(error.response.data);
+    }
+    throw new Error('Greška pri kreiranju sesije');
   }
 }
 
