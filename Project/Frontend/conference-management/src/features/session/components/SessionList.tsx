@@ -89,6 +89,13 @@ export function SessionList({
             </span>
           </div>
 
+          {/* Description */}
+          {session.description && (
+            <p style={{ color: '#94a3b8', fontSize: '14px', margin: '8px 0 12px 0' }}>
+              {session.description}
+            </p>
+          )}
+
           {/* Speaker Badge */}
           {isSpeaker && (
             <div style={{ marginBottom: '12px' }}>
