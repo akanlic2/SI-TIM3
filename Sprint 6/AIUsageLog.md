@@ -395,5 +395,92 @@ Claude AI je korišten za pomoć pri generisanju SSH komandi, konfiguraciji pris
 
 
 ---
+
+## Unos #11
+
+| Polje | Detalji |
+| --- | --- |
+| **Datum** | 09.05.2026. |
+| **Sprint broj** | Sprint 6 |
+| **Alat** | ChatGPT |
+| **Ko je koristio alat** | Ajra Kerla |
+
+### Svrha korištenja
+Pomoć pri implementaciji backend read operacija za konferencije, uključujući paginaciju, filtriranje i role-based pristup podacima.
+
+### Kratak opis zadatka ili upita
+ChatGPT je korišten kao podrška pri implementaciji backend funkcionalnosti za pregled konferencija (`GET /Conference`), detalje konferencije (`GET /Conference/{id}`), paginaciju i filtriranje konferencija po nazivu, lokaciji i kategoriji, kao i za role-based prikaz aktivnih, draft i neaktivnih konferencija.
+
+### Šta je AI predložio ili generisao
+- Implementaciju `ConferenceQueryDto` klase za query parametre
+- Repository metodu `GetPagedFilteredAsync`
+- Logiku za paginaciju koristeći `Skip()` i `Take()`
+- Role-based filtering logiku za admina, organizatora i učesnika
+- Primjere query parametara za search/filter funkcionalnost
+- Refaktorisanje `ConferenceService` klase
+- Primjere backend testova za read operacije i role filtering
+
+### Šta je tim prihvatio
+- Strukturu paginacije i filtriranja
+- Repository i service layer implementaciju
+- Role-based prikaz konferencija
+- Predložene backend unit testove
+
+### Šta je tim izmijenio
+- Nazivi role-a prilagođeni postojećem auth sistemu (`admin-sistema`, `organizator`, `ucesnik`)
+- Query parametri i DTO klase prilagođeni postojećoj strukturi projekta
+- Dio logike za prikaz edit/delete opcija prilagođen frontend zahtjevima
+
+### Šta je tim odbacio
+- Dio predložene logike za sakrivanje edit/delete opcija adminu, jer je odlučeno da admin ipak treba imati mogućnost uređivanja i brisanja konferencija
+
+### Rizici, problemi ili greške koje su uočene
+- Tokom implementacije pojavili su se problemi sa paginacijom i filtriranjem samo trenutne stranice podataka
+- Role-based filtering inicijalno nije pravilno prikazivao draft i inactive konferencije admin korisnicima
+- Potrebno ručno provjeravanje JWT role claim-ova i testiranje kroz DBeaver i Swagger prije finalnog merge-a
+
+---
+
+## Unos #12
+
+| Polje | Detalji |
+| --- | --- |
+| **Datum** | 09.05.2026. |
+| **Sprint broj** | Sprint 6 |
+| **Alat** | ChatGPT |
+| **Ko je koristio alat** | Nejra Hodžić |
+
+### Svrha korištenja
+Pomoć pri implementaciji frontend prikaza konferencija, search/filter funkcionalnosti, paginacije i testiranja aplikacije.
+
+### Kratak opis zadatka ili upita
+ChatGPT je korišten za pomoć pri implementaciji React + TypeScript frontend funkcionalnosti za prikaz konferencijskih kartica, paginaciju, pretragu i filtriranje konferencija.
+
+### Šta je AI predložio ili generisao
+- Implementaciju `useConferences` hook-a
+- Axios API funkcije za paginirani dohvat konferencija
+- Frontend logiku za search/filter i pagination
+- Role-based prikaz UI elemenata (`Prijavi se`, `Uredi`, `Obriši`)
+- Frontend i backend testove za read operacije
+
+### Šta je tim prihvatio
+- Hook i API strukturu za konferencije
+- Frontend pagination i filter logiku
+- Testove za frontend i backend read operacije
+
+
+### Šta je tim izmijenio
+- Pagination prilagođen da prikazuje 6 konferencija po stranici
+- Frontend role-based UI prilagođen projektnim zahtjevima
+- TypeScript tipovi prilagođeni postojećoj strukturi DTO objekata
+
+### Šta je tim odbacio
+- Dio AI prijedloga za dodatne biblioteke za state management i routing jer je projekat koristio postojeću lokalnu implementaciju routinga
+
+### Rizici, problemi ili greške koje su uočene
+- Pojavljivali su se TypeScript problemi zbog neusklađenosti tipova između backend DTO objekata i frontend modela
+- Frontend inicijalno nije prikazivao konferencije zbog pogrešnog parsiranja paginiranog odgovora
+
+---
   
 *Dokument se ažurira tokom trajanja projekta. Svaki novi slučaj korištenja AI dodaje se kao novi unos.*
