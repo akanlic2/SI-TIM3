@@ -1,6 +1,7 @@
 ﻿using ConferenceManagement.Application.DTOs.Common;
 using ConferenceManagement.Application.DTOs.Conference;
 using ConferenceManagement.Application.Interfaces;
+using ConferenceManagement.Application.DTOs.Conference;
 using ConferenceManagement.Domain.Abstractions.Repositories;
 using ConferenceManagement.Domain.Entities;
 
@@ -9,13 +10,16 @@ namespace ConferenceManagement.Application.Services;
 public class ConferenceService : IConferenceService
 {
     private readonly IConferenceRepository _conferenceRepository;
+    private readonly IConferenceRegistrationRepository _conferenceRegistrationRepository;
     private readonly IUserContextService _userContextService;
 
     public ConferenceService(
         IConferenceRepository conferenceRepository,
+        IConferenceRegistrationRepository conferenceRegistrationRepository,
         IUserContextService userContextService)
     {
         _conferenceRepository = conferenceRepository;
+        _conferenceRegistrationRepository = conferenceRegistrationRepository;
         _userContextService = userContextService;
     }
 
@@ -61,6 +65,15 @@ public class ConferenceService : IConferenceService
         }
 
         return MapToDto(conference);
+    }
+
+    public async Task<List<RegisteredConferenceDto>> GetConfirmedForCurrentUserAsync(CancellationToken cancellationToken = default)
+    {
+        var userId = Guid.Parse(_userContextService.GetUserId());
+        var registrations = await _conferenceRegistrationRepository
+            .GetConfirmedRegistrationsForUserAsync(userId, cancellationToken);
+
+        return registrations.Select(registration => MapToRegisteredDto(registration.Conference, registration.ConferenceRegistrationId)).ToList();
     }
 
     public async Task<ConferenceDto> CreateAsync(CreateConferenceDto dto, CancellationToken cancellationToken = default)
@@ -144,6 +157,23 @@ public class ConferenceService : IConferenceService
     {
         return new ConferenceDto
         {
+            ConferenceId = conference.ConferenceId,
+            Title = conference.Title,
+            Description = conference.Description,
+            StartDate = conference.StartDate,
+            EndDate = conference.EndDate,
+            Location = conference.Location,
+            Category = conference.Category,
+            MaxParticipants = conference.MaxParticipants,
+            Status = conference.Status
+        };
+    }
+
+    private static RegisteredConferenceDto MapToRegisteredDto(Conference conference, Guid registrationId)
+    {
+        return new RegisteredConferenceDto
+        {
+            ConferenceRegistrationId = registrationId,
             ConferenceId = conference.ConferenceId,
             Title = conference.Title,
             Description = conference.Description,

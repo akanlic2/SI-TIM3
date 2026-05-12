@@ -242,6 +242,18 @@
   box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4);
 }
 
+.btn-primary-sm:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-primary-sm:disabled:hover {
+  background: var(--accent-amber);
+  border-color: var(--accent-amber);
+}
+
 /* ─── Conference Grid ────────────────────────────────────────────────────────── */
 
 .conference-grid {
@@ -503,6 +515,27 @@
   color: var(--text-muted);
   margin: 0;
   max-width: 400px;
+}
+
+.table-header,
+.table-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr 1.5fr 1fr;
+  gap: 0 16px; /* column gap only */
+  padding: 10px 24px;
+  align-items: center;
+}
+
+.table-header .btn-secondary {
+  text-align: left;
+  padding: 4px 0;
+  width: 100%;
+}
+
+.table-row span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* ─── Animations ─────────────────────────────────────────────────────────────── */

@@ -3,6 +3,7 @@
 public class SessionListDTO
 {
     public Guid SessionId { get; set; }
+    public Guid? SessionRegistrationId { get; set; }
     public string Title { get; set; }
     public string? Description { get; set; }
     public DateTime StartTime { get; set; }

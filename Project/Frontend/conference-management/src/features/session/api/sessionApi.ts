@@ -14,6 +14,59 @@ export async function fetchSessions(conferenceId: string): Promise<Session[]> {
   }
 }
 
+export async function fetchRegisteredSessions(): Promise<Session[]> {
+  try {
+    const response = await axios.get<Session[]>(`${BASE_URL}/api/Sessions/registered`);
+    return response.data;
+  } catch (error) {
+    console.error('Greška pri dohvatanju registrovanih sesija:', error);
+    return [];
+  }
+}
+
+interface ApiMessageResponse {
+  Message?: string;
+  message?: string;
+}
+
+export async function registerForSession(sessionId: string): Promise<string> {
+  try {
+    const response = await axios.post<ApiMessageResponse>(`${BASE_URL}/api/session/${sessionId}/register`);
+    const data = response.data;
+    const message = typeof data === 'string' ? data : data?.Message ?? data?.message;
+    return message ?? 'Prijava je uspješno evidentirana.';
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const responseData = error.response?.data as ApiMessageResponse | string | undefined;
+      const message =
+        typeof responseData === 'string'
+          ? responseData
+          : responseData?.Message ?? responseData?.message ?? error.message;
+      throw new Error(message || `Status ${error.response?.status ?? 'unknown'}`);
+    }
+    throw new Error('Greška prilikom prijave na sesiju.');
+  }
+}
+
+export async function cancelSessionRegistration(registrationId: string): Promise<string> {
+  try {
+    const response = await axios.put<ApiMessageResponse>(`${BASE_URL}/api/session/${registrationId}/cancel`);
+    const data = response.data;
+    const message = typeof data === 'string' ? data : data?.Message ?? data?.message;
+    return message ?? 'Prijava je otkazana.';
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const responseData = error.response?.data as ApiMessageResponse | string | undefined;
+      const message =
+        typeof responseData === 'string'
+          ? responseData
+          : responseData?.Message ?? responseData?.message ?? error.message;
+      throw new Error(message || `Status ${error.response?.status ?? 'unknown'}`);
+    }
+    throw new Error('Greška prilikom odjave sa sesije.');
+  }
+}
+
 export async function createSession(sessionData: CreateSessionData): Promise<{ sessionId: string } | null> {
   try {
     const payload = {

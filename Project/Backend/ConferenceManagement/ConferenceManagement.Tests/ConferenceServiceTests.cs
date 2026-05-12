@@ -10,6 +10,7 @@ namespace ConferenceManagement.Tests;
 public class ConferenceServiceTests
 {
     private readonly Mock<IConferenceRepository> _repositoryMock;
+    private readonly Mock<IConferenceRegistrationRepository> _conferenceRegistrationRepositoryMock;
     private readonly Mock<IUserContextService> _userContextMock;
     private readonly ConferenceService _service;
 
@@ -42,10 +43,14 @@ public class ConferenceServiceTests
     public ConferenceServiceTests()
     {
         _repositoryMock = new Mock<IConferenceRepository>();
+        _conferenceRegistrationRepositoryMock = new Mock<IConferenceRegistrationRepository>();
         _userContextMock = new Mock<IUserContextService>();
 
         // Servis sada prima oba dependency-a kako zahtijeva tvoj kod
-        _service = new ConferenceService(_repositoryMock.Object, _userContextMock.Object);
+        _service = new ConferenceService(
+            _repositoryMock.Object,
+            _conferenceRegistrationRepositoryMock.Object,
+            _userContextMock.Object);
     }
 
     // ===================== GET & AUTHORIZATION (Tvoji testovi) =====================

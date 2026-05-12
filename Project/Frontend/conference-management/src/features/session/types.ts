@@ -1,5 +1,6 @@
 export interface Session {
   sessionId: string;
+  sessionRegistrationId?: string;
   title: string;
   description?: string;
   startTime: string;

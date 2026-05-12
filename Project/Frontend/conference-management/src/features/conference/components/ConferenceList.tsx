@@ -1,5 +1,5 @@
 import type { Conference } from '../types'
-import { deleteConference } from '../api/conferenceApi'
+import { deleteConference, registerForConference } from '../api/conferenceApi'
 import { useAuth } from '../../../auth/AuthProvider'
 
 interface ConferenceListProps {
@@ -31,6 +31,16 @@ export function ConferenceList({
         console.error('Delete failed:', error)
         alert('Greška prilikom brisanja. Provjerite konzolu.')
       }
+    }
+  }
+
+  const handleRegister = async (id: string) => {
+    try {
+      const message = await registerForConference(id)
+      alert(message)
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Greška prilikom prijave.'
+      alert(message)
     }
   }
 
@@ -266,6 +276,7 @@ export function ConferenceList({
                   backgroundColor: '#10B981',
                   color: 'white',
                 }}
+                onClick={() => handleRegister(conference.conferenceId)}
               >
                 Prijavi se
               </button>

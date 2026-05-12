@@ -82,6 +82,8 @@ builder.Services.AddScoped<IUserContextService, UserContextService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IConferenceRepository, ConferenceRepository>();
 builder.Services.AddScoped<IConferenceService, ConferenceService>();
+builder.Services.AddScoped<IConferenceRegistrationRepository, ConferenceRegistrationRepository>();
+builder.Services.AddScoped<IConferenceRegistrationService, ConferenceRegistrationService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ISessionRepository, SessionRepository>();
 builder.Services.AddScoped<ISessionService, SessionService>();
@@ -92,6 +94,7 @@ builder.Services.AddAuthorizationBuilder()
     .AddPolicy("OrganizerPolicy", policy => policy.RequireRole("organizator"))
     .AddPolicy("AdminOrOrganizerPolicy", policy => policy.RequireRole("admin-sistema", "organizator"))
     .AddPolicy("SpeakerPolicy", policy => policy.RequireRole("predavac"))
+    .AddPolicy("AttendeePolicy", policy => policy.RequireRole("ucesnik"))
     .AddPolicy("ParticipantPolicy", policy =>
         policy.RequireAuthenticatedUser());
 

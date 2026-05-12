@@ -14,5 +14,8 @@ public interface ISessionService
     Task<bool> UpdateSessionAsync(Guid id, UpdateSessionDto dto);
     Task<bool> DeleteSessionAsync(Guid id);
     Task<bool> AssignSpeakerAsync(Guid sessionId, Guid userId);
+    Task RegisterAsync(Guid sessionId, CancellationToken cancellationToken = default);
+    Task CancelRegistrationAsync(Guid registrationId, CancellationToken cancellationToken = default);
+    Task<List<SessionListDTO>> GetRegisteredForCurrentUserAsync(CancellationToken cancellationToken = default);
     Task<List<SessionListDTO>> GetSessionsForConferenceAsync(Guid conferenceId);
 }

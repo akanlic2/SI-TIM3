@@ -276,6 +276,12 @@
   cursor: not-allowed;
 }
 
+.logout-btn-inline {
+  width: auto;
+  padding: 8px 16px;
+  font-size: 0.85rem;
+}
+
 .logout-spinner {
   width: 16px;
   height: 16px;
@@ -571,7 +577,7 @@
   justify-content: space-between;
   padding: 16px 24px;
   border-bottom: 1px solid var(--border);
-  transition: background var(--transition);
+  transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
 }
 
 .conference-row:last-child {
@@ -580,6 +586,8 @@
 
 .conference-row:hover {
   background: var(--bg-hover);
+  transform: translateX(2px);
+  box-shadow: inset 2px 0 0 rgba(63, 131, 248, 0.4);
 }
 
 .conf-left {
