@@ -1,7 +1,7 @@
 import type { Session } from '../types'
-import { deleteSession } from '../api/sessionApi'
+import { cancelSessionRegistration, deleteSession, fetchRegisteredSessions, registerForSession } from '../api/sessionApi'
 import { useAuth } from '../../../auth/AuthProvider'
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 interface SessionListProps {
   sessions: Session[]
@@ -18,7 +18,7 @@ export function SessionList({
   onDeleteSuccess,
   onEditClick,
 }: SessionListProps) {
-  const { user } = useAuth()
+  const { user, token } = useAuth()
 
   const role = user?.role?.toLowerCase() ?? ''
 
@@ -27,6 +27,11 @@ export function SessionList({
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
+  const [registeredConferenceIds, setRegisteredConferenceIds] = useState<Set<string>>(new Set());
+  const [isLoadingRegistered, setIsLoadingRegistered] = useState(true);
+  const [registeredSessions, setRegisteredSessions] = useState<Record<string, string>>({});
+  const [isLoadingRegisteredSessions, setIsLoadingRegisteredSessions] = useState(true);
+  const [cancellingSessionId, setCancellingSessionId] = useState<string | null>(null);
 
   // Filter sessions based on role
   const filteredSessions = sessions.filter(session => {
@@ -36,6 +41,60 @@ export function SessionList({
     return true;
   });
 
+  useEffect(() => {
+    if (!token) return;
+    setIsLoadingRegistered(true);
+    fetch('/api/Conference/registered', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data) => {
+        const items = Array.isArray(data) ? data : [];
+        const ids = new Set<string>(
+          items.map((item: { conferenceId?: string }) => item.conferenceId).filter(Boolean) as string[]
+        );
+        setRegisteredConferenceIds(ids);
+      })
+      .catch(() => setRegisteredConferenceIds(new Set()))
+      .finally(() => setIsLoadingRegistered(false));
+  }, [token]);
+
+  const loadRegisteredSessions = useCallback(async () => {
+    if (!token || !isParticipant) {
+      setRegisteredSessions({});
+      setIsLoadingRegisteredSessions(false);
+      return;
+    }
+
+    setIsLoadingRegisteredSessions(true);
+    try {
+      const items = await fetchRegisteredSessions();
+      const next: Record<string, string> = {};
+      for (const item of items) {
+        if (item.sessionId && item.sessionRegistrationId) {
+          next[item.sessionId] = item.sessionRegistrationId;
+        }
+      }
+      setRegisteredSessions(next);
+    } catch {
+      setRegisteredSessions({});
+    } finally {
+      setIsLoadingRegisteredSessions(false);
+    }
+  }, [token, isParticipant]);
+
+  useEffect(() => {
+    void loadRegisteredSessions();
+  }, [loadRegisteredSessions]);
+
+  const isRegisteredForConference = registeredConferenceIds.has(conferenceId);
+  const isRegistrationBlocked = !isRegisteredForConference || isLoadingRegistered;
+  const registrationTooltip = isRegisteredForConference
+    ? 'Prijavi se na sesiju'
+    : 'Morate se prvo prijaviti na konferenciju.'
+
+  const isRegisteredForSession = (sessionId: string) => Boolean(registeredSessions[sessionId])
+
   const handleDelete = async (id: string) => {
     try {
       await deleteSession(id)
@@ -43,6 +102,39 @@ export function SessionList({
     } catch (error) {
       console.error('Delete failed:', error)
       alert('Greška prilikom brisanja. Provjerite konzolu.')
+    }
+  }
+
+  const handleRegister = async (id: string) => {
+    try {
+      const message = await registerForSession(id)
+      await loadRegisteredSessions()
+      alert(message)
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Greška prilikom prijave na sesiju.'
+      alert(message)
+    }
+  }
+
+  const handleCancel = async (id: string) => {
+    if (cancellingSessionId) return
+
+    const registrationId = registeredSessions[id]
+    if (!registrationId) {
+      alert('Nije pronađena prijava za ovu sesiju.')
+      return
+    }
+
+    setCancellingSessionId(id)
+    try {
+      const message = await cancelSessionRegistration(registrationId)
+      await loadRegisteredSessions()
+      alert(message)
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Greška prilikom odjave sa sesije.'
+      alert(message)
+    } finally {
+      setCancellingSessionId(null)
     }
   }
 
@@ -257,6 +349,39 @@ export function SessionList({
               flexWrap: 'wrap',
             }}
           >
+            {/* Participant */}
+            {isParticipant && (
+              <button
+                className="btn-primary-sm"
+                style={{
+                  backgroundColor: '#10B981',
+                  color: 'white',
+                }}
+                onClick={() => handleRegister(session.sessionId)}
+                disabled={
+                  isRegistrationBlocked ||
+                  isLoadingRegisteredSessions ||
+                  isRegisteredForSession(session.sessionId)
+                }
+                title={
+                  isRegisteredForSession(session.sessionId)
+                    ? 'Već ste prijavljeni na sesiju.'
+                    : registrationTooltip
+                }
+              >
+                Prijavi se
+              </button>
+            )}
+            {isParticipant && !isLoadingRegisteredSessions && isRegisteredForSession(session.sessionId) && (
+              <button
+                className="btn-secondary"
+                onClick={() => handleCancel(session.sessionId)}
+                disabled={cancellingSessionId === session.sessionId}
+                title="Odjavi se sa sesije"
+              >
+                Odjavi
+              </button>
+            )}
             {/* Admin / Organizer */}
             {isAdminOrOrganizer && (
               <>

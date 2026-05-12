@@ -3,6 +3,7 @@ using ConferenceManagement.Application.DTOs.Conference;
 using ConferenceManagement.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using ConferenceManagement.Application.DTOs.Common;
+using RegisteredConferenceDto = ConferenceManagement.Application.DTOs.Conference.RegisteredConferenceDto;
 
 namespace ConferenceManagement.Api.Controllers;
 
@@ -24,6 +25,14 @@ public class ConferenceController : ControllerBase
         CancellationToken cancellationToken)
     {
         var result = await _conferenceService.GetPagedAsync(query, cancellationToken);
+        return Ok(result);
+    }
+
+    [HttpGet("registered")]
+    [Authorize(Policy = "ParticipantPolicy")]
+    public async Task<ActionResult<List<RegisteredConferenceDto>>> GetRegistered(CancellationToken cancellationToken)
+    {
+        var result = await _conferenceService.GetConfirmedForCurrentUserAsync(cancellationToken);
         return Ok(result);
     }
 

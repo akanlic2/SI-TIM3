@@ -191,7 +191,10 @@ const isAdminOrOrganizer = role === 'admin-sistema' || role === 'organizator';
           >
             <button
               type="button"
-              onClick={() => window.history.back()}
+              onClick={() => {
+                window.history.pushState({}, '', '/dashboard');
+                window.dispatchEvent(new PopStateEvent('popstate'));
+              }}
               className="back-button"
               style={{
                 width: '38px',

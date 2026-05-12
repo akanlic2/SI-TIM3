@@ -26,6 +26,14 @@ public class SessionsController : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("registered")]
+    [Authorize(Policy = "ParticipantPolicy")]
+    public async Task<ActionResult<List<SessionListDTO>>> GetRegistered(CancellationToken cancellationToken)
+    {
+        var result = await _sessionService.GetRegisteredForCurrentUserAsync(cancellationToken);
+        return Ok(result);
+    }
+
     [HttpPost]
     [Authorize(Policy = "AdminOrOrganizerPolicy")]
     public async Task<IActionResult> Create([FromBody] CreateSessionDto dto)

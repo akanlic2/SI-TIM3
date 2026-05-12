@@ -13,6 +13,10 @@ interface Conference {
   status: string;
 }
 
+interface RegisteredConference extends Conference {
+  conferenceRegistrationId?: string;
+}
+
 // ─── Stat kartica ─────────────────────────────────────────────────────────────
 interface StatCardProps {
   icon: string;
@@ -51,6 +55,9 @@ export default function DashboardPage() {
   const { user, logout, token } = useAuth();
   const [conferences, setConferences] = useState<Conference[]>([]);
   const [isLoadingConferences, setIsLoadingConferences] = useState(true);
+  const [registeredConferences, setRegisteredConferences] = useState<RegisteredConference[]>([]);
+  const [isLoadingRegistered, setIsLoadingRegistered] = useState(true);
+  const [cancellingRegistrationId, setCancellingRegistrationId] = useState<string | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
   const [activeNav, setActiveNav] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -66,6 +73,7 @@ export default function DashboardPage() {
 
   const roles = user?.role ? [user.role] : [];
   const isAdmin = roles.some((role) => role.toLowerCase().includes('admin'));
+  const isParticipant = roles.some((role) => role.toLowerCase().includes('ucesnik'));
 
   // ─── Dohvat konferencija ───────────────────────────────────────────────────
   useEffect(() => {
@@ -80,6 +88,21 @@ export default function DashboardPage() {
       })
       .catch(() => setConferences([]))
       .finally(() => setIsLoadingConferences(false));
+  }, [token]);
+
+  useEffect(() => {
+    if (!token) return;
+    setIsLoadingRegistered(true);
+    fetch('/api/Conference/registered', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data) => {
+        const confArray = Array.isArray(data) ? data : [];
+        setRegisteredConferences(confArray as RegisteredConference[]);
+      })
+      .catch(() => setRegisteredConferences([]))
+      .finally(() => setIsLoadingRegistered(false));
   }, [token]);
 
   // ─── Logout ───────────────────────────────────────────────────────────────
@@ -101,6 +124,46 @@ export default function DashboardPage() {
       }).format(new Date(iso));
     } catch {
       return iso;
+    }
+  };
+
+  const readApiMessage = async (response: Response): Promise<string | null> => {
+    try {
+      const data = await response.json();
+      if (typeof data === 'string') return data;
+      if (typeof data?.Message === 'string') return data.Message;
+      if (typeof data?.message === 'string') return data.message;
+      return null;
+    } catch {
+      return null;
+    }
+  };
+
+  const handleCancelRegistration = async (conference: RegisteredConference) => {
+    const registrationId = conference.conferenceRegistrationId ?? conference.conferenceId;
+    if (!registrationId || cancellingRegistrationId) return;
+
+    setCancellingRegistrationId(registrationId);
+    try {
+      const response = await fetch(`/api/registration/${registrationId}/cancel`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const message = await readApiMessage(response);
+      if (!response.ok) {
+        alert(message ?? 'Greška prilikom odjave.');
+        return;
+      }
+
+      setRegisteredConferences((prev) =>
+        prev.filter((item) => item.conferenceId !== conference.conferenceId)
+      );
+      alert(message ?? 'Odjava je uspješna.');
+    } catch {
+      alert('Greška prilikom odjave.');
+    } finally {
+      setCancellingRegistrationId(null);
     }
   };
 
@@ -229,6 +292,70 @@ export default function DashboardPage() {
             </section>
 
             {isAdmin && <AdminUsersPanel />}
+
+            {/* Registrovane konferencije */}
+            {isParticipant && (
+              <section className="section-block">
+                <div className="section-header">
+                  <h2 className="section-title">Moje prijave</h2>
+                </div>
+
+                {isLoadingRegistered ? (
+                  <div className="loading-row">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="skeleton-card" />
+                    ))}
+                  </div>
+                ) : registeredConferences.length === 0 ? (
+                  <div className="empty-state">
+                    <div className="empty-icon">✅</div>
+                    <p>Nema aktivnih prijava</p>
+                    <span>Prijavljene konferencije će se pojaviti ovdje</span>
+                  </div>
+                ) : (
+                  <div className="conference-list">
+                    {registeredConferences.map((conf) => (
+                      <div
+                        key={conf.conferenceId}
+                        className="conference-row"
+                        onClick={() => {
+                          window.history.pushState({}, '', `/conferences/${conf.conferenceId}`);
+                          window.dispatchEvent(new PopStateEvent('popstate'));
+                        }}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        <div className="conf-left">
+                          <div className="conf-dot" />
+                          <div>
+                            <span className="conf-title">{conf.title}</span>
+                            <span className="conf-location">📍 {conf.location}</span>
+                          </div>
+                        </div>
+                        <div
+                          className="conf-right"
+                          style={{ display: 'flex', alignItems: 'center', gap: '12px' }}
+                        >
+                          <span className="conf-date">{formatDate(conf.startDate)}</span>
+                          <span className="conf-badge">{conf.status || 'Aktivan'}</span>
+                          <button
+                            className="logout-btn logout-btn-inline"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              handleCancelRegistration(conf);
+                            }}
+                            disabled={cancellingRegistrationId === (conf.conferenceRegistrationId ?? conf.conferenceId)}
+                            title="Odjavi"
+                            style={{ marginLeft: 'auto' }}
+                          >
+                            Odjavi
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </section>
+            )}
 
             {/* Nadolazeće konferencije */}
             <section className="section-block">

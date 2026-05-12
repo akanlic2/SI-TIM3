@@ -22,6 +22,11 @@ export interface PagedConferenceResponse {
   totalPages: number;
 }
 
+export interface ApiMessageResponse {
+  Message?: string;
+  message?: string;
+}
+
 export async function fetchConferences(
   query: ConferenceQuery = {}
 ): Promise<PagedConferenceResponse> {
@@ -72,4 +77,30 @@ export async function updateConference(
 
 export async function deleteConference(id: string): Promise<void> {
   await axios.delete(`${API_URL}/${id}`);
+}
+
+export async function registerForConference(id: string): Promise<string> {
+  try {
+    const response = await axios.post<ApiMessageResponse>(
+      `${BASE_URL}/api/conference/${id}/register`
+    );
+
+    const data = response.data;
+    const message =
+      typeof data === 'string' ? data : data?.Message ?? data?.message;
+
+    return message ?? 'Prijava je uspješno evidentirana.';
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const responseData = error.response?.data as ApiMessageResponse | string | undefined;
+      const message =
+        typeof responseData === 'string'
+          ? responseData
+          : responseData?.Message ?? responseData?.message ?? error.message;
+
+      throw new Error(message || `Status ${error.response?.status ?? 'unknown'}`);
+    }
+
+    throw new Error('Greška prilikom prijave.');
+  }
 }

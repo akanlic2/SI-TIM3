@@ -1,6 +1,7 @@
 ﻿using ConferenceManagement.Application.DTOs;
 using ConferenceManagement.Application.DTOs.Session;
 using ConferenceManagement.Application.Interfaces;
+using ConferenceManagement.Application.Services;
 using ConferenceManagement.Domain.Abstractions.Repositories;
 using ConferenceManagement.Domain.Entities;
 
@@ -11,15 +12,18 @@ public class SessionService : ISessionService
     private readonly ISessionRepository _sessionRepository;
     private readonly IUserRepository _userRepository; 
     private readonly ISessionRegistrationRepository _registrationRepository; 
+    private readonly IUserContextService _userContextService;
 
     public SessionService(
         ISessionRepository sessionRepository,
         IUserRepository userRepository,
-        ISessionRegistrationRepository registrationRepository)
+        ISessionRegistrationRepository registrationRepository,
+        IUserContextService userContextService)
     {
         _sessionRepository = sessionRepository;
         _userRepository = userRepository;
         _registrationRepository = registrationRepository;
+        _userContextService = userContextService;
     }
 
     public async Task<Guid?> CreateSessionAsync(CreateSessionDto dto)
@@ -118,28 +122,105 @@ public class SessionService : ISessionService
         return true;
     }
 
+    public async Task RegisterAsync(Guid sessionId, CancellationToken cancellationToken = default)
+    {
+        var session = await _sessionRepository.GetByIdAsync(sessionId);
+        if (session == null)
+        {
+            throw new KeyNotFoundException($"Sesija sa ID-jem {sessionId} nije pronađena.");
+        }
+
+        var userId = Guid.Parse(_userContextService.GetUserId());
+        var existingRegistration = await _registrationRepository.GetBySessionAndUserAsync(sessionId, userId);
+
+        if (existingRegistration != null && existingRegistration.RegistrationStatus == "Confirmed")
+        {
+            throw new InvalidOperationException("Korisnik je već prijavljen na sesiju.");
+        }
+
+        if (existingRegistration != null && existingRegistration.RegistrationStatus == "Otkazano")
+        {
+            existingRegistration.RegistrationStatus = "Confirmed";
+            existingRegistration.RegistrationDate = DateTime.UtcNow;
+            await _registrationRepository.UpdateAsync(existingRegistration);
+            await _registrationRepository.SaveChangesAsync();
+            return;
+        }
+
+        var registration = new SessionRegistration
+        {
+            SessionRegistrationId = Guid.NewGuid(),
+            SessionId = sessionId,
+            UserId = userId,
+            RegistrationDate = DateTime.UtcNow,
+            RegistrationStatus = "Confirmed",
+            IsSpeaker = false
+        };
+
+        await _registrationRepository.AddAsync(registration);
+        await _registrationRepository.SaveChangesAsync();
+    }
+
+    public async Task CancelRegistrationAsync(Guid registrationId, CancellationToken cancellationToken = default)
+    {
+        var registration = await _registrationRepository.GetByIdAsync(registrationId);
+        if (registration == null)
+        {
+            throw new KeyNotFoundException($"Prijava sa ID-jem {registrationId} nije pronađena.");
+        }
+
+        var userId = Guid.Parse(_userContextService.GetUserId());
+        if (registration.UserId != userId)
+        {
+            throw new UnauthorizedAccessException("Nemate pravo otkazati ovu prijavu.");
+        }
+
+        registration.RegistrationStatus = "Cancelled";
+        await _registrationRepository.UpdateAsync(registration);
+        await _registrationRepository.SaveChangesAsync();
+    }
+
+    public async Task<List<SessionListDTO>> GetRegisteredForCurrentUserAsync(CancellationToken cancellationToken = default)
+    {
+        _ = cancellationToken;
+        var userId = Guid.Parse(_userContextService.GetUserId());
+        var registrations = await _registrationRepository.GetConfirmedRegistrationsForUserAsync(userId, cancellationToken);
+
+        return registrations.Select(r =>
+        {
+            var dto = MapToSessionListDto(r.Session);
+            dto.SessionRegistrationId = r.SessionRegistrationId;
+            return dto;
+        }).ToList();
+    }
+
     public async Task<List<SessionListDTO>> GetSessionsForConferenceAsync(Guid conferenceId)
     {
         var sessions = await _sessionRepository.GetSessionsByConferenceIdAsync(conferenceId);
 
         // Ako nema sesija, vraćamo praznu listu [], što je "prazno stanje"
-        return sessions.Select(s => new SessionListDTO
+        return sessions.Select(MapToSessionListDto).ToList();
+    }
+
+    private static SessionListDTO MapToSessionListDto(Session session)
+    {
+        return new SessionListDTO
         {
-            SessionId = s.SessionId,
-            Title = s.Title,
-            Description = s.Description,
-            StartTime = s.StartTime,
-            EndTime = s.EndTime,
-            SessionType = s.SessionType,
-            Status = s.Status,
-            RoomId = s.RoomId,
-            RoomName = s.Room?.Name,
-            AssignedSpeakerId = s.SessionRegistrations
+            SessionId = session.SessionId,
+            Title = session.Title,
+            Description = session.Description,
+            StartTime = session.StartTime,
+            EndTime = session.EndTime,
+            SessionType = session.SessionType,
+            Status = session.Status,
+            RoomId = session.RoomId,
+            RoomName = session.Room?.Name,
+            AssignedSpeakerId = session.SessionRegistrations
                 .FirstOrDefault(r => r.IsSpeaker)?.UserId,
-            SpeakerName = s.SessionRegistrations
+            SpeakerName = session.SessionRegistrations
                 .FirstOrDefault(r => r.IsSpeaker)?.User != null
-                ? $"{s.SessionRegistrations.First(r => r.IsSpeaker).User.FirstName} {s.SessionRegistrations.First(r => r.IsSpeaker).User.LastName}"
+                ? $"{session.SessionRegistrations.First(r => r.IsSpeaker).User.FirstName} {session.SessionRegistrations.First(r => r.IsSpeaker).User.LastName}"
                 : null
-        }).ToList();
+        };
     }
 }
