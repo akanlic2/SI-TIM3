@@ -8,6 +8,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -36,6 +37,7 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     needs: test
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -46,25 +48,31 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Build and push API image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: ./Project/Backend/ConferenceManagement
           file: ./Project/Backend/ConferenceManagement/ConferenceManagement.Api/Dockerfile
           push: true
+          provenance: false
           tags: ekurtovic5/conferencemanagement-api:latest
 
       - name: Build and push Frontend image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: ./Project/Frontend/conference-management
           file: ./Project/Frontend/conference-management/Dockerfile
           push: true
+          provenance: false
           tags: ekurtovic5/conferencemanagement-frontend:latest
 
   deploy:
     runs-on: ubuntu-latest
     needs: build-and-push
+
     steps:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.0
@@ -77,4 +85,5 @@ jobs:
             cd /root/SI-TIM3/Project/Backend/ConferenceManagement
             git pull origin main
             docker compose -f docker-compose.prod.yml pull
-            docker compose -f docker-compose.prod.yml up -d
+            docker compose -f docker-compose.prod.yml up -d --remove-orphans
+            docker image prune -af
