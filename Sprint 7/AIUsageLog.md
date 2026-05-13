@@ -393,6 +393,45 @@ Claude AI je korišten za pomoć pri generisanju SSH komandi, konfiguraciji pris
 ### Rizici, problemi ili greške koje su uočene
 - Nisu uočeni rizici
 
+## Unos #11
+
+| Polje | Detalji |
+| --- | --- |
+| **Datum** | 10.05.2026. |
+| **Sprint broj** | Sprint 7 |
+| **Alat** | Claude AI |
+| **Ko je koristio alat** | Lamija Dženetić |
+
+### Svrha korištenja
+Pomoć pri implementaciji frontenda za upravljanje sesijama konferencije.
+
+### Kratak opis zadatka ili upita
+Claude AI je korišten kao konsultant i debugger tokom razvoja session modula na frontendu. Uključivalo je i debuggovanje build grešaka, ispravljanje DateTime problema sa PostgreSQL-om i rješavanje prefill problema edit forme.
+
+### Šta je AI predložio ili generisao
+- Rješenje za MISSING_EXPORT grešku (fetchUsers nije bio exportovan iz sessionApi.ts)
+- Ispravljanje DateTime UTC greške - konverzija datuma u ISO format prije slanja na backend
+- Ispravljanje datetime-local input format greške (.toISOString().slice(0, 16))
+- Dijagnozu i rješenje za 400 Bad Request na PUT /api/sessions (DateTime Kind=Unspecified)
+- Ispravljanje JSX sintaksne greške - modal van return bloka (dodavanje React Fragment)
+- Rješenje za prefill predavača u edit formi - čekanje na učitavanje users liste (users.length > 0)
+- Dijagnozu da backend SessionListDTO ne vraća roomId, roomName, speakerName, assignedSpeakerId
+
+### Šta je tim prihvatio
+- Sve predložene ispravke grešaka
+- Proširenje SessionListDTO sa nedostajućim poljima
+- Logiku prefilla edit forme sa uvjetom users.length > 0
+
+### Šta je tim izmijenio
+- Nazivi varijabli i funkcija usklađeni sa konvencijom projekta
+- Prilagođeni endpointi prema stvarnoj backend strukturi projekta
+
+### Šta je tim odbacio
+- Određene prijedloge za refaktoring postojećeg koda koji nisu bili neophodni
+
+### Rizici, problemi ili greške koje su uočene
+- Build greške zbog sintaksnih problema zahtijevale su ručnu intervenciju
+
 
 ---
   
