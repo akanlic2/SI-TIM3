@@ -432,7 +432,41 @@ Claude AI je korišten kao konsultant i debugger tokom razvoja session modula na
 ### Rizici, problemi ili greške koje su uočene
 - Build greške zbog sintaksnih problema zahtijevale su ručnu intervenciju
 
+## Unos #12
 
+| Polje | Detalji |
+| --- | --- |
+| **Datum** | 10.05.2026. |
+| **Sprint broj** | Sprint 7 |
+| **Alat** | Claude AI |
+| **Ko je koristio alat** | Enela Pirija |
+
+### Svrha korištenja
+Pomoć pri implementaciji backend ruta za upravljanje sesijama (CRUD).
+
+### Kratak opis zadatka ili upita
+Claude AI je korišten kao podrška pri generisanju ASP.NET Core API ruta za upravljanje sesijama u SessionController, te kreiranju nove API putanje u UserController koja omogućava filtriranje korisnika po ulozi (role) radi popunjavanja frontend dropdown menija.
+
+### Šta je AI predložio ili generisao
+- Strukturu SessionsController sa individualnim atributima na svakoj akciji umjesto globalne polise.
+- Novu metodu u UserService (GetUsersByRoleAsync) koja filtrira korisnike na osnovu uloge.
+- Novu rutu u UserController (/api/users/by-role) sa [FromQuery] parametrom za dinamičko filtriranje.
+
+### Šta je tim prihvatio
+- Sve predložene ispravke.
+- Dodavanje nove metode u servisni sloj umjesto modifikacije postojećih GetAll metoda.
+- Korištenje fiksne rute /api/users/by-role radi konzistentnosti sa ostatkom API-ja.
+
+### Šta je tim izmijenio
+- Nazivi DTO objekata usklađeni sa postojećom šemom u projektu
+
+### Šta je tim odbacio
+- Prvobitni prijedlog korištenja [Allow Anonymus] na nivou cijelog kontrolera; odlučeno je da se svaka ruta štiti pojedinačno radi veće sigurnosti.
+- Prijedlog filtriranja direktno u repozitoriju (DAL sloj) je odložen za kasniju optimizaciju, trenutno se koristi filtriranje u servisu zbog manje količine podataka.
+
+### Rizici, problemi ili greške koje su uočene
+- Build greške zbog sintaksnih problema zahtijevale su ručnu intervenciju
+- Potrebno je osigurati da se role u bazi (mala slova) podudara sa onim što frontend šalje u query stringu.
 ---
   
 *Dokument se ažurira tokom trajanja projekta. Svaki novi slučaj korištenja AI dodaje se kao novi unos.*
