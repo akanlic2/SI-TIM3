@@ -15,14 +15,14 @@
 | **Ko je koristio alat** | Ajdin Kanlić |
 
 ### Svrha korištenja
-Konsultacija oko planiranja entiteta za prvi sprint — odluka šta modelirati odmah, a šta odložiti.
+Konsultacija oko planiranja entiteta za prvi sprint - odluka šta modelirati odmah, a šta odložiti.
 
 ### Kratak opis zadatka ili upita
 
-> *"Hej, hajde ovako — posto je ovo tek prvi inkrement, a u ovom sprintu zelimo samo da ispunimo osnovne stvari oko registracije i login-a, mozda bi najbolje bilo da sada samo odradimo User entitet da bude kvalitetan, a kasnije cemo ostale kada budu zatrebali. Posto smo u timu od 8 ljudi smatram da ce to biti puno bolja kontrola i znat ce se tacno sta kada u kojem trenutku treba."*
+> *"Hej, hajde ovako - posto je ovo tek prvi inkrement, a u ovom sprintu zelimo samo da ispunimo osnovne stvari oko registracije i login-a, mozda bi najbolje bilo da sada samo odradimo User entitet da bude kvalitetan, a kasnije cemo ostale kada budu zatrebali. Posto smo u timu od 8 ljudi smatram da ce to biti puno bolja kontrola i znat ce se tacno sta kada u kojem trenutku treba."*
 
 ### Šta je AI predložio ili generisao
-- Potvrdio pristup — fokus na `User` entitetu u prvom sprintu je u skladu sa incremental delivery principima
+- Potvrdio pristup - fokus na `User` entitetu u prvom sprintu je u skladu sa incremental delivery principima
 - Predložio strukturu `User` entiteta sa atributima: `id`, `username`, `email`, `passwordHash`, `role`, `createdAt`, `updatedAt`
 - Preporučio da se odmah razmisli o `role` polju (enum: `ADMIN`, `USER`) kako bi se izbjegao refactoring kada autorizacija bude potrebna
 - Napomenuo da `passwordHash` treba čuvati hashovan (npr. bcrypt), nikad plain text
@@ -40,7 +40,7 @@ Konsultacija oko planiranja entiteta za prvi sprint — odluka šta modelirati o
 - Naprednije prijedloge (`lastLoginAt`, `profilePicture`) odloženi za kasniji sprint kao neeesencijalni za registraciju/login
 
 ### Rizici, problemi ili greške koje su uočene
-- Bez posebnih rizika — AI je korišten kao sounding board za potvrdu već formiranog razmišljanja, a konačna odluka je donijeta od strane tima
+- Bez posebnih rizika - AI je korišten kao sounding board za potvrdu već formiranog razmišljanja, a konačna odluka je donijeta od strane tima
 
 ---
 
@@ -81,7 +81,7 @@ Tražena je pomoć u kreiranju `docker-compose` konfiguracije koja objedinjuje f
 - Predložena produkcijska konfiguracija (fokus je bio na razvojnom okruženju)
 
 ### Rizici, problemi ili greške koje su uočene
-- Generisana konfiguracija koristila je `latest` image verzije — potencijalni rizik za reproducibilnost builda, ručno ispravljeno
+- Generisana konfiguracija koristila je `latest` image verzije - potencijalni rizik za reproducibilnost builda, ručno ispravljeno
 - Sve konfiguracije testirane lokalno prije commita
 
 ---
@@ -102,8 +102,8 @@ Generisanje unit i integracionih testova za frontend i backend dio aplikacije.
 Traženo je od Copilota da na osnovu postojećeg koda napiše testove za frontend komponente (registracija i login forme) i backend logiku (autentifikacija, validacija korisničkih podataka, endpoint-i).
  
 ### Šta je AI predložio ili generisao
-- Unit testove za frontend komponente (`LoginForm`, `RegisterForm`) koristeći Jest i React Testing Library — provjera renderovanja, validacije inputa i ponašanja pri submitu
-- Backend unit testove za `UserService` — provjera registracije, login logike i hash-ovanja lozinke
+- Unit testove za frontend komponente (`LoginForm`, `RegisterForm`) koristeći Jest i React Testing Library - provjera renderovanja, validacije inputa i ponašanja pri submitu
+- Backend unit testove za `UserService` - provjera registracije, login logike i hash-ovanja lozinke
 - Integracione testove za REST endpoint-e (`POST /auth/register`, `POST /auth/login`) sa mock bazom podataka
 - Test case-ove za granične situacije: dupli email, pogrešna lozinka, nepostojeći korisnik, prazna polja
 ### Šta je tim prihvatio
@@ -119,7 +119,7 @@ Traženo je od Copilota da na osnovu postojećeg koda napiše testove za fronten
 - Dio generisanih integracionih testova koji su bili previše kompleksni za trenutnu fazu i pretpostavljali funkcionalnosti koje još nisu implementirane
 - Određeni test case-ovi koji su duplicirali logiku bez dodane vrijednosti
 ### Rizici, problemi ili greške koje su uočene
-- Copilot je na nekoliko mjesta generisao testove koji su prolazili, ali nisu testirali pravu stvar (lažno pozitivni rezultati) — zahtijevalo je pažljiv code review
+- Copilot je na nekoliko mjesta generisao testove koji su prolazili, ali nisu testirali pravu stvar (lažno pozitivni rezultati) - zahtijevalo je pažljiv code review
 - Generisani mock-ovi nisu uvijek reflektirali stvarno ponašanje baze podataka, što je moglo dati lažan osjećaj sigurnosti
 - Sve generisane testove pregledao i validirao developer prije nego su uključeni u codebase
 ---
@@ -237,7 +237,7 @@ Copilot je korišten kao podrška pri razvoju i implementaciji endpointa POST/co
 - Prilagođeni nazivi klasa i fajlova prema postojećim konvencijama projekta
 
 ### Rizici, problemi ili greške koje su uočene
-- Copilot je kreirao duplikat IConferenceRepository interfejsa u pogrešnom sloju — ručno obrisano
+- Copilot je kreirao duplikat IConferenceRepository interfejsa u pogrešnom sloju - ručno obrisano
 
 ---
 
@@ -392,6 +392,48 @@ Claude AI je korišten za pomoć pri generisanju SSH komandi, konfiguraciji pris
 
 ### Rizici, problemi ili greške koje su uočene
 - Nisu uočeni rizici
+
+
+## Unos #11
+
+| Polje | Detalji |
+| --- | --- |
+| **Datum** | 10.05.2026. |
+| **Sprint broj** | Sprint 7 |
+| **Alat** | Claude AI |
+| **Ko je koristio alat** | Lamija Dženetić |
+
+### Svrha korištenja
+Pomoć pri implementaciji frontenda za upravljanje sesijama konferencije.
+
+### Kratak opis zadatka ili upita
+Claude AI je korišten kao konsultant i debugger tokom razvoja session modula na frontendu. Uključivalo je i debuggovanje build grešaka, ispravljanje DateTime problema sa PostgreSQL-om i rješavanje prefill problema edit forme.
+
+### Šta je AI predložio ili generisao
+- Rješenje za MISSING_EXPORT grešku (fetchUsers nije bio exportovan iz sessionApi.ts)
+- Ispravljanje DateTime UTC greške - konverzija datuma u ISO format prije slanja na backend
+- Ispravljanje datetime-local input format greške (.toISOString().slice(0, 16))
+- Dijagnozu i rješenje za 400 Bad Request na PUT /api/sessions (DateTime Kind=Unspecified)
+- Ispravljanje JSX sintaksne greške - modal van return bloka (dodavanje React Fragment)
+- Rješenje za prefill predavača u edit formi - čekanje na učitavanje users liste (users.length > 0)
+- Dijagnozu da backend SessionListDTO ne vraća roomId, roomName, speakerName, assignedSpeakerId
+
+### Šta je tim prihvatio
+- Sve predložene ispravke grešaka
+- Proširenje SessionListDTO sa nedostajućim poljima
+- Logiku prefilla edit forme sa uvjetom users.length > 0
+
+### Šta je tim izmijenio
+- Nazivi varijabli i funkcija usklađeni sa konvencijom projekta
+- Prilagođeni endpointi prema stvarnoj backend strukturi projekta
+
+### Šta je tim odbacio
+- Određene prijedloge za refaktoring postojećeg koda koji nisu bili neophodni
+
+### Rizici, problemi ili greške koje su uočene
+- Build greške zbog sintaksnih problema zahtijevale su ručnu intervenciju
+
+
 
 
 ---
