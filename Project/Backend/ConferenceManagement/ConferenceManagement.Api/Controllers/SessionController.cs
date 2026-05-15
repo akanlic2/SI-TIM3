@@ -44,7 +44,7 @@ public class SessionsController : ControllerBase
     {
         var result = await _sessionService.CreateSessionAsync(dto);
         if (result == null)
-            return BadRequest(new { error = "U ovom terminu već postoji sesija. Odaberite drugi termin." });
+            return BadRequest(new { error = "Termin je zauzet u ovoj dvorani. Odaberite drugi termin ili drugu salu." });
 
         return Ok(result);
     }
@@ -55,7 +55,7 @@ public class SessionsController : ControllerBase
     {
         var success = await _sessionService.UpdateSessionAsync(id, dto);
         if (!success)
-            return BadRequest(new { error = "Nije moguće ažurirati sesiju." });
+            return BadRequest(new { error = "Termin je zauzet u ovoj dvorani. Odaberite drugi termin ili drugu salu." });
 
         return NoContent();
     }
@@ -78,7 +78,7 @@ public class SessionsController : ControllerBase
         var result = await _sessionService.AssignSpeakerAsync(id, dto.UserId);
         if (!result)
         {
-            return BadRequest(new { error = "Greška: Sesija ne postoji ili korisnik nema rolu 'predavac'." });
+            return BadRequest(new { error = "Greška: Korisnik nema rolu 'predavac'." });
         }
         return Ok(new { message = "Predavač uspješno dodijeljen sesiji." });
     }

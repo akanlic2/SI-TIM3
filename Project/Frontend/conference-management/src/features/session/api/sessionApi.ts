@@ -16,7 +16,8 @@ export async function fetchSessions(conferenceId: string): Promise<Session[]> {
 
 export async function fetchRegisteredSessions(): Promise<Session[]> {
   try {
-    const response = await axios.get<Session[]>(`${BASE_URL}/api/Sessions/registered`);
+    // ISPRAVLJENO: 'sessions' umjesto 'Sessions' radi Docker case-sensitivity-ja
+    const response = await axios.get<Session[]>(`${BASE_URL}/api/sessions/registered`);
     return response.data;
   } catch (error) {
     console.error('Greška pri dohvatanju registrovanih sesija:', error);
@@ -67,30 +68,52 @@ export async function cancelSessionRegistration(registrationId: string): Promise
   }
 }
 
-export async function createSession(sessionData: CreateSessionData): Promise<{ sessionId: string } | null> {
+export async function createSession(sessionData: CreateSessionData): Promise<any> {
   try {
     const payload = {
       ...sessionData,
       startTime: new Date(sessionData.startTime).toISOString(),
       endTime: new Date(sessionData.endTime).toISOString(),
     };
-    const response = await axios.post<string>(`${BASE_URL}/api/sessions`, payload);
-    return { sessionId: response.data };
+    
+    // ISPRAVLJENO: Očekujemo objekat sesije nazad, a ne čisti string
+    const response = await axios.post(`${BASE_URL}/api/sessions`, payload);
+    return response.data;
   } catch (error) {
+    // ISPRAVLJENO: Pametno prosljeđivanje { error: "poruka" } objekta prema formi
     if (axios.isAxiosError(error) && error.response?.data) {
-      throw new Error(error.response.data);
+      throw error; // Prosljeđujemo cijeli error objekt da ga forma može parsirati kroz .response.data.error
     }
     throw new Error('Greška pri kreiranju sesije');
   }
 }
 
 export async function updateSession(id: string, sessionData: UpdateSessionData): Promise<void> {
-  const payload = {
-    ...sessionData,
-    startTime: new Date(sessionData.startTime).toISOString(),
-    endTime: new Date(sessionData.endTime).toISOString(),
-  };
-  await axios.put(`${BASE_URL}/api/sessions/${id}`, payload);
+  try {
+    const payload = {
+      ...sessionData,
+      startTime: new Date(sessionData.startTime).toISOString(),
+      endTime: new Date(sessionData.endTime).toISOString(),
+    };
+    await axios.put(`${BASE_URL}/api/sessions/${id}`, payload);
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.data) {
+      throw error;
+    }
+    throw new Error('Greška pri ažuriranju sesije');
+  }
+}
+
+// --- NOVO: DODANA FUNKCIJA ZA DODJELU DVORANE SESIJI ---
+export async function assignRoomToSession(sessionId: string, roomId: string): Promise<void> {
+  try {
+    await axios.put(`${BASE_URL}/api/sessions/${sessionId}/room`, { roomId });
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.data) {
+      throw error;
+    }
+    throw new Error('Greška pri dodjeli dvorane sesiji.');
+  }
 }
 
 export async function deleteSession(id: string): Promise<void> {
@@ -98,7 +121,14 @@ export async function deleteSession(id: string): Promise<void> {
 }
 
 export async function assignSpeaker(sessionId: string, speakerData: AssignSpeakerData): Promise<void> {
-  await axios.put(`${BASE_URL}/api/sessions/${sessionId}/assign-speaker`, speakerData);
+  try {
+    await axios.put(`${BASE_URL}/api/sessions/${sessionId}/assign-speaker`, speakerData);
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.data) {
+      throw error;
+    }
+    throw new Error('Greška pri dodjeli predavača.');
+  }
 }
 
 export async function fetchSessionById(id: string): Promise<Session | null> {
@@ -110,6 +140,7 @@ export async function fetchSessionById(id: string): Promise<Session | null> {
     return null;
   }
 }
+
 export async function fetchUsers(): Promise<User[]> {
   try {
     const token = localStorage.getItem('auth_token');
