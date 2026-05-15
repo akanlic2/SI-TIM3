@@ -1,5 +1,7 @@
 ﻿using ConferenceManagement.Application.DTOs.Conference;
 using ConferenceManagement.Application.Interfaces;
+using ConferenceManagement.Application.Services;
+using ConferenceManagement.Domain.Abstractions.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,10 +12,17 @@ namespace ConferenceManagement.Api.Controllers;
 public class ConferenceCapacityController : ControllerBase
 {
     private readonly IConferenceCapacityService _capacityService;
+    private readonly IUserContextService _userContextService;
+    private readonly IConferenceRepository _conferenceRepository;
 
-    public ConferenceCapacityController(IConferenceCapacityService capacityService)
+    public ConferenceCapacityController(
+        IConferenceCapacityService capacityService,
+        IUserContextService userContextService,
+        IConferenceRepository conferenceRepository)
     {
         _capacityService = capacityService;
+        _userContextService = userContextService;
+        _conferenceRepository = conferenceRepository;
     }
 
     [HttpGet("{id:guid}/capacity")]
@@ -23,6 +32,16 @@ public class ConferenceCapacityController : ControllerBase
     {
         try
         {
+            if (_userContextService.HasRole("organizer") && !_userContextService.HasRole("admin"))
+            {
+                var conference = await _conferenceRepository.GetByIdWithOrganizersAsync(id, cancellationToken);
+                if (conference == null) return NotFound(new { Message = "Konferencija nije pronađena." });
+
+                var userId = Guid.Parse(_userContextService.GetUserId());
+                var isOrganizer = conference.Organizers.Any(o => o.UserId == userId);
+                if (!isOrganizer) return Forbid();
+            }
+
             var result = await _capacityService.GetConferenceCapacityAsync(id, cancellationToken);
             return Ok(result);
         }
@@ -42,6 +61,16 @@ public class ConferenceCapacityController : ControllerBase
     {
         try
         {
+            if (_userContextService.HasRole("organizer") && !_userContextService.HasRole("admin"))
+            {
+                var conference = await _conferenceRepository.GetByIdWithOrganizersAsync(id, cancellationToken);
+                if (conference == null) return NotFound(new { Message = "Konferencija nije pronađena." });
+
+                var userId = Guid.Parse(_userContextService.GetUserId());
+                var isOrganizer = conference.Organizers.Any(o => o.UserId == userId);
+                if (!isOrganizer) return Forbid();
+            }
+
             var result = await _capacityService.GetConferenceParticipantsAsync(id, search, status, cancellationToken);
             return Ok(result);
         }
