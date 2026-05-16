@@ -12,6 +12,7 @@ public class ConferenceServiceTests
     private readonly Mock<IConferenceRepository> _repositoryMock;
     private readonly Mock<IConferenceRegistrationRepository> _conferenceRegistrationRepositoryMock;
     private readonly Mock<IUserContextService> _userContextMock;
+    private readonly Mock<IUserRepository> _userRepositoryMock;
     private readonly ConferenceService _service;
 
     private static Conference ActiveConference => new()
@@ -45,12 +46,14 @@ public class ConferenceServiceTests
         _repositoryMock = new Mock<IConferenceRepository>();
         _conferenceRegistrationRepositoryMock = new Mock<IConferenceRegistrationRepository>();
         _userContextMock = new Mock<IUserContextService>();
+        _userRepositoryMock = new Mock<IUserRepository>();  
 
         // Servis sada prima oba dependency-a kako zahtijeva tvoj kod
         _service = new ConferenceService(
             _repositoryMock.Object,
             _conferenceRegistrationRepositoryMock.Object,
-            _userContextMock.Object);
+            _userContextMock.Object,
+            _userRepositoryMock.Object);
     }
 
     // ===================== GET & AUTHORIZATION (Tvoji testovi) =====================
