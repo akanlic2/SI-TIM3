@@ -4,22 +4,24 @@ import type { Conference } from '../features/conference/types'
 import { useAuth } from '../auth/AuthProvider'
 import '../features/conference/ConferencesPage.css'
  
-interface RegistrationUser {
+/*interface RegistrationUser {
   firstName?: string
   lastName?: string
   email?: string
-}
+}*/
  
 interface ConferenceRegistrationUser {
   conferenceRegistrationId: string
   userId: string
   registrationDate: string
   registrationStatus: string
-  user: RegistrationUser
+  firstName?: string
+  lastName?: string
+  email?: string
 }
  
 interface CapacityData {
-  registered: number
+  registeredCount: number
   maxParticipants: number
   availableSpots: number
   isFull: boolean
@@ -33,6 +35,7 @@ export default function ConferenceDetailsPage() {
   const [isLoadingRegistrations, setIsLoadingRegistrations] = useState(false)
   const [registrationsError, setRegistrationsError] = useState<string | null>(null)
   const [capacity, setCapacity] = useState<CapacityData | null>(null)
+  const [isOwner, setIsOwner] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [sortKey, setSortKey] = useState<'firstName' | 'lastName' | 'email' | 'registrationDate' | 'registrationStatus'>(
@@ -66,34 +69,36 @@ export default function ConferenceDetailsPage() {
         if (!response.ok) throw new Error()
         return response.json()
       })
-      .then((data) => setCapacity(data))
-      .catch(() => setCapacity(null))
+      .then((data) => {
+      setCapacity(data)
+      setIsOwner(true)
+})
+.catch(() => setCapacity(null))
   }, [id, canSeeCapacity, token])
  
   useEffect(() => {
-    if (!token || !canSeeCapacity || !id) return
- 
-    setIsLoadingRegistrations(true)
-    setRegistrationsError(null)
- 
-    fetch(`/api/conferences/${id}/participants`, {
-      headers: { Authorization: `Bearer ${token}` },
+  if (!token || !canSeeCapacity || !id) return
+
+  setIsLoadingRegistrations(true)
+  setRegistrationsError(null)
+
+  fetch(`/api/conferences/${id}/participants`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+    .then((response) => {
+      if (response.status === 403) return null
+      if (!response.ok) throw new Error('Greška pri dohvatanju prijava.')
+      return response.json()
     })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Greška pri dohvatanju prijava.')
-        }
-        return response.json()
-      })
-      .then((data) => {
-        setRegistrations(Array.isArray(data) ? data : [])
-      })
-      .catch((error) => {
-        const message = error instanceof Error ? error.message : 'Greška pri dohvatanju prijava.'
-        setRegistrationsError(message)
-      })
-      .finally(() => setIsLoadingRegistrations(false))
-  }, [id, canSeeCapacity, token])
+    .then((data) => {
+      if (data !== null) setRegistrations(Array.isArray(data) ? data : [])
+    })
+    .catch((error) => {
+      const message = error instanceof Error ? error.message : 'Greška pri dohvatanju prijava.'
+      setRegistrationsError(message)
+    })
+    .finally(() => setIsLoadingRegistrations(false))
+}, [id, canSeeCapacity, token])
  
   const goBack = () => {
     window.history.pushState({}, '', '/conferences')
@@ -135,9 +140,9 @@ export default function ConferenceDetailsPage() {
     if (statusFilter && registration.registrationStatus !== statusFilter) return false
     if (!normalizedSearch) return true
  
-    const firstName = registration.user?.firstName?.toLowerCase() ?? ''
-    const lastName = registration.user?.lastName?.toLowerCase() ?? ''
-    const email = registration.user?.email?.toLowerCase() ?? ''
+    const firstName = registration.firstName?.toLowerCase() ?? ''
+    const lastName = registration.lastName?.toLowerCase() ?? ''
+    const email = registration.email?.toLowerCase() ?? ''
     const fullName = `${firstName} ${lastName}`.trim()
  
     return (
@@ -151,9 +156,9 @@ export default function ConferenceDetailsPage() {
   const sortedRegistrations = [...filteredRegistrations].sort((a, b) => {
     const getValue = (item: ConferenceRegistrationUser) => {
       switch (sortKey) {
-        case 'firstName': return item.user?.firstName ?? ''
-        case 'lastName': return item.user?.lastName ?? ''
-        case 'email': return item.user?.email ?? ''
+        case 'firstName': return item.firstName ?? ''
+        case 'lastName': return item.lastName ?? ''
+        case 'email': return item.email ?? ''
         case 'registrationStatus': return item.registrationStatus ?? ''
         case 'registrationDate':
         default: return item.registrationDate ?? ''
@@ -185,8 +190,8 @@ export default function ConferenceDetailsPage() {
   }
  
   const capacityPercent = capacity
-    ? Math.round((capacity.registered / capacity.maxParticipants) * 100)
-    : 0
+  ? Math.round((capacity.registeredCount / capacity.maxParticipants) * 100)
+  : 0
  
   return (
     <main className="conferences-page">
@@ -242,7 +247,7 @@ export default function ConferenceDetailsPage() {
             <div className="capacity-grid">
               <div className="capacity-card">
                 <span className="capacity-label">Prijavljenih</span>
-                <span className="capacity-value">{capacity.registered}</span>
+                <span className="capacity-value">{capacity.registeredCount}</span>
               </div>
               <div className="capacity-card">
                 <span className="capacity-label">Maksimum</span>
@@ -284,7 +289,7 @@ export default function ConferenceDetailsPage() {
         )}
  
         {/* LISTA UČESNIKA — vidljiva adminu i organizatoru */}
-        {canSeeCapacity && (
+        {canSeeCapacity && (isAdmin || isOwner) && (
           <div className="section-block" style={{ marginTop: '24px' }}>
             <div className="section-header">
               <h2 className="section-title">Prijavljeni učesnici</h2>
@@ -346,9 +351,9 @@ export default function ConferenceDetailsPage() {
                   </div>
                   {sortedRegistrations.map((registration) => (
                     <div key={registration.conferenceRegistrationId} className="table-row">
-                      <span className="table-title">{registration.user?.firstName ?? '—'}</span>
-                      <span className="table-location">{registration.user?.lastName ?? '—'}</span>
-                      <span className="table-date">{registration.user?.email ?? '—'}</span>
+                      <span className="table-title">{registration.firstName ?? '—'}</span>
+                      <span className="table-location">{registration.lastName ?? '—'}</span>
+                      <span className="table-date">{registration.email ?? '—'}</span>
                       <span className="table-date">
                         {new Date(registration.registrationDate).toLocaleString('bs-BA')}
                       </span>

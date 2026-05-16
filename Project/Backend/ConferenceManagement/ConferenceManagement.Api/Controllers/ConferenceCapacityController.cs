@@ -32,13 +32,23 @@ public class ConferenceCapacityController : ControllerBase
     {
         try
         {
-            if (_userContextService.HasRole("organizer") && !_userContextService.HasRole("admin"))
+            Console.WriteLine($"=== DEBUG CAPACITY ===");
+            Console.WriteLine($"Role korisnika: {string.Join(", ", _userContextService.GetUserRoles())}");
+            Console.WriteLine($"HasRole organizator: {_userContextService.HasRole("organizator")}");
+            Console.WriteLine($"HasRole admin-sistema: {_userContextService.HasRole("admin-sistema")}");
+
+            if (_userContextService.HasRole("organizator") && !_userContextService.HasRole("admin-sistema"))
             {
                 var conference = await _conferenceRepository.GetByIdWithOrganizersAsync(id, cancellationToken);
                 if (conference == null) return NotFound(new { Message = "Konferencija nije pronađena." });
 
                 var userId = Guid.Parse(_userContextService.GetUserId());
                 var isOrganizer = conference.Organizers.Any(o => o.UserId == userId);
+
+                Console.WriteLine($"UserId iz tokena: {userId}");
+                Console.WriteLine($"Organizers u konferenciji: {string.Join(", ", conference.Organizers.Select(o => o.UserId))}");
+                Console.WriteLine($"isOrganizer: {isOrganizer}");
+
                 if (!isOrganizer) return Forbid();
             }
 
@@ -61,13 +71,23 @@ public class ConferenceCapacityController : ControllerBase
     {
         try
         {
-            if (_userContextService.HasRole("organizer") && !_userContextService.HasRole("admin"))
+            Console.WriteLine($"=== DEBUG PARTICIPANTS ===");
+            Console.WriteLine($"Role korisnika: {string.Join(", ", _userContextService.GetUserRoles())}");
+            Console.WriteLine($"HasRole organizator: {_userContextService.HasRole("organizator")}");
+            Console.WriteLine($"HasRole admin-sistema: {_userContextService.HasRole("admin-sistema")}");
+
+            if (_userContextService.HasRole("organizator") && !_userContextService.HasRole("admin-sistema"))
             {
                 var conference = await _conferenceRepository.GetByIdWithOrganizersAsync(id, cancellationToken);
                 if (conference == null) return NotFound(new { Message = "Konferencija nije pronađena." });
 
                 var userId = Guid.Parse(_userContextService.GetUserId());
                 var isOrganizer = conference.Organizers.Any(o => o.UserId == userId);
+
+                Console.WriteLine($"UserId iz tokena: {userId}");
+                Console.WriteLine($"Organizers u konferenciji: {string.Join(", ", conference.Organizers.Select(o => o.UserId))}");
+                Console.WriteLine($"isOrganizer: {isOrganizer}");
+
                 if (!isOrganizer) return Forbid();
             }
 
