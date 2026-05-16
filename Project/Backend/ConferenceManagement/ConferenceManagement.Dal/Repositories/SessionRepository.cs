@@ -48,4 +48,10 @@ public class SessionRepository : ISessionRepository
             .ToListAsync();
     }
     public async Task SaveChangesAsync() => await _context.SaveChangesAsync();
+
+    public async Task<Session?> GetByIdWithRegistrationsAsync(Guid id) =>
+    await _context.Sessions
+        .Include(s => s.SessionRegistrations)
+        .Include(s => s.Conference)
+        .FirstOrDefaultAsync(s => s.SessionId == id);
 }

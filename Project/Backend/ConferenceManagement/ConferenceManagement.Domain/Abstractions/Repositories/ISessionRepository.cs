@@ -13,4 +13,6 @@ public interface ISessionRepository
     Task<IEnumerable<Session>> GetSessionsByConferenceIdAsync(Guid conferenceId);
 
     Task<bool> CheckOverlapAsync(Guid roomId, DateTime start, DateTime end, Guid? excludeSessionId = null);
+
+    Task<Session?> GetByIdWithRegistrationsAsync(Guid id);
 }

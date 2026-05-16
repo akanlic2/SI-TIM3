@@ -1,4 +1,5 @@
 ﻿using ConferenceManagement.Application.DTOs;
+using ConferenceManagement.Application.DTOs.Conference;
 using ConferenceManagement.Application.DTOs.Room;
 using ConferenceManagement.Application.DTOs.Session;
 using ConferenceManagement.Application.Interfaces;
@@ -14,11 +15,13 @@ namespace ConferenceManagement.Api.Controllers;
 public class SessionsController : ControllerBase
 {
     private readonly ISessionService _sessionService;
-    private readonly ApplicationDbContext _context; 
+    private readonly IConferenceCapacityService _capacityService;
+    private readonly ApplicationDbContext _context;
 
-    public SessionsController(ISessionService sessionService, ApplicationDbContext context)
+    public SessionsController(ISessionService sessionService, IConferenceCapacityService capacityService, ApplicationDbContext context)
     {
         _sessionService = sessionService;
+        _capacityService = capacityService;
         _context = context;
     }
 
@@ -120,6 +123,22 @@ public class SessionsController : ControllerBase
         catch (Exception ex)
         {
             return StatusCode(500, new { error = "Greška pri dodjeli dvorane.", details = ex.Message });
+        }
+    }
+
+    [HttpGet("{id:guid}/capacity")]
+    [Authorize(Policy = "AdminOrOrganizerPolicy")]
+    public async Task<ActionResult<CapacityDto>> GetSessionCapacity(
+        Guid id, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var result = await _capacityService.GetSessionCapacityAsync(id, cancellationToken);
+            return Ok(result);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { Message = ex.Message });
         }
     }
 }

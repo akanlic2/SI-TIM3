@@ -89,4 +89,10 @@ public class ConferenceRepository : GenericRepository<Conference>, IConferenceRe
 
         return (items, totalCount);
     }
+    public async Task<Conference?> GetByIdWithOrganizersAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await _dbSet
+            .Include(c => c.Organizers)
+            .FirstOrDefaultAsync(c => c.ConferenceId == id, cancellationToken);
+    }
 }

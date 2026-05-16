@@ -98,6 +98,8 @@ builder.Services.AddAuthorizationBuilder()
     .AddPolicy("ParticipantPolicy", policy =>
         policy.RequireAuthenticatedUser());
 
+builder.Services.AddScoped<IConferenceCapacityService, ConferenceCapacityService>();
+
 var app = builder.Build();
 
 var runMigrationsOnly = builder.Configuration.GetValue<bool>("RUN_MIGRATIONS_ONLY");

@@ -19,4 +19,6 @@ public interface IConferenceRepository : IGenericRepository<Conference>
     string? status,
     bool includeInactiveAndDraft,
     CancellationToken cancellationToken = default);
+
+    Task<Conference?> GetByIdWithOrganizersAsync(Guid id, CancellationToken cancellationToken = default);
 }
