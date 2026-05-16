@@ -17,7 +17,7 @@ describe('SessionForm', () => {
     vi.clearAllMocks()
 
     vi.spyOn(axios, 'get').mockResolvedValue({
-      data: [{ id: '11111111-1111-1111-1111-111111111111', name: 'Sala A' }]
+      data: [{ roomId: '11111111-1111-1111-1111-111111111111', name: 'Sala A' }]
     })
 
     vi.mocked(sessionApi.fetchUsers).mockResolvedValue([
