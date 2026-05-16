@@ -10,22 +10,28 @@ public static class RoomSeeder
         var seedRooms = new List<Room>
         {
             new Room
-            {
+{
                 RoomId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
                 Name = "Amfiteatar 1",
-                Capacity = 150
+                Capacity = 150,
+                Location = "ETF Sarajevo",
+                Description = "Glavni amfiteatar"
             },
             new Room
             {
                 RoomId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
                 Name = "Sala 203 (Lab)",
-                Capacity = 30
+                Capacity = 30,
+                Location = "ETF Sarajevo",
+                Description = "Laboratorijska sala sa računarima"
             },
             new Room
             {
                 RoomId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
                 Name = "Konferencijska Sala A",
-                Capacity = 50
+                Capacity = 50,
+                Location = "Hotel Hills",
+                Description = "Sala za manje konferencije i radionice"
             }
         };
 
@@ -33,12 +39,10 @@ public static class RoomSeeder
 
         foreach (var room in seedRooms)
         {
-            // Provjeravamo da li sala sa tim imenom već postoji da izbjegnemo duplikate
-            var roomExists = await context.Rooms
-                .Where(r => r.Name == room.Name)
-                .FirstOrDefaultAsync(cancellationToken);
+            var exists = await context.Rooms
+                .AnyAsync(r => r.RoomId == room.RoomId, cancellationToken);
 
-            if (roomExists == null)
+            if (!exists)
             {
                 roomsToAdd.Add(room);
             }
