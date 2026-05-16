@@ -73,6 +73,9 @@ export default function DashboardPage() {
 
   const roles = user?.role ? [user.role] : [];
   const isAdmin = roles.some((role) => role.toLowerCase().includes('admin'));
+  const isAdminOrOrganizer = roles.some(
+    (role) => role.toLowerCase() === 'organizator' || role.toLowerCase().includes('admin')
+  );
   const isParticipant = roles.some((role) => role.toLowerCase().includes('ucesnik'));
 
   // ─── Dohvat konferencija ───────────────────────────────────────────────────
@@ -183,6 +186,7 @@ export default function DashboardPage() {
           {[
             { id: 'dashboard', icon: '⬡', label: 'Dashboard', path: '/dashboard' },
             { id: 'conferences', icon: '🗓', label: 'Konferencije', path: '/conferences' },
+            ...(isAdminOrOrganizer ? [{ id: 'rooms', icon: '🏟', label: 'Dvorane', path: '/rooms' }] : []),
             { id: 'speakers', icon: '🎙', label: 'Govornici' },
             { id: 'reports', icon: '📊', label: 'Izvještaji' },
             { id: 'settings', icon: '⚙', label: 'Postavke' },

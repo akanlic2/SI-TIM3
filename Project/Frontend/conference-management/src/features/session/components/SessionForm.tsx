@@ -1,8 +1,14 @@
 import { useState, useEffect } from 'react';
-import { createSession, updateSession, assignSpeaker } from '../api/sessionApi';
+import { createSession, updateSession, assignSpeaker, assignRoomToSession } from '../api/sessionApi';
 import axios from 'axios';
 import { useUsers } from '../hooks/useUsers';
 import type { Session, CreateSessionData } from '../types';
+
+interface Room {
+  roomId: string;
+  name: string;
+  location?: string;
+}
 
 interface SessionFormProps {
   conferenceId: string;
@@ -21,6 +27,11 @@ export function SessionForm({ conferenceId, editingSession, onSuccess, onCancel 
 
   const speakers = users.filter(user => user.role.toLowerCase() === 'predavac');
 
+  // Rooms state
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [isRoomsLoading, setIsRoomsLoading] = useState(false);
+  const [roomsError, setRoomsError] = useState<string | null>(null);
+
   const [formData, setFormData] = useState<CreateSessionData>({
     title: '',
     description: '',
@@ -33,6 +44,25 @@ export function SessionForm({ conferenceId, editingSession, onSuccess, onCancel 
 
   const [assignedSpeakerId, setAssignedSpeakerId] = useState<string>('');
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+
+  // Fetch rooms on component mount
+  useEffect(() => {
+    const fetchRooms = async () => {
+      setIsRoomsLoading(true);
+      setRoomsError(null);
+      try {
+        const response = await axios.get<Room[]>('/api/rooms');
+        setRooms(response.data);
+      } catch (error) {
+        console.error('Greška pri dohvatanju dvorana:', error);
+        setRoomsError('Greška pri učitavanju dvorana');
+      } finally {
+        setIsRoomsLoading(false);
+      }
+    };
+
+    void fetchRooms();
+  }, []);
 
   useEffect(() => {
     if (editingSession && users.length > 0) {
@@ -116,6 +146,7 @@ export function SessionForm({ conferenceId, editingSession, onSuccess, onCancel 
       let savedSessionId: string | null = null;
 
       if (editingSession) {
+        // Update existing session
         const updateData = {
           title: formData.title,
           description: formData.description,
@@ -124,29 +155,23 @@ export function SessionForm({ conferenceId, editingSession, onSuccess, onCancel 
           roomId: formData.roomId,
           sessionType: formData.sessionType,
         };
-
         await updateSession(editingSession.sessionId, updateData);
         savedSessionId = editingSession.sessionId;
       } else {
-        try {
-          const createdSession = await createSession(formData);
-          if (!createdSession) {
-            throw new Error('Neuspjelo kreiranje sesije');
-          }
-          savedSessionId = createdSession.sessionId;
-        } catch (error) {
-          if (axios.isAxiosError(error) && error.response?.data) {
-            setSubmitError(error.response.data);
-          } else if (error instanceof Error) {
-            setSubmitError(error.message);
-          } else {
-            setSubmitError('Greška pri kreiranju sesije.');
-          }
-          setIsSubmitting(false);
-          return;
+        // Create new session
+        const createdSession = await createSession(formData);
+        if (!createdSession) {
+          throw new Error('Neuspjelo kreiranje sesije');
+        }
+        savedSessionId = createdSession.sessionId;
+        
+        // Assign room to new session
+        if (savedSessionId) {
+          await assignRoomToSession(savedSessionId, formData.roomId);
         }
       }
 
+      // Assign speaker if selected
       if (assignedSpeakerId && savedSessionId) {
         await assignSpeaker(savedSessionId, { userId: assignedSpeakerId });
       }
@@ -154,7 +179,15 @@ export function SessionForm({ conferenceId, editingSession, onSuccess, onCancel 
       onSuccess();
     } catch (error) {
       console.error('Greška pri spremanju sesije:', error);
-      setSubmitError('Greška pri spremanju sesije. Pokušajte ponovno.');
+      
+      // Check if it's an axios error with backend error message
+      if (axios.isAxiosError(error) && error.response?.data?.error) {
+        setSubmitError(error.response.data.error);
+      } else if (error instanceof Error) {
+        setSubmitError(error.message);
+      } else {
+        setSubmitError('Greška pri spremanju sesije. Pokušajte ponovno.');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -245,15 +278,21 @@ export function SessionForm({ conferenceId, editingSession, onSuccess, onCancel 
           className={`form-select ${validationErrors.roomId ? 'border-red-500 bg-red-500/10' : ''}`}
           value={formData.roomId}
           onChange={(e) => setFormData({ ...formData, roomId: e.target.value })}
+          disabled={isRoomsLoading}
           required
         >
           <option value="">Odaberite salu</option>
-          <option value="11111111-1111-1111-1111-111111111111">Amfiteatar 1</option>
-          <option value="22222222-2222-2222-2222-222222222222">Sala 203 (Lab)</option>
-          <option value="33333333-3333-3333-3333-333333333333">Konferencijska Sala A</option>
+          {rooms.map((room) => (
+            <option key={room.roomId} value={room.roomId}>
+              {room.name}
+            </option>
+          ))}
         </select>
         {validationErrors.roomId && (
           <p className="text-red-400 text-sm mt-1">{validationErrors.roomId}</p>
+        )}
+        {roomsError && (
+          <p className="text-red-400 text-sm mt-1">{roomsError}</p>
         )}
       </div>
 
