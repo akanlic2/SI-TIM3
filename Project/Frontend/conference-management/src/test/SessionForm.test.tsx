@@ -10,6 +10,7 @@ vi.mock('../features/session/api/sessionApi', () => ({
   updateSession: vi.fn(),
   assignSpeaker: vi.fn(),
   fetchUsers: vi.fn(),
+  assignRoomToSession: vi.fn(),
 }))
 
 describe('SessionForm', () => {
