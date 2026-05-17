@@ -226,3 +226,30 @@
 **Posljedice odluke:** Svi API pozivi se izvršavaju putem axios biblioteke. Bearer token se ručno dodaje u svaki zahtjev putem Authorization headera.
 
 **Status:** Aktivna
+
+---
+
+## DL-011 – Backend - Implementacija kapaciteta konferencije/sesije i liste učesnika (S41, S42)
+
+**Datum:** 18.05.2026.
+
+**Opis problema:** Trebalo je implementirati backend funkcionalnosti za pregled kapaciteta konferencije i sesije te listu učesnika sa pretragom i filtriranjem, uz odgovarajuću autorizaciju po rolama.
+
+**Razmatrane opcije:**
+- Dodavanje kapacitet i participant logike u postojeći ConferenceService
+- Kreiranje zasebnog servisa ConferenceCapacityService sa vlastitim interfejsom i controllerom
+
+**Odabrana opcija:** Zasebni ConferenceCapacityService sa IConferenceCapacityService interfejsom i ConferenceCapacityController controllerom.
+
+**Razlog izbora:** Single responsibility princip — kapacitet i lista učesnika su zasebne funkcionalnosti koje ne trebaju biti dio generalnog ConferenceService-a. Lakše testiranje i maintainability.
+
+**Posljedice odluke:** 
+- Novi controller ConferenceCapacityController opslužuje rute GET /api/conferences/:id/capacity i GET /api/conferences/:id/participants
+- Session capacity endpoint dodan u postojeći SessionsController
+- Dodata metoda GetByIdWithRegistrationsAsync u ISessionRepository i SessionRepository
+- Servis registrovan u Program.cs kao scoped dependency
+- Autorizacija ograničena na AdminOrOrganizerPolicy za oba endpointa.
+
+**Status:** Aktivna
+
+---
