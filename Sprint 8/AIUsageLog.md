@@ -469,6 +469,77 @@ Claude AI je korišten kao podrška pri generisanju ASP.NET Core API ruta za upr
 - Build greške zbog sintaksnih problema zahtijevale su ručnu intervenciju
 - Potrebno je osigurati da se role u bazi (mala slova) podudara sa onim što frontend šalje u query stringu.
 
+## Unos #13
+
+| Polje | Detalji |
+|---|---|
+| **Datum** | 18.05.2026. |
+| **Sprint broj** | Sprint 8 |
+| **Alat** | Claude AI |
+| **Ko je koristio alat** | Emira Kurtović |
+
+### Svrha korištenja
+Konsultacije i pomoć oko popravke CI/CD pipeline-a.
+
+### Kratak opis zadatka ili upita
+
+> *"Korišten AI alat za pomoć pri shvatanju uzroka pada CI/CD i popravke istog."*
+
+### Šta je AI predložio ili generisao
+- Popravka testnog fajla
+- Popravka fajla koji se testira
+  
+### Šta je tim prihvatio
+- Izmijena testnog fajla
+
+### Šta je tim izmijenio
+- Način izmijene
+  
+### Šta je tim odbacio
+- Popravku fajla koji se testira
+
+### Rizici, problemi ili greške koje su uočene
+- Čest pad testova na CI/CD.
+
+## Unos #14
+
+| Polje | Detalji |
+|---|---|
+| **Datum** | 18.05.2026. |
+| **Sprint broj** | Sprint 8 |
+| **Alat** | Claude AI |
+| **Ko je koristio alat** | Emira Kurtović |
+
+### Svrha korištenja
+Konsultacije i pomoć oko implementacije backend taskova S41 i S42 — pregled kapaciteta konferencije/sesije i lista učesnika.
+
+### Kratak opis zadatka ili upita
+
+Korišten AI alat za pomoć pri implementaciji backend funkcionalnosti: kreiranje DTO-ova, interfejsa, servisa i controllera za endpoint kapaciteta konferencije (GET /conferences/:id/capacity), kapaciteta sesije (GET /sessions/:id/capacity) i liste učesnika (GET /conferences/:id/participants) sa podrškom za pretragu i filtriranje.
+
+### Šta je AI predložio ili generisao
+- CapacityDto.cs i ParticipantDto.cs — novi DTO-ovi
+- IConferenceCapacityService.cs — novi interfejs
+- ConferenceCapacityService.cs — implementacija servisa sa logikom kapaciteta i filtriranja učesnika
+- ConferenceCapacityController.cs — novi controller sa endpointima za kapacitet i listu učesnika
+- Dodavanje GetByIdWithRegistrationsAsync metode u ISessionRepository i SessionRepository
+- Izmjena SessionsController.cs — dodavanje capacity endpointa i IConferenceCapacityService dependencya
+- Registracija servisa u Program.cs
+  
+### Šta je tim prihvatio
+- Kompletnu strukturu DTO-ova, interfejsa i servisa
+- Pattern konzistentan sa ostatkom projekta (Policy-based autorizacija, CancellationToken, KeyNotFoundException handling)
+- Korištenje postojećih metoda iz repozitorija (GetConfirmedCountForConferenceAsync, GetRegistrationsByConferenceAsync)
+ 
+### Šta je tim izmijenio
+- Prilagođeno korištenju postojećih metoda repozitorija umjesto novih koje je AI inicijalno predložio
+  
+### Šta je tim odbacio
+- Inicijalni prijedlog servisa koji je pozivao nepostojeće metode (GetConfirmedRegistrationsForConferenceAsync) — zamijenjeno postojećim ekvivalentima
+
+### Rizici, problemi ili greške koje su uočene
+- Potrebno provjeriti da li RegistrationStatus vrijednosti u bazi odgovaraju onima koje servis koristi za filtriranje (npr. "Confirmed" vs "confirmed")
+- Session capacity koristi MaxParticipants od konferencije, što treba validirati sa ostatkom tima jer sesija nema vlastiti limit
 
 ---
   
