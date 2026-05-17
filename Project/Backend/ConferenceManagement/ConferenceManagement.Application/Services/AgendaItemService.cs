@@ -40,6 +40,10 @@ public class AgendaItemService : IAgendaItemService
         ValidateType(dto.Type);
         ValidateTime(dto.StartTime, dto.EndTime);
 
+        var startUtc = dto.StartTime.ToUniversalTime();
+        var endUtc = dto.EndTime.ToUniversalTime();
+        ValidateWithinConferenceTime(conference, startUtc, endUtc);
+
         string title = dto.Title;
         string description = dto.Description;
         Guid? resolvedSessionId = null;
@@ -53,10 +57,13 @@ public class AgendaItemService : IAgendaItemService
             if (session is null)
                 throw new KeyNotFoundException($"Sesija sa ID-jem {dto.SessionId} nije pronađena.");
 
+            ValidateMatchesSessionTime(session, startUtc, endUtc);
+
             title = session.Title;
             description = session.Description;
             resolvedSessionId = session.SessionId;
         }
+
         else
         {
             if (string.IsNullOrWhiteSpace(dto.Title))
@@ -71,8 +78,8 @@ public class AgendaItemService : IAgendaItemService
             RoomId = dto.RoomId,
             Title = title,
             Description = description,
-            StartTime = dto.StartTime.ToUniversalTime(),
-            EndTime = dto.EndTime.ToUniversalTime(),
+            StartTime = startUtc,
+            EndTime = endUtc,
             Type = dto.Type,
             CreatedAt = DateTime.UtcNow
         };
@@ -89,8 +96,16 @@ public class AgendaItemService : IAgendaItemService
         if (agendaItem is null)
             throw new KeyNotFoundException($"Agenda stavka sa ID-jem {agendaItemId} nije pronađena.");
 
+        var conference = await _conferenceRepository.GetByIdAsync(agendaItem.ConferenceId);
+        if (conference is null)
+            throw new KeyNotFoundException($"Konferencija sa ID-jem {agendaItem.ConferenceId} nije pronađena.");
+
         ValidateType(dto.Type);
         ValidateTime(dto.StartTime, dto.EndTime);
+
+        var startUtc = dto.StartTime.ToUniversalTime();
+        var endUtc = dto.EndTime.ToUniversalTime();
+        ValidateWithinConferenceTime(conference, startUtc, endUtc);
 
         string title = dto.Title;
         string description = dto.Description;
@@ -105,6 +120,8 @@ public class AgendaItemService : IAgendaItemService
             if (session is null)
                 throw new KeyNotFoundException($"Sesija sa ID-jem {dto.SessionId} nije pronađena.");
 
+            ValidateMatchesSessionTime(session, startUtc, endUtc);
+
             title = session.Title;
             description = session.Description;
             resolvedSessionId = session.SessionId;
@@ -116,8 +133,8 @@ public class AgendaItemService : IAgendaItemService
         }
 
         agendaItem.Type = dto.Type;
-        agendaItem.StartTime = dto.StartTime.ToUniversalTime();
-        agendaItem.EndTime = dto.EndTime.ToUniversalTime();
+        agendaItem.StartTime = startUtc;
+        agendaItem.EndTime = endUtc;
         agendaItem.SessionId = resolvedSessionId;
         agendaItem.Title = title;
         agendaItem.Description = description;
@@ -147,6 +164,24 @@ public class AgendaItemService : IAgendaItemService
     {
         if (end <= start)
             throw new ArgumentException("Vrijeme završetka mora biti nakon vremena početka.");
+    }
+
+    private static void ValidateWithinConferenceTime(Conference conference, DateTime startUtc, DateTime endUtc)
+    {
+        var conferenceStartUtc = conference.StartDate.ToUniversalTime();
+        var conferenceEndUtc = conference.EndDate.ToUniversalTime();
+
+        if (startUtc < conferenceStartUtc || endUtc > conferenceEndUtc)
+            throw new ArgumentException("Stavka agende mora biti unutar vremena konferencije.");
+    }
+
+    private static void ValidateMatchesSessionTime(Session session, DateTime startUtc, DateTime endUtc)
+    {
+        var sessionStartUtc = session.StartTime.ToUniversalTime();
+        var sessionEndUtc = session.EndTime.ToUniversalTime();
+
+        if (startUtc != sessionStartUtc || endUtc != sessionEndUtc)
+            throw new ArgumentException("Vrijeme stavke agende mora tačno odgovarati vremenu sesije.");
     }
 
     private static bool IsSessionType(string type)

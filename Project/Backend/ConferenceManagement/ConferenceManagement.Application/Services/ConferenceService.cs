@@ -12,15 +12,18 @@ public class ConferenceService : IConferenceService
     private readonly IConferenceRepository _conferenceRepository;
     private readonly IConferenceRegistrationRepository _conferenceRegistrationRepository;
     private readonly IUserContextService _userContextService;
+    private readonly IUserRepository _userRepository;
 
     public ConferenceService(
         IConferenceRepository conferenceRepository,
         IConferenceRegistrationRepository conferenceRegistrationRepository,
-        IUserContextService userContextService)
+        IUserContextService userContextService,
+        IUserRepository userRepository)
     {
         _conferenceRepository = conferenceRepository;
         _conferenceRegistrationRepository = conferenceRegistrationRepository;
         _userContextService = userContextService;
+        _userRepository = userRepository;
     }
 
     public async Task<List<ConferenceDto>> GetAllAsync(CancellationToken cancellationToken = default)
@@ -88,6 +91,14 @@ public class ConferenceService : IConferenceService
             throw new ArgumentException("Maksimalan broj učesnika mora biti veći od 0.");
         }
 
+        var organizerId = Guid.Parse(_userContextService.GetUserId());
+        var organizer = await _userRepository.GetByIdAsync(organizerId, cancellationToken);
+
+        if (organizer is null)
+        {
+            throw new KeyNotFoundException($"Korisnik sa ID-jem {organizerId} nije pronađen.");
+        }
+
         var conference = new Conference
         {
             Title = dto.Title,
@@ -97,7 +108,8 @@ public class ConferenceService : IConferenceService
             Location = dto.Location,
             Category = dto.Category,
             MaxParticipants = dto.MaxParticipants,
-            Status = "Planned"
+            Status = "Planned",
+            Organizers = new List<User> { organizer }
         };
 
         var createdConference =

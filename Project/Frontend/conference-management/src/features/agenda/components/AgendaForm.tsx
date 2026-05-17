@@ -26,8 +26,16 @@ export function AgendaForm({ conferenceId, editingItem, onSuccess, onCancel }: A
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const isSessionType = type.toLowerCase() === 'session';
+
   // Dohvatimo sesije iz conference-a da bi ponudili u dropdown-u (Tim C/Tim A hibrid)
   const { items: sessions, isLoading: sessionsLoading } = useSessions(conferenceId);
+
+  const toLocalDatetimeString = (utcString: string) => {
+    const date = new Date(utcString);
+    const offset = date.getTimezoneOffset() * 60000;
+    return new Date(date.getTime() - offset).toISOString().slice(0, 16);
+  };
 
   useEffect(() => {
     fetchRooms()
@@ -41,14 +49,33 @@ export function AgendaForm({ conferenceId, editingItem, onSuccess, onCancel }: A
   // Kad se promijeni tip stavke, resetujemo specifična polja
   useEffect(() => {
     if (!editingItem) {
-      if (type === 'Session') {
+      if (isSessionType) {
         setTitle('');
         setDescription('');
+        setStartTime('');  // add this
+        setEndTime('');    // add this
+        setSessionId('');  // reset session too
+        setRoomId('');     // reset room too
       } else {
         setSessionId('');
+        setStartTime('');
+        setEndTime('');
       }
     }
   }, [type, editingItem]);
+
+  useEffect(() => {
+    if (!isSessionType || !sessionId) return;
+
+    const selected = sessions.find((s) => s.sessionId === sessionId);
+    if (!selected) return;
+
+    setStartTime(toLocalDatetimeString(selected.startTime));
+    setEndTime(toLocalDatetimeString(selected.endTime));
+
+    if (selected.roomId)
+      setRoomId(selected.roomId);
+  }, [isSessionType, sessionId, sessions, sessionsLoading]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,12 +92,12 @@ export function AgendaForm({ conferenceId, editingItem, onSuccess, onCancel }: A
       return;
     }
 
-    if (type === 'Session' && !sessionId) {
+    if (isSessionType && !sessionId) {
       setError('Morate odabrati sesiju za ovaj tip stavke.');
       return;
     }
 
-    if (type !== 'Session' && !title) {
+    if (!isSessionType && !title) {
       setError('Naziv stavke je obavezan.');
       return;
     }
@@ -82,9 +109,9 @@ export function AgendaForm({ conferenceId, editingItem, onSuccess, onCancel }: A
         type,
         startTime,
         endTime,
-        sessionId: type === 'Session' ? sessionId : undefined,
-        title: type !== 'Session' ? title : undefined,
-        description: type !== 'Session' ? description : undefined,
+        sessionId: isSessionType ? sessionId : undefined,
+        title: !isSessionType ? title : undefined,
+        description: !isSessionType ? description : undefined,
         roomId: roomId || undefined,
       };
 
@@ -132,7 +159,11 @@ export function AgendaForm({ conferenceId, editingItem, onSuccess, onCancel }: A
             onChange={(e) => setStartTime(e.target.value)}
             className="form-input"
             required
+            disabled={isSessionType}
           />
+          {isSessionType && sessionId && (
+            <span className="text-sm text-gray-500">Vrijeme je preuzeto iz odabrane sesije.</span>
+          )}
         </div>
 
         <div className="form-group">
@@ -143,11 +174,12 @@ export function AgendaForm({ conferenceId, editingItem, onSuccess, onCancel }: A
             onChange={(e) => setEndTime(e.target.value)}
             className="form-input"
             required
+            disabled={isSessionType}
           />
         </div>
       </div>
 
-      {type === 'Session' ? (
+      {isSessionType ? (
         <div className="form-group">
           <label>Sesija <span className="text-red-500">*</span></label>
           <select
@@ -199,6 +231,7 @@ export function AgendaForm({ conferenceId, editingItem, onSuccess, onCancel }: A
           value={roomId}
           onChange={(e) => setRoomId(e.target.value)}
           className="form-input"
+          disabled={isSessionType && !!sessions.find((s) => s.sessionId === sessionId)?.roomId}
         >
           <option value="">Nema sobe / Opciono</option>
           {rooms.map((r) => (

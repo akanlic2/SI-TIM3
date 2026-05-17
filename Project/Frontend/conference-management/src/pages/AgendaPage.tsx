@@ -127,7 +127,6 @@ export default function AgendaPage() {
           ) : (
             <AgendaList
               items={items}
-              conferenceId={conferenceId}
               isAdminOrOrganizer={isAdminOrOrganizer}
               onDeleteSuccess={refresh}
               onEditClick={handleEditClick}
