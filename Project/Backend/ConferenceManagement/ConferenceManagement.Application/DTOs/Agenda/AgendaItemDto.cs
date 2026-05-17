@@ -1,6 +1,6 @@
-namespace ConferenceManagement.Domain.Entities;
+namespace ConferenceManagement.Application.DTOs.Agenda;
 
-public class AgendaItem
+public class AgendaItemDto
 {
     public Guid AgendaItemId { get; set; }
     public Guid ConferenceId { get; set; }
@@ -11,10 +11,13 @@ public class AgendaItem
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
     public string Type { get; set; } = string.Empty;
-    public string Status { get; set; } = string.Empty;
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; set; }
 
-    public Conference Conference { get; set; } = null!;
-    public Session? Session { get; set; }
-    public Room? Room { get; set; }
+    // Session podaci (samo ako je Type == "Session")
+    public string? SessionTitle { get; set; }
+    public string? SessionType { get; set; }
+    public string? SpeakerName { get; set; }
+
+    // Room podaci
+    public string? RoomName { get; set; }
 }

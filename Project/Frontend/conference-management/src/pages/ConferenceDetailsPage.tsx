@@ -204,8 +204,14 @@ export default function ConferenceDetailsPage() {
  
           <div style={{ display: 'flex', gap: '12px' }}>
             <button onClick={() => {
-              window.history.pushState({}, '', `/conferences/${id}/sessions`)
-              window.dispatchEvent(new PopStateEvent('popstate'))
+              window.history.pushState({}, '', `/conferences/${id}/agenda`);
+              window.dispatchEvent(new PopStateEvent('popstate'));
+            }} className="btn-primary" style={{ backgroundColor: '#4f46e5' }}>
+              📋 Agenda
+            </button>
+            <button onClick={() => {
+              window.history.pushState({}, '', `/conferences/${id}/sessions`);
+              window.dispatchEvent(new PopStateEvent('popstate'));
             }} className="btn-primary">
               📅 Sesije
             </button>
