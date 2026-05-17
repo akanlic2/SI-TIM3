@@ -20,14 +20,12 @@ vi.mock('../auth/AuthProvider', () => ({
 describe('ConferenceDetailsPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-
     Object.defineProperty(window, 'location', {
       value: {
         pathname: '/conferences/conf-1',
       },
       writable: true,
     })
-
     vi.mocked(conferenceApi.fetchConferenceById).mockResolvedValue({
       conferenceId: 'conf-1',
       title: 'AI Summit Sarajevo',
@@ -39,7 +37,6 @@ describe('ConferenceDetailsPage', () => {
       maxParticipants: 100,
       status: 'Active',
     })
-
     vi.stubGlobal(
       'fetch',
       vi.fn().mockResolvedValue({
@@ -50,11 +47,9 @@ describe('ConferenceDetailsPage', () => {
             userId: 'user-1',
             registrationDate: '2026-06-01T10:00:00Z',
             registrationStatus: 'Confirmed',
-            user: {
-              firstName: 'Test',
-              lastName: 'Ucesnik',
-              email: 'ucesnik@test.com',
-            },
+            firstName: 'Test',
+            lastName: 'Ucesnik',
+            email: 'ucesnik@test.com',
           },
         ],
       })
@@ -63,7 +58,6 @@ describe('ConferenceDetailsPage', () => {
 
   it('renders conference details', async () => {
     render(<ConferenceDetailsPage />)
-
     expect(await screen.findAllByText('AI Summit Sarajevo')).toHaveLength(2)
     expect(screen.getAllByText(/Sarajevo/).length).toBeGreaterThan(0)
     expect(screen.getAllByText(/IT/).length).toBeGreaterThan(0)
@@ -71,15 +65,12 @@ describe('ConferenceDetailsPage', () => {
 
   it('shows sessions button', async () => {
     render(<ConferenceDetailsPage />)
-
     expect(await screen.findByText('📅 Sesije')).toBeInTheDocument()
   })
 
   it('renders admin registrations section', async () => {
     render(<ConferenceDetailsPage />)
-
     expect(await screen.findByText('Prijavljeni učesnici')).toBeInTheDocument()
-
     await waitFor(() => {
       expect(screen.getByText('Test')).toBeInTheDocument()
       expect(screen.getByText('Ucesnik')).toBeInTheDocument()
@@ -90,11 +81,8 @@ describe('ConferenceDetailsPage', () => {
 
   it('filters registrations by search input', async () => {
     render(<ConferenceDetailsPage />)
-
     const input = await screen.findByPlaceholderText('Pretraži po imenu ili emailu...')
-
     await userEvent.type(input, 'ucesnik@test.com')
-
     expect(screen.getByText('ucesnik@test.com')).toBeInTheDocument()
   })
 })

@@ -12,18 +12,18 @@ public class ConferenceService : IConferenceService
     private readonly IConferenceRepository _conferenceRepository;
     private readonly IConferenceRegistrationRepository _conferenceRegistrationRepository;
     private readonly IUserContextService _userContextService;
-    private readonly IUserRepository _userRepository;
+    private readonly IUserRepository _userRepository; //novo
 
     public ConferenceService(
         IConferenceRepository conferenceRepository,
         IConferenceRegistrationRepository conferenceRegistrationRepository,
         IUserContextService userContextService,
-        IUserRepository userRepository)
+        IUserRepository userRepository) // novo
     {
         _conferenceRepository = conferenceRepository;
         _conferenceRegistrationRepository = conferenceRegistrationRepository;
         _userContextService = userContextService;
-        _userRepository = userRepository;
+        _userRepository = userRepository; // novo
     }
 
     public async Task<List<ConferenceDto>> GetAllAsync(CancellationToken cancellationToken = default)
@@ -111,6 +111,18 @@ public class ConferenceService : IConferenceService
             Status = "Planned",
             Organizers = new List<User> { organizer }
         };
+
+        // novo - automatski dodavanje organizatora koji kreira konferenciju
+        if (_userContextService.HasRole("organizator"))
+        {
+            var userId = Guid.Parse(_userContextService.GetUserId());
+            Console.WriteLine($"=== DODAJEM ORGANIZATORA: {userId} ==="); // DODAJ OVO
+            var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
+            if (user != null)
+            {
+                conference.Organizers = new List<User> { user };
+            }
+        }
 
         var createdConference =
             await _conferenceRepository.AddAsync(conference, cancellationToken);
