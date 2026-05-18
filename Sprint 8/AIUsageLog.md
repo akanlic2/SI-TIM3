@@ -543,4 +543,56 @@ Korišten AI alat za pomoć pri implementaciji backend funkcionalnosti: kreiranj
 
 ---
   
+## Unos #15
+
+| Polje | Detalji |
+|---|---|
+| **Datum** | 18.05.2026. |
+| **Sprint broj** | Sprint 8 |
+| **Alat** | ChatGPT |
+| **Ko je koristio alat** | Nejra Hodžić |
+
+### Svrha korištenja
+
+Pomoć pri implementaciji i organizaciji backend i frontend testova za Sprint 8 funkcionalnosti.
+
+### Kratak opis zadatka ili upita
+
+Tražena je pomoć pri planiranju i pisanju testova za funkcionalnosti upravljanja dvoranama, dodjele dvorane sesiji, agende konferencije, kapaciteta konferencije/sesije i liste učesnika.
+
+### Šta je AI predložio ili generisao
+
+- Prijedloge backend test scenarija za:
+  - upravljanje dvoranama (S35)
+  - dodjelu dvorane sesiji (S36)
+  - agendu konferencije (S34)
+  - kapacitet konferencije i listu učesnika (S41, S42)
+
+- Prijedloge frontend test scenarija za:
+  - RoomsPage
+  - SessionForm
+  - AgendaPage
+  - ConferenceDetailsPage
+
+### Šta je tim prihvatio
+
+- Strukturu backend i frontend testova
+- Organizaciju testnih scenarija po funkcionalnostima
+
+### Šta je tim izmijenio
+
+- Testovi su prilagođeni postojećoj strukturi projekta
+
+### Šta je tim odbacio
+
+- Korištenje EF InMemory pristupa za finalne backend testove
+- Testove koji nisu odgovarali postojećoj arhitekturi projekta
+- Izmjene produkcijskog koda radi lakšeg testiranja
+
+### Rizici, problemi ili greške koje su uočene
+
+- Pojedini backend kontroleri nisu bili pogodni za potpune Moq unit testove zbog direktnog korištenja `ApplicationDbContext`
+
+---
+
 *Dokument se ažurira tokom trajanja projekta. Svaki novi slučaj korištenja AI dodaje se kao novi unos.*
