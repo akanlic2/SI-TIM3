@@ -133,7 +133,7 @@ describe('AgendaPage', () => {
     expect(screen.getByRole('heading', { name: 'Keynote' })).toBeInTheDocument()
     expect(screen.getAllByText('Sesija').length).toBeGreaterThan(0)
     expect(screen.getByText('Sala A')).toBeInTheDocument()
-    expect(screen.getByText(/12:00.*13:00/)).toBeInTheDocument()
+    expect(screen.getByText('10:00 - 11:00')).toBeInTheDocument() //novo
   })
 
   it('forma za kreiranje AgendaItema se prikazuje', async () => {
