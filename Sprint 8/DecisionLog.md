@@ -253,3 +253,48 @@
 **Status:** Aktivna
 
 ---
+
+### DL-012 – Modeliranje AgendaItem entiteta i relacija
+**Datum:** 16.05.2026.
+
+**Opis problema:** Pri kreiranju modula "Agenda konferencije" bilo je potrebno odlučiti kako modelirati stavke agende u bazi, s obzirom na to da stavka može biti vezana za postojeću sesiju (koja već ima predavače, detalje itd.) ili može biti običan događaj (pauza, ručak, otvaranje).
+
+**Razmatrane opcije:**
+1. Kreiranje posebnih entiteta (SessionAgendaItem, BreakAgendaItem, itd.) koristeći TPH (Table Per Hierarchy) nasljeđivanje.
+2. Dodavanje vremena i tipova direktno u `Session` entitet (bez kreiranja Agende).
+3. Kreiranje jednog unificiranog `AgendaItem` entiteta sa `Type` atributom i `nullable` relacijama (SessionId, RoomId).
+
+**Odabrana opcija:** Jedan unificirani `AgendaItem` entitet sa `Type` atributom (Enum na aplikacijskom sloju) i nullable relacijama.
+
+**Razlog izbora:** Najčišći pristup koji ne komplicira bazu podataka. Ako je tip stavke "Session", postavlja se FK relacija preko `SessionId`, iz koje se izvlače naziv, opis i podaci o predavaču. Ako je tip drugačiji (npr. "Break"), `SessionId` ostaje null, a podaci se direktno upisuju u `AgendaItem`.
+
+**Posljedice odluke:**
+- Aplikacijski sloj (`AgendaItemService`) preuzima obavezu validacije zavisnosti (npr. ne dozvoljava kreiranje tipa "Session" bez unesenog `SessionId`).
+- Na frontendu se koristi uslovno renderovanje (Conditional Rendering) unutar `AgendaForm.tsx` zavisno od izabranog tipa stavke.
+- Relacije u bazi su postavljene na `SetNull` (npr. ako se izbriše soba, stavka u agendi ostaje, ali gubi informaciju o sobi).
+
+**Status:** Aktivna
+
+---
+
+### DL-013 – Prikaz Agende na korisničkom interfejsu (Frontend)
+**Datum:** 16.05.2026.
+
+**Opis problema:** Bilo je potrebno odlučiti kako grafički prikazati stavke agende s obzirom na to da one prate strogi vremenski raspored unutar jednog ili više dana konferencije.
+
+**Razmatrane opcije:**
+1. Standardna tabelarna lista bez grupisanja.
+2. Eksterna kalendar biblioteka (npr. FullCalendar).
+3. Custom timeline prikaz sa grupisanjem po datumima.
+
+**Odabrana opcija:** Custom timeline prikaz sa grupisanjem po datumima (`AgendaList.tsx`).
+
+**Razlog izbora:** Izbjegavanje nepotrebnih ovisnosti na frontend projekt (treće biblioteke), te bolja prilagodljivost postojećem dizajnu. Podaci dolaze sortirani sa backenda, a React ih grupira (`reduce`) po datumu za prikaz sekcija ("dan po dan").
+
+**Posljedice odluke:**
+- Logika grupisanja i formatiranja datuma napisana direktno u komponenti.
+- Jednostavno vizuelno razlikovanje tipova stavki postignuto pomoću dinamičkih CSS klasa (Tailwind bedževi) bez uvođenja kompleksnih komponenti.
+
+**Status:** Aktivna
+
+---
