@@ -680,4 +680,81 @@ Gemini je korišten kao podrška pri razvoju CRUD endpointa za dvorane (GET/POST
 
 ---
 
+## Unos #18
+
+| Polje | Detalji |
+| --- | --- |
+| **Datum** | 17.05.2026. |
+| **Sprint broj** | Sprint 8 |
+| **Alat** | GitHub Copilot |
+| **Ko je koristio alat** | Tarik Babahmetović |
+
+### Svrha korištenja
+Pomoć pri implementaciji timeline dizajna za prikaz agende konferencije na frontendu.
+
+### Kratak opis zadatka ili upita
+Copilot je korišten kao podrška pri razvoju React + TypeScript komponente za vizualni prikaz agende konferencije u obliku timeline-a, uključujući organizaciju agenda itema po vremenskim slotovima i stilizaciju komponenti.
+
+### Šta je AI predložio ili generisao
+- Timeline komponentu za prikaz agende konferencije po hronološkom redoslijedu
+- Stilizaciju vremenskih oznaka i kartica stavki agende
+- Grupiranje stavka agende po vremenskim slotovima unutar jednog dana
+- Responsive raspored komponenti
+
+### Šta je tim prihvatio
+- Osnovu timeline strukture i vizualnu organizaciju stavki agende
+- Grupiranje stavki agende po vremenskim slotovima
+- Prikaz relevantnih informacija unutar kartica stavki agende
+
+### Šta je tim izmijenio
+- Stilizacija prilagođena dizajnu sistema ostatka aplikacije
+- Prevedeni nazivi tipova stavki agende na bosanski jezik
+
+### Šta je tim odbacio
+- Stari izgled agende kao jednostavne tabele
+
+### Rizici, problemi ili greške koje su uočene
+- Generisana komponenta nije inicijalno vodila računa o datumima stavki agende nego samo satnicama
+- Nemogućnost Copilota da ispravno postavi padding za stavke u originalnoj implementaciji zasnovanoj na tabeli
+
+---
+
+## Unos #19
+
+| Polje | Detalji |
+| --- | --- |
+| **Datum** | 17.05.2026. |
+| **Sprint broj** | Sprint 8 |
+| **Alat** | Claude AI |
+| **Ko je koristio alat** | Tarik Babahmetović |
+
+### Svrha korištenja
+Pomoć pri generisanju nove EF Core migracije za bazu podataka.
+
+### Kratak opis zadatka ili upita
+Claude AI je korišten kao podrška pri kreiranju nove database migracije nakon izmjena na domenskim entitetima, uključujući dijagnozu grešaka pri generisanju migracije i usklađivanje sa postojećim stanjem baze.
+
+### Šta je AI predložio ili generisao
+- Komande za generisanje nove migracije (`dotnet ef migrations add`, `dotnet ef database update`)
+- Dijagnozu grešaka koje su se javljale pri pokretanju migracije
+- Prijedlog za provjeru konzistentnosti postojećih migracija sa trenutnim stanjem modela
+- Upute za ručnu korekciju migracijskog fajla u slučajevima kada automatski generisani kod nije odgovarao očekivanom stanju
+
+### Šta je tim prihvatio
+- Predložene EF Core komande za generisanje i primjenu migracije
+- Korake za dijagnozu i otklanjanje grešaka pri migraciji
+- Pristup ručnoj korekciji dijela migracijskog fajla
+
+### Šta je tim izmijenio
+- Nazivi migracije i tabela usklađeni sa konvencijom imenovanja u projektu
+
+### Šta je tim odbacio
+- Prijedlog za resetovanje svih migracija i ponovnu inicijalizaciju baze
+
+### Rizici, problemi ili greške koje su uočene
+- Postojala je mogućnost konflikta između lokalno generisane migracije i stanja baze na VPS-u — migracija je testirana lokalno prije primjene na server
+- Nisu uočeni dodatni rizici
+
+---
+
 *Dokument se ažurira tokom trajanja projekta. Svaki novi slučaj korištenja AI dodaje se kao novi unos.*
