@@ -684,6 +684,42 @@ Gemini je korišten kao podrška pri razvoju CRUD endpointa za dvorane (GET/POST
 
 | Polje | Detalji |
 | --- | --- |
+| **Datum** | 16.05.2026. |
+| **Sprint broj** | Sprint 8 |
+| **Alat** | Gemini / Antigravity |
+| **Ko je koristio alat** | Hamza Kovač |
+
+### Svrha korištenja
+Pomoć pri end-to-end (fullstack) implementaciji modula "Agenda konferencije" (Tim B), te integracija sa postojećim frontend i backend rješenjima.
+
+### Kratak opis zadatka ili upita
+AI asistentu je dat zadatak da analizira kompletan postojeći kod (React frontend, .NET backend) i u potpunosti implementira CRUD operacije za novi entitet `AgendaItem`. Zahtijevano je striktno poštovanje postojećih stilova, arhitekture (Clean Architecture), `naming` konvencija, sigurnosnih polisa, te efektivna primjena na frontendu koristeći postojeće `features` organizacije i React komponente.
+
+### Šta je AI predložio ili generisao
+- **Backend**: Ažuriran `AgendaItem` entitet, generisani novi interfejsi i repozitoriji (`IAgendaItemRepository`, `AgendaItemRepository`), servisi za poslovnu logiku (`AgendaItemService` uz obaveznu validaciju vremena i tipova sesije), te API kontroleri (`AgendaController`) sa ispravnim autorizacijskim polisama (AdminOrOrganizerPolicy i ParticipantPolicy). Također je kreirana i EF Core baza-migracija.
+- **Frontend**: Izgenerisani TypeScript tipovi, konfigurisan Axios API klijent (`agendaApi.ts`), custom React hook (`useAgenda.ts`), te interaktivne i responzivne komponente (`AgendaList.tsx`, `AgendaForm.tsx`) koje imaju uvjetno renderiranje na osnovu tipa `AgendaItem`-a. Uključene rute unutar globalnog routera.
+
+### Šta je tim prihvatio
+- Gotovo cjelokupno predloženo rješenje arhitekture modula.
+- Predložena backend validacija, kao i integracija relacija baze (`RoomId` i `SessionId` unutar `AgendaItems`).
+- Prijedlog UI/UX interfejsa na React-u i vizuelni "timeline" prikaz agende razdvojen po datumima uz bedževe po bojama.
+
+### Šta je tim izmijenio
+- Konfiguraciju i pokretanje komandi unutar backend foldera zbog specifičnosti kako su riješeni solution fajlovi, a koje AI inicijalno nije ispravno percipirao.
+
+### Šta je tim odbacio
+- Nema većih odbačenih stavki – kod je pratio dogovorene standarne.
+
+### Rizici, problemi ili greške koje su uočene
+- Zbog nedostatka globalne `tsc` komande na frontend folderu, AI komanda za testni build nije prošla u potpunosti, što je zahtijevalo razumijevanje lokalnog npm paketa tima za testiranje kompajliranja.
+- AI je u prvom pokušaju pokretanja .NET build-a naišao na problem sa pronalaženjem tačnog `.sln` fajla, tako da se komanda morala usmjeriti direktno u `Api` folder.
+
+---
+
+## Unos #19
+
+| Polje | Detalji |
+| --- | --- |
 | **Datum** | 17.05.2026. |
 | **Sprint broj** | Sprint 8 |
 | **Alat** | GitHub Copilot |
@@ -719,7 +755,7 @@ Copilot je korišten kao podrška pri razvoju React + TypeScript komponente za v
 
 ---
 
-## Unos #19
+## Unos #20
 
 | Polje | Detalji |
 | --- | --- |
