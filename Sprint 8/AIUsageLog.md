@@ -593,6 +593,48 @@ Tražena je pomoć pri planiranju i pisanju testova za funkcionalnosti upravljan
 
 - Pojedini backend kontroleri nisu bili pogodni za potpune Moq unit testove zbog direktnog korištenja `ApplicationDbContext`
 
+## Unos #16
+ 
+| Polje | Detalji |
+|---|---|
+| **Datum** | 15.05.2026. |
+| **Sprint broj** | Sprint 8 |
+| **Alat** | GitHub Copilot |
+| **Ko je koristio alat** | Enela Pirija |
+ 
+### Svrha korištenja
+Pomoć pri implementaciji frontend modula za upravljanje dvoranama.
+ 
+### Kratak opis zadatka ili upita
+GitHub Copilot je korišten kao podrška pri razvoju React + TypeScript komponenti za upravljanje dvoranama, uključujući kreiranje stranice, liste i CRUD formi, uz usklađivanje sa postojećom arhitekturom projekta.
+ 
+### Šta je AI predložio ili generisao
+- Stavku "Dvorane" u sidebar navigaciji vidljivu samo Adminu i Organizatoru
+- `RoomsPage` komponentu po uzoru na `ConferencesPage` i `SessionsPage`
+- Listu dvorana sa karticama koje prikazuju naziv, lokaciju, kapacitet i opis
+- `AddRoomModal` sa validacijom kapaciteta i prikazom backend grešaka ispod polja
+- `EditRoomModal` sa prefill poljima i `PUT /api/rooms/{id}` pozivom
+- Confirmation dialog za brisanje dvorane sa prikazom backend poruke greške
+- `useRooms` hook i `roomApi` funkcije za komunikaciju sa backendom
+
+### Šta je tim prihvatio
+- Strukturu `RoomsPage`, `AddRoomModal` i `EditRoomModal` komponenti
+- Pattern renderovanja modala i upravljanja stanjem
+- Organizaciju fajlova unutar `features/room` foldera
+
+### Šta je tim izmijenio
+- Ispravljen `useEffect` koji je preuranjeno redirectao korisnika na dashboard prije završetka autentifikacije
+- Modal premješten van `<main>` taga u React Fragment kako bi `position: fixed` ispravno funkcionisao
+- `useRooms` hook ispravljen da koristi direktni `fetch` poziv sa `Authorization` headerom umjesto pogrešnog mehanizma za API pozive
+
+### Šta je tim odbacio
+- Inicijalni pristup API pozivima u `useRooms` hooku koji nije bio usklađen sa postojećim patternom projekta
+
+### Rizici, problemi ili greške koje su uočene
+- Generisani `useRooms` hook nije koristio ispravan pattern za API pozive, što je uzrokovalo ponavljajuće greške u konzoli
+- Preuranjeni redirect u `useEffect`-u blokirao je prikaz stranice prije završetka učitavanja autentifikacije
+- Modal nije bio vidljiv kada je renderovan unutar parent elementa sa određenim CSS propertyjem — riješeno premještanjem van `<main>` taga
+
 ---
 
 *Dokument se ažurira tokom trajanja projekta. Svaki novi slučaj korištenja AI dodaje se kao novi unos.*
