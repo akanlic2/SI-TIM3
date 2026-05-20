@@ -610,30 +610,74 @@ GitHub Copilot je korišten kao podrška pri razvoju React + TypeScript komponen
  
 ### Šta je AI predložio ili generisao
 - Stavku "Dvorane" u sidebar navigaciji vidljivu samo Adminu i Organizatoru
-- `RoomsPage` komponentu po uzoru na `ConferencesPage` i `SessionsPage`
+- RoomsPage komponentu po uzoru na ConferencesPage i SessionsPage
 - Listu dvorana sa karticama koje prikazuju naziv, lokaciju, kapacitet i opis
-- `AddRoomModal` sa validacijom kapaciteta i prikazom backend grešaka ispod polja
-- `EditRoomModal` sa prefill poljima i `PUT /api/rooms/{id}` pozivom
+- AddRoomModal sa validacijom kapaciteta i prikazom backend grešaka ispod polja
+- EditRoomModal sa prefill poljima i PUT /api/rooms/{id} pozivom
 - Confirmation dialog za brisanje dvorane sa prikazom backend poruke greške
-- `useRooms` hook i `roomApi` funkcije za komunikaciju sa backendom
+- useRooms hook i roomApi funkcije za komunikaciju sa backendom
 
 ### Šta je tim prihvatio
-- Strukturu `RoomsPage`, `AddRoomModal` i `EditRoomModal` komponenti
+- Strukturu RoomsPage, AddRoomModal i EditRoomModal komponenti
 - Pattern renderovanja modala i upravljanja stanjem
-- Organizaciju fajlova unutar `features/room` foldera
+- Organizaciju fajlova unutar features/room foldera
 
 ### Šta je tim izmijenio
-- Ispravljen `useEffect` koji je preuranjeno redirectao korisnika na dashboard prije završetka autentifikacije
-- Modal premješten van `<main>` taga u React Fragment kako bi `position: fixed` ispravno funkcionisao
-- `useRooms` hook ispravljen da koristi direktni `fetch` poziv sa `Authorization` headerom umjesto pogrešnog mehanizma za API pozive
+- Ispravljen useEffect koji je preuranjeno redirectao korisnika na dashboard prije završetka autentifikacije
+- Modal premješten van <main> taga u React Fragment kako bi position: fixed ispravno funkcionisao
+- useRooms hook ispravljen da koristi direktni fetch poziv sa Authorization headerom umjesto pogrešnog mehanizma za API pozive
 
 ### Šta je tim odbacio
-- Inicijalni pristup API pozivima u `useRooms` hooku koji nije bio usklađen sa postojećim patternom projekta
+- Inicijalni pristup API pozivima u useRooms hooku koji nije bio usklađen sa postojećim patternom projekta
 
 ### Rizici, problemi ili greške koje su uočene
-- Generisani `useRooms` hook nije koristio ispravan pattern za API pozive, što je uzrokovalo ponavljajuće greške u konzoli
-- Preuranjeni redirect u `useEffect`-u blokirao je prikaz stranice prije završetka učitavanja autentifikacije
-- Modal nije bio vidljiv kada je renderovan unutar parent elementa sa određenim CSS propertyjem — riješeno premještanjem van `<main>` taga
+- Generisani useRooms hook nije koristio ispravan pattern za API pozive, što je uzrokovalo ponavljajuće greške u konzoli
+- Preuranjeni redirect u useEffect-u blokirao je prikaz stranice prije završetka učitavanja autentifikacije
+- Modal nije bio vidljiv kada je renderovan unutar parent elementa sa određenim CSS propertyjem — riješeno premještanjem van <main> taga
+
+
+## Unos #17
+ 
+| Polje | Detalji |
+|---|---|
+| **Datum** | 14.05.2026. |
+| **Sprint broj** | Sprint 8 |
+| **Alat** | Gemini |
+| **Ko je koristio alat** | Lamija Dženetić |
+ 
+### Svrha korištenja
+Pomoć pri implementaciji backend funkcionalnosti za upravljanje dvoranama (S35) i dodjelu dvorane sesiji (S36)
+ 
+### Kratak opis zadatka ili upita
+Gemini je korišten kao podrška pri razvoju CRUD endpointa za dvorane (GET/POST/PUT/DELETE /rooms) i logike dodjele dvorane sesiji (PUT /sessions/:id/room), uključujući validaciju duplikata, provjeru zauzetosti termina i autorizaciju po rolama.
+ 
+### Šta je AI predložio ili generisao
+- Room entitet i odgovarajući DTO-ovi (CreateRoomDto, UpdateRoomDto, RoomDto)
+- RoomsController sa CRUD rutama i [Authorize(Policy = "AdminOrOrganizerPolicy")] zaštitom
+- IRoomService interfejs i RoomService implementacija sa validacijom duplikata (naziv + lokacija)
+- IRoomRepository i RoomRepository sa EF Core implementacijom
+- Logiku u SessionsController / servisnom sloju za PUT /sessions/:id/room — zamjena hardkodiranog seeda i provjera zauzetosti termina (ista dvorana ne smije imati dvije sesije u istom terminu)
+- Registraciju servisa u Program.cs
+
+### Šta je tim prihvatio
+- Ukupnu strukturu RoomsController-a, servisa i repozitorija
+- Pattern validacije duplikata (provjera naziva + lokacije u RoomService)
+- Logiku provjere zauzetosti termina pri dodjeli dvorane sesiji
+- Autorizacijski pristup konzistentan s ostatkom projekta
+
+### Šta je tim izmijenio
+- Nazivi klasa i namespace-ovi usklađeni sa konvencijom projekta
+- Prilagođeni odgovori i HTTP status kodovi prema postojećem API standardu projekta
+- Logika provjere zauzetosti termina dorađena prema stvarnoj strukturi Session entiteta (polja StartTime/EndTime)
+  
+### Šta je tim odbacio
+- Inicijalne prijedloge koji su koristili nepostojeće metode repozitorija — zamijenjeno postojećim ekvivalentima
+- Dio generisanog scaffolding koda koji nije odgovarao folder strukturi projekta
+
+### Rizici, problemi ili greške koje su uočene
+- Potrebno provjeriti da li provjera zauzetosti termina ispravno pokriva rubne slučajeve (sesije koje se tačno dotiču vremenski)
+- Gemini inicijalno nije poznavao postojeću strukturu repozitorija, pa je predlagao nove metode umjesto korištenja postojećih
+
 
 ---
 

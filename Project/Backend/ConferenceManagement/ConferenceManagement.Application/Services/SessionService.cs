@@ -1,7 +1,6 @@
 ﻿using ConferenceManagement.Application.DTOs;
 using ConferenceManagement.Application.DTOs.Session;
 using ConferenceManagement.Application.Interfaces;
-using ConferenceManagement.Application.Services;
 using ConferenceManagement.Domain.Abstractions.Repositories;
 using ConferenceManagement.Domain.Entities;
 
@@ -10,8 +9,8 @@ namespace ConferenceManagement.Application.Services;
 public class SessionService : ISessionService
 {
     private readonly ISessionRepository _sessionRepository;
-    private readonly IUserRepository _userRepository; 
-    private readonly ISessionRegistrationRepository _registrationRepository; 
+    private readonly IUserRepository _userRepository;
+    private readonly ISessionRegistrationRepository _registrationRepository;
     private readonly IUserContextService _userContextService;
 
     public SessionService(
@@ -86,26 +85,21 @@ public class SessionService : ISessionService
 
     public async Task<bool> AssignSpeakerAsync(Guid sessionId, Guid userId)
     {
-        // 1. Provjera sesije
         var session = await _sessionRepository.GetByIdAsync(sessionId);
         if (session == null) return false;
 
-        // 2. Provjera korisnika i role 
         var user = await _userRepository.GetByIdAsync(userId);
         if (user == null || user.Role != "predavac") return false;
 
-        // 3. Provjera da li već postoji zapis u veznoj tabeli (session_registrations)
         var existingReg = await _registrationRepository.GetBySessionAndUserAsync(sessionId, userId);
 
         if (existingReg != null)
         {
-            // Ako je već bio registrovan, samo ga postavi za predavača
             existingReg.IsSpeaker = true;
             await _registrationRepository.UpdateAsync(existingReg);
         }
         else
         {
-            // Ako ne postoji, kreiraj novi zapis prema tvom ER dijagramu
             var newReg = new SessionRegistration
             {
                 SessionRegistrationId = Guid.NewGuid(),
@@ -126,17 +120,13 @@ public class SessionService : ISessionService
     {
         var session = await _sessionRepository.GetByIdAsync(sessionId);
         if (session == null)
-        {
             throw new KeyNotFoundException($"Sesija sa ID-jem {sessionId} nije pronađena.");
-        }
 
         var userId = Guid.Parse(_userContextService.GetUserId());
         var existingRegistration = await _registrationRepository.GetBySessionAndUserAsync(sessionId, userId);
 
         if (existingRegistration != null && existingRegistration.RegistrationStatus == "Confirmed")
-        {
             throw new InvalidOperationException("Korisnik je već prijavljen na sesiju.");
-        }
 
         if (existingRegistration != null && existingRegistration.RegistrationStatus == "Otkazano")
         {
@@ -165,15 +155,11 @@ public class SessionService : ISessionService
     {
         var registration = await _registrationRepository.GetByIdAsync(registrationId);
         if (registration == null)
-        {
             throw new KeyNotFoundException($"Prijava sa ID-jem {registrationId} nije pronađena.");
-        }
 
         var userId = Guid.Parse(_userContextService.GetUserId());
         if (registration.UserId != userId)
-        {
             throw new UnauthorizedAccessException("Nemate pravo otkazati ovu prijavu.");
-        }
 
         registration.RegistrationStatus = "Cancelled";
         await _registrationRepository.UpdateAsync(registration);
@@ -182,7 +168,6 @@ public class SessionService : ISessionService
 
     public async Task<List<SessionListDTO>> GetRegisteredForCurrentUserAsync(CancellationToken cancellationToken = default)
     {
-        _ = cancellationToken;
         var userId = Guid.Parse(_userContextService.GetUserId());
         var registrations = await _registrationRepository.GetConfirmedRegistrationsForUserAsync(userId, cancellationToken);
 
@@ -197,9 +182,67 @@ public class SessionService : ISessionService
     public async Task<List<SessionListDTO>> GetSessionsForConferenceAsync(Guid conferenceId)
     {
         var sessions = await _sessionRepository.GetSessionsByConferenceIdAsync(conferenceId);
-
-        // Ako nema sesija, vraćamo praznu listu [], što je "prazno stanje"
         return sessions.Select(MapToSessionListDto).ToList();
+    }
+
+    // --- S43 PREDAVAC DASHBOARD DODACI ---
+
+    public async Task<List<SpeakerSessionListDto>> GetSessionsForCurrentSpeakerAsync(CancellationToken cancellationToken = default)
+    {
+        var userId = Guid.Parse(_userContextService.GetUserId());
+        var sessions = await _sessionRepository.GetSessionsBySpeakerIdAsync(userId, cancellationToken);
+
+        return sessions.Select(s => new SpeakerSessionListDto
+        {
+            SessionId = s.SessionId,
+            Title = s.Title,
+            StartTime = s.StartTime,
+            EndTime = s.EndTime,
+            SessionType = s.SessionType,
+            ConferenceId = s.ConferenceId,
+            ConferenceTitle = s.Conference?.Title ?? "N/A",
+            Location = s.Conference?.Location ?? "N/A"
+        }).ToList();
+    }
+
+    public async Task<SpeakerSessionDetailsDto> GetSpeakerSessionDetailsAsync(Guid sessionId, CancellationToken cancellationToken = default)
+    {
+        var userId = Guid.Parse(_userContextService.GetUserId());
+
+        // Koristimo postojeću metodu repozitorija koja uključuje registracije i konferenciju
+        var session = await _sessionRepository.GetByIdWithRegistrationsAsync(sessionId);
+
+        if (session == null)
+            throw new KeyNotFoundException("Sesija nije pronađena.");
+
+        // GUARD (S43 - BE Role): Provjera da li je ulogovani korisnik zaista predavač na ovoj sesiji
+        var isSpeaker = session.SessionRegistrations.Any(r => r.UserId == userId && r.IsSpeaker);
+        if (!isSpeaker)
+            throw new UnauthorizedAccessException("Nemate dozvolu za pristup detaljima ove sesije.");
+
+        return new SpeakerSessionDetailsDto
+        {
+            SessionId = session.SessionId,
+            Title = session.Title,
+            Description = session.Description,
+            StartTime = session.StartTime,
+            EndTime = session.EndTime,
+            SessionType = session.SessionType,
+            ConferenceId = session.ConferenceId,
+            ConferenceTitle = session.Conference?.Title ?? "N/A",
+            Location = session.Conference?.Location ?? "N/A",
+            RoomName = session.Room?.Name ?? "N/A",
+            Attendees = session.SessionRegistrations
+                .Where(r => !r.IsSpeaker && r.RegistrationStatus == "Confirmed")
+                .Select(r => new SessionAttendeeDto
+                {
+                    UserId = r.UserId,
+                    FirstName = r.User?.FirstName ?? "N/A",
+                    LastName = r.User?.LastName ?? "N/A",
+                    Email = r.User?.Email ?? "N/A",
+                    RegistrationDate = r.RegistrationDate
+                }).ToList()
+        };
     }
 
     private static SessionListDTO MapToSessionListDto(Session session)
