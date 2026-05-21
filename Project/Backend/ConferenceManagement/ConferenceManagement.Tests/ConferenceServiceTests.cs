@@ -12,6 +12,7 @@ public class ConferenceServiceTests
     private readonly Mock<IConferenceRepository> _repositoryMock;
     private readonly Mock<IConferenceRegistrationRepository> _conferenceRegistrationRepositoryMock;
     private readonly Mock<IUserContextService> _userContextMock;
+    private readonly Mock<IUserRepository> _userRepositoryMock;
     private readonly ConferenceService _service;
 
     private static Conference ActiveConference => new()
@@ -45,12 +46,14 @@ public class ConferenceServiceTests
         _repositoryMock = new Mock<IConferenceRepository>();
         _conferenceRegistrationRepositoryMock = new Mock<IConferenceRegistrationRepository>();
         _userContextMock = new Mock<IUserContextService>();
+        _userRepositoryMock = new Mock<IUserRepository>();  
 
         // Servis sada prima oba dependency-a kako zahtijeva tvoj kod
         _service = new ConferenceService(
             _repositoryMock.Object,
             _conferenceRegistrationRepositoryMock.Object,
-            _userContextMock.Object);
+            _userContextMock.Object,
+            _userRepositoryMock.Object);
     }
 
     // ===================== GET & AUTHORIZATION (Tvoji testovi) =====================
@@ -110,43 +113,57 @@ public class ConferenceServiceTests
     // ===================== CREATE (Kombinovani testovi) =====================
 
     [Fact]
-    public async Task CreateAsync_ValidData_ReturnsConferenceDto()
+public async Task CreateAsync_ValidData_ReturnsConferenceDto()
+{
+    var fakeUser = new User { UserId = Guid.NewGuid() };
+
+    _userContextMock
+        .Setup(x => x.GetUserId())
+        .Returns(Guid.NewGuid().ToString());
+
+    _userContextMock
+        .Setup(x => x.HasRole("organizator"))
+        .Returns(false);
+
+    _userRepositoryMock
+        .Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+        .ReturnsAsync(fakeUser);
+
+    var dto = new CreateConferenceDto
     {
-        var dto = new CreateConferenceDto
-        {
-            Title = "Test Konferencija",
-            Description = "Opis konferencije",
-            StartDate = DateTime.UtcNow.AddDays(1),
-            EndDate = DateTime.UtcNow.AddDays(2),
-            Location = "Sarajevo",
-            Category = "IT",
-            MaxParticipants = 100
-        };
+        Title = "Test Konferencija",
+        Description = "Opis konferencije",
+        StartDate = DateTime.UtcNow.AddDays(1),
+        EndDate = DateTime.UtcNow.AddDays(2),
+        Location = "Sarajevo",
+        Category = "IT",
+        MaxParticipants = 100
+    };
 
-        var conference = new Conference
-        {
-            ConferenceId = Guid.NewGuid(),
-            Title = dto.Title,
-            Description = dto.Description,
-            StartDate = dto.StartDate,
-            EndDate = dto.EndDate,
-            Location = dto.Location,
-            Category = dto.Category,
-            MaxParticipants = dto.MaxParticipants,
-            Status = "Planned"
-        };
+    var conference = new Conference
+    {
+        ConferenceId = Guid.NewGuid(),
+        Title = dto.Title,
+        Description = dto.Description,
+        StartDate = dto.StartDate,
+        EndDate = dto.EndDate,
+        Location = dto.Location,
+        Category = dto.Category,
+        MaxParticipants = dto.MaxParticipants,
+        Status = "Planned"
+    };
 
-        _repositoryMock
-            .Setup(r => r.AddAsync(It.IsAny<Conference>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(conference);
+    _repositoryMock
+        .Setup(r => r.AddAsync(It.IsAny<Conference>(), It.IsAny<CancellationToken>()))
+        .ReturnsAsync(conference);
 
-        var result = await _service.CreateAsync(dto);
+    var result = await _service.CreateAsync(dto);
 
-        Assert.NotNull(result);
-        Assert.Equal(dto.Title, result.Title);
-        Assert.Equal(dto.Location, result.Location);
-        Assert.Equal(dto.MaxParticipants, result.MaxParticipants);
-    }
+    Assert.NotNull(result);
+    Assert.Equal(dto.Title, result.Title);
+    Assert.Equal(dto.Location, result.Location);
+    Assert.Equal(dto.MaxParticipants, result.MaxParticipants);
+}
 
     [Fact]
     public async Task CreateAsync_InvalidDates_ThrowsArgumentException()

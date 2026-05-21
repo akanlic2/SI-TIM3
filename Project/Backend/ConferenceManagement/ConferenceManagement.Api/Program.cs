@@ -16,6 +16,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
+builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
+builder.Services.AddScoped<IQuestionService, QuestionService>();
 
 builder.Services.AddCors(options =>
 {
@@ -88,6 +90,8 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ISessionRepository, SessionRepository>();
 builder.Services.AddScoped<ISessionService, SessionService>();
 builder.Services.AddScoped<ISessionRegistrationRepository, SessionRegistrationRepository>();
+builder.Services.AddScoped<IAgendaItemRepository, AgendaItemRepository>();
+builder.Services.AddScoped<IAgendaItemService, AgendaItemService>();
 
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("AdminPolicy", policy => policy.RequireRole("admin-sistema"))

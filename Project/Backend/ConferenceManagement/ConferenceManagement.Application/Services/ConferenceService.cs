@@ -91,6 +91,14 @@ public class ConferenceService : IConferenceService
             throw new ArgumentException("Maksimalan broj učesnika mora biti veći od 0.");
         }
 
+        var organizerId = Guid.Parse(_userContextService.GetUserId());
+        var organizer = await _userRepository.GetByIdAsync(organizerId, cancellationToken);
+
+        if (organizer is null)
+        {
+            throw new KeyNotFoundException($"Korisnik sa ID-jem {organizerId} nije pronađen.");
+        }
+
         var conference = new Conference
         {
             Title = dto.Title,
@@ -100,7 +108,8 @@ public class ConferenceService : IConferenceService
             Location = dto.Location,
             Category = dto.Category,
             MaxParticipants = dto.MaxParticipants,
-            Status = "Planned"
+            Status = "Planned",
+            Organizers = new List<User> { organizer }
         };
 
         // novo - automatski dodavanje organizatora koji kreira konferenciju

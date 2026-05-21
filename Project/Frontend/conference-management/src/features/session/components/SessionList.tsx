@@ -2,7 +2,8 @@ import type { Session } from '../types'
 import { cancelSessionRegistration, deleteSession, fetchRegisteredSessions, registerForSession } from '../api/sessionApi'
 import { useAuth } from '../../../auth/AuthProvider'
 import { useCallback, useEffect, useState } from 'react'
-
+import QAPanel from './QAPanel'
+ 
 interface SessionListProps {
   sessions: Session[]
   conferenceId: string
@@ -10,7 +11,7 @@ interface SessionListProps {
   onDeleteSuccess: () => void
   onEditClick: (session: Session) => void
 }
-
+ 
 export function SessionList({
   sessions = [],
   conferenceId,
@@ -19,12 +20,12 @@ export function SessionList({
   onEditClick,
 }: SessionListProps) {
   const { user, token } = useAuth()
-
+ 
   const role = user?.role?.toLowerCase() ?? ''
-
+ 
   const isParticipant = role === 'ucesnik'
   const isSpeaker = role === 'predavac'
-
+ 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
   const [registeredConferenceIds, setRegisteredConferenceIds] = useState<Set<string>>(new Set());
@@ -32,7 +33,8 @@ export function SessionList({
   const [registeredSessions, setRegisteredSessions] = useState<Record<string, string>>({});
   const [isLoadingRegisteredSessions, setIsLoadingRegisteredSessions] = useState(true);
   const [cancellingSessionId, setCancellingSessionId] = useState<string | null>(null);
-
+  const [openQASessionId, setOpenQASessionId] = useState<string | null>(null);
+ 
   // Filter sessions based on role
   const filteredSessions = sessions.filter(session => {
     if (isAdminOrOrganizer) return true;
@@ -40,7 +42,7 @@ export function SessionList({
     if (isSpeaker) return session.speakerName === `${user?.firstName} ${user?.lastName}`;
     return true;
   });
-
+ 
   useEffect(() => {
     if (!token) return;
     setIsLoadingRegistered(true);
@@ -58,14 +60,14 @@ export function SessionList({
       .catch(() => setRegisteredConferenceIds(new Set()))
       .finally(() => setIsLoadingRegistered(false));
   }, [token]);
-
+ 
   const loadRegisteredSessions = useCallback(async () => {
     if (!token || !isParticipant) {
       setRegisteredSessions({});
       setIsLoadingRegisteredSessions(false);
       return;
     }
-
+ 
     setIsLoadingRegisteredSessions(true);
     try {
       const items = await fetchRegisteredSessions();
@@ -82,19 +84,19 @@ export function SessionList({
       setIsLoadingRegisteredSessions(false);
     }
   }, [token, isParticipant]);
-
+ 
   useEffect(() => {
     void loadRegisteredSessions();
   }, [loadRegisteredSessions]);
-
+ 
   const isRegisteredForConference = registeredConferenceIds.has(conferenceId);
   const isRegistrationBlocked = !isRegisteredForConference || isLoadingRegistered;
   const registrationTooltip = isRegisteredForConference
     ? 'Prijavi se na sesiju'
     : 'Morate se prvo prijaviti na konferenciju.'
-
+ 
   const isRegisteredForSession = (sessionId: string) => Boolean(registeredSessions[sessionId])
-
+ 
   const handleDelete = async (id: string) => {
     try {
       await deleteSession(id)
@@ -104,7 +106,7 @@ export function SessionList({
       alert('Greška prilikom brisanja. Provjerite konzolu.')
     }
   }
-
+ 
   const handleRegister = async (id: string) => {
     try {
       const message = await registerForSession(id)
@@ -115,16 +117,16 @@ export function SessionList({
       alert(message)
     }
   }
-
+ 
   const handleCancel = async (id: string) => {
     if (cancellingSessionId) return
-
+ 
     const registrationId = registeredSessions[id]
     if (!registrationId) {
       alert('Nije pronađena prijava za ovu sesiju.')
       return
     }
-
+ 
     setCancellingSessionId(id)
     try {
       const message = await cancelSessionRegistration(registrationId)
@@ -137,7 +139,7 @@ export function SessionList({
       setCancellingSessionId(null)
     }
   }
-
+ 
   const formatDateTime = (dateString: string) => {
     try {
       return new Intl.DateTimeFormat('bs-BA', {
@@ -151,7 +153,7 @@ export function SessionList({
       return dateString
     }
   }
-
+ 
   if (!filteredSessions || filteredSessions.length === 0) {
     return (
       <div className="session-empty-state">
@@ -161,7 +163,7 @@ export function SessionList({
       </div>
     )
   }
-
+ 
   return (
     <>
     <div className="session-grid">
@@ -173,21 +175,20 @@ export function SessionList({
           {/* Header */}
           <div className="session-card-header">
             <h3 className="session-card-title">{session.title}</h3>
-
             <span
               className={`session-status session-status-${session.status.toLowerCase()}`}
             >
               {session.status}
             </span>
           </div>
-
+ 
           {/* Description */}
           {session.description && (
             <p style={{ color: '#94a3b8', fontSize: '14px', margin: '8px 0 12px 0' }}>
               {session.description}
             </p>
           )}
-
+ 
           {/* Speaker Badge */}
           {isSpeaker && (
             <div style={{ marginBottom: '12px' }}>
@@ -205,138 +206,54 @@ export function SessionList({
               </span>
             </div>
           )}
-
+ 
           {/* Info */}
           <div className="session-card-info">
-            <div
-              className="session-info-row"
-              style={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: '0.75rem',
-                flexWrap: 'wrap',
-              }}
-            >
+            <div className="session-info-row" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', flexWrap: 'wrap' }}>
               <span className="session-info-icon">⏰</span>
-
-              <div
-                className="session-info-content"
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '0.15rem',
-                }}
-              >
+              <div className="session-info-content" style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
                 <span className="session-info-label">Početak</span>
-                <p className="session-info-value">
-                  {formatDateTime(session.startTime)}
-                </p>
+                <p className="session-info-value">{formatDateTime(session.startTime)}</p>
               </div>
             </div>
-
-            <div
-              className="session-info-row"
-              style={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: '0.75rem',
-                flexWrap: 'wrap',
-              }}
-            >
+ 
+            <div className="session-info-row" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', flexWrap: 'wrap' }}>
               <span className="session-info-icon">🏁</span>
-
-              <div
-                className="session-info-content"
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '0.15rem',
-                }}
-              >
+              <div className="session-info-content" style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
                 <span className="session-info-label">Završetak</span>
-                <p className="session-info-value">
-                  {formatDateTime(session.endTime)}
-                </p>
+                <p className="session-info-value">{formatDateTime(session.endTime)}</p>
               </div>
             </div>
-
-            <div
-              className="session-info-row"
-              style={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: '0.75rem',
-                flexWrap: 'wrap',
-              }}
-            >
+ 
+            <div className="session-info-row" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', flexWrap: 'wrap' }}>
               <span className="session-info-icon">🏷️</span>
-
-              <div
-                className="session-info-content"
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '0.15rem',
-                }}
-              >
+              <div className="session-info-content" style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
                 <span className="session-info-label">Tip sesije</span>
                 <p className="session-info-value">{session.sessionType}</p>
               </div>
             </div>
-
+ 
             {session.roomName && (
-              <div
-                className="session-info-row"
-                style={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: '0.75rem',
-                  flexWrap: 'wrap',
-                }}
-              >
+              <div className="session-info-row" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', flexWrap: 'wrap' }}>
                 <span className="session-info-icon">🏢</span>
-
-                <div
-                  className="session-info-content"
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '0.15rem',
-                  }}
-                >
+                <div className="session-info-content" style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
                   <span className="session-info-label">Sala</span>
                   <p className="session-info-value">{session.roomName}</p>
                 </div>
               </div>
             )}
-
+ 
             {session.speakerName && (
-              <div
-                className="session-info-row"
-                style={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: '0.75rem',
-                  flexWrap: 'wrap',
-                }}
-              >
+              <div className="session-info-row" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', flexWrap: 'wrap' }}>
                 <span className="session-info-icon">🎤</span>
-
-                <div
-                  className="session-info-content"
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '0.15rem',
-                  }}
-                >
+                <div className="session-info-content" style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
                   <span className="session-info-label">Predavač</span>
                   <p className="session-info-value">{session.speakerName}</p>
                 </div>
               </div>
             )}
           </div>
-
+ 
           {/* Actions */}
           <div
             className="session-card-actions"
@@ -353,10 +270,7 @@ export function SessionList({
             {isParticipant && (
               <button
                 className="btn-primary-sm"
-                style={{
-                  backgroundColor: '#10B981',
-                  color: 'white',
-                }}
+                style={{ backgroundColor: '#10B981', color: 'white' }}
                 onClick={() => handleRegister(session.sessionId)}
                 disabled={
                   isRegistrationBlocked ||
@@ -382,6 +296,21 @@ export function SessionList({
                 Odjavi
               </button>
             )}
+ 
+            {/* Q&A dugme — vidljivo ucesniku i predavacu */}
+            {(isParticipant || isSpeaker || isAdminOrOrganizer) && (
+              <button
+                className="btn-secondary"
+                onClick={() =>
+                setOpenQASessionId(
+                  openQASessionId === session.sessionId ? null : session.sessionId
+                )
+              }
+              >
+              {openQASessionId === session.sessionId ? 'Zatvori Q&A' : 'Q&A'}
+            </button>
+)}
+ 
             {/* Admin / Organizer */}
             {isAdminOrOrganizer && (
               <>
@@ -399,7 +328,6 @@ export function SessionList({
                 >
                   Uredi
                 </button>
-
                 <button
                   onClick={() => {
                     setSessionToDelete(session.sessionId);
@@ -420,10 +348,21 @@ export function SessionList({
               </>
             )}
           </div>
+ 
+          {/* Q&A Panel — otvara se ispod akcija */}
+          {openQASessionId === session.sessionId && (
+            <div style={{ marginTop: '16px', borderTop: '1px solid rgba(148,163,184,0.2)', paddingTop: '16px' }}>
+              <QAPanel
+                sessionId={session.sessionId}
+                sessionStartTime={session.startTime}
+                role={role}
+              />
+            </div>
+          )}
         </div>
       ))}
     </div>
-
+ 
     {showDeleteModal && (
       <div className="modal-overlay" style={{ overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
         <div className="modal-content" style={{ maxHeight: '90vh', overflowY: 'auto' }}>
