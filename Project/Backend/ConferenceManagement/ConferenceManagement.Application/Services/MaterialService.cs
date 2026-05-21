@@ -11,19 +11,18 @@ public class MaterialService : IMaterialService
     private readonly ISessionRepository _sessionRepository;
     private readonly ISessionRegistrationRepository _registrationRepository;
     private readonly IUserContextService _userContextService;
-    // Ovdje bi išao tvoj MaterialRepository, koristim DbContext direktno ili repozitorij ako ga napraviš
-    private readonly ApplicationDbContext _context;
+    private readonly IMaterialRepository _materialRepository; // Koristimo repozitorij
 
     public MaterialService(
         ISessionRepository sessionRepository,
         ISessionRegistrationRepository registrationRepository,
         IUserContextService userContextService,
-        ApplicationDbContext context)
+        IMaterialRepository materialRepository) // Inject repozitorij
     {
         _sessionRepository = sessionRepository;
         _registrationRepository = registrationRepository;
         _userContextService = userContextService;
-        _context = context;
+        _materialRepository = materialRepository;
     }
 
     public async Task<Guid> UploadMaterialAsync(Guid sessionId, IFormFile file, string title, string description, CancellationToken cancellationToken)
@@ -33,27 +32,20 @@ public class MaterialService : IMaterialService
 
         if (session == null) throw new KeyNotFoundException("Sesija nije pronađena.");
 
-        // --- S44-BE Role Guard ---
+        // S44-BE Role Guard
         bool canUpload = false;
-
         if (_userContextService.HasAnyRole("admin-sistema", "organizator"))
         {
-            canUpload = true; // Admin i Organizator mogu za bilo koju sesiju
+            canUpload = true;
         }
         else if (_userContextService.HasRole("predavac"))
         {
-            // Provjera da li je to njegova sesija (isSpeaker flag)
             var registration = await _registrationRepository.GetBySessionAndUserAsync(sessionId, userId);
-            if (registration != null && registration.IsSpeaker)
-            {
-                canUpload = true;
-            }
+            if (registration != null && registration.IsSpeaker) canUpload = true;
         }
 
-        if (!canUpload)
-            throw new UnauthorizedAccessException("Nemate dozvolu za upload materijala na ovu sesiju.");
+        if (!canUpload) throw new UnauthorizedAccessException("Nemate dozvolu za upload.");
 
-        // Logika za čuvanje fajla (Simulacija putanje, ovdje bi išao stvarni upload na disk/cloud)
         var filePath = $"/uploads/materials/{Guid.NewGuid()}_{file.FileName}";
 
         var material = new Material
@@ -67,8 +59,8 @@ public class MaterialService : IMaterialService
             UploadDate = DateTime.UtcNow
         };
 
-        _context.Materials.Add(material);
-        await _context.SaveChangesAsync(cancellationToken);
+        await _materialRepository.AddAsync(material, cancellationToken);
+        await _materialRepository.SaveChangesAsync(cancellationToken);
 
         return material.MaterialId;
     }
@@ -76,26 +68,20 @@ public class MaterialService : IMaterialService
     public async Task<List<MaterialDto>> GetMaterialsBySessionIdAsync(Guid sessionId, CancellationToken cancellationToken)
     {
         var userId = Guid.Parse(_userContextService.GetUserId());
-
-        // --- S44-BE Role Guard za pregled ---
-        // Provjera da li je korisnik prijavljen na sesiju (bilo kao ucesnik ili predavac)
         var isRegistered = await _registrationRepository.GetBySessionAndUserAsync(sessionId, userId);
 
         if (isRegistered == null && !_userContextService.HasAnyRole("admin-sistema", "organizator"))
-            throw new UnauthorizedAccessException("Morate biti prijavljeni na sesiju da biste vidjeli materijale.");
+            throw new UnauthorizedAccessException("Niste prijavljeni na sesiju.");
 
-        var materials = await _context.Materials
-            .Where(m => m.SessionId == sessionId)
-            .Select(m => new MaterialDto
-            {
-                MaterialId = m.MaterialId,
-                Title = m.Title,
-                FileUrl = m.FileUrl,
-                MaterialType = m.MaterialType,
-                UploadDate = m.UploadDate
-            })
-            .ToListAsync(cancellationToken);
+        var materials = await _materialRepository.GetBySessionIdAsync(sessionId, cancellationToken);
 
-        return materials;
+        return materials.Select(m => new MaterialDto
+        {
+            MaterialId = m.MaterialId,
+            Title = m.Title,
+            FileUrl = m.FileUrl,
+            MaterialType = m.MaterialType,
+            UploadDate = m.UploadDate
+        }).ToList();
     }
 }
