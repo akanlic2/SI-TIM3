@@ -25,6 +25,27 @@ export async function fetchRegisteredSessions(): Promise<Session[]> {
   }
 }
 
+export async function fetchSpeakerSessions(token: string): Promise<Array<Session & { conferenceTitle?: string }>> {
+  try {
+    const response = await axios.get<Array<Session & { conferenceTitle?: string }>>(
+      `${BASE_URL}/api/speakers/sessions`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Greška pri dohvatanju predavačevih sesija:', error);
+    if (axios.isAxiosError(error)) {
+      const message = error.response?.data?.message || error.response?.data?.Message || error.message;
+      throw new Error(message ?? 'Greška pri dohvatanju predavačevih sesija');
+    }
+    throw new Error('Greška pri dohvatanju predavačevih sesija');
+  }
+}
+
 interface ApiMessageResponse {
   Message?: string;
   message?: string;
