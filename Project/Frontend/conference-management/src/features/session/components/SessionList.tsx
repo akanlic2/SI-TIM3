@@ -34,12 +34,7 @@ export function SessionList({
   const [cancellingSessionId, setCancellingSessionId] = useState<string | null>(null);
 
   // Filter sessions based on role
-  const filteredSessions = sessions.filter(session => {
-    if (isAdminOrOrganizer) return true;
-    if (isParticipant) return true;
-    if (isSpeaker) return session.speakerName === `${user?.firstName} ${user?.lastName}`;
-    return true;
-  });
+  const filteredSessions = sessions;
 
   useEffect(() => {
     if (!token) return;

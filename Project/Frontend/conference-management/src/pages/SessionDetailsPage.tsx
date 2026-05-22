@@ -19,14 +19,14 @@ export default function SessionDetailsPage() {
     roomName?: string;
     speakerName?: string;
     attendees?: {
-        userId: string;
-        firstName: string;
-        lastName: string;
-        email: string;
-        registrationDate: string;
+      userId: string;
+      firstName: string;
+      lastName: string;
+      email: string;
+      registrationDate: string;
     }[];
-    }
-    // Dodaj ovo nakon interface definicije:
+  }
+
   const [session, setSession] = useState<SpeakerSessionDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -161,8 +161,15 @@ export default function SessionDetailsPage() {
           </div>
 
           {session.description && (
-            <p style={{ color: '#94a3b8', fontSize: '14px', margin: '8px 0 12px 0' }}>
+            <p style={{ color: '#94a3b8', fontSize: '14px', margin: '8px 0 4px 0' }}>
               {session.description}
+            </p>
+          )}
+
+          {/* Naziv konferencije se ispisuje odmah ispod opisa sesije */}
+          {session.conferenceTitle && (
+            <p style={{ color: '#64748b', fontSize: '14px', fontWeight: 500, margin: '0 0 16px 0' }}>
+              Konferencija: {session.conferenceTitle}
             </p>
           )}
 
@@ -191,11 +198,23 @@ export default function SessionDetailsPage() {
               </div>
             </div>
 
+            {/* Lokacija ispisuje samo čistu lokaciju iz baze */}
+            {session.location && (
+              <div className="session-info-row" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', flexWrap: 'wrap' }}>
+                <span className="session-info-icon">📍</span>
+                <div className="session-info-content" style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
+                  <span className="session-info-label">LOKACIJA</span>
+                  <p className="session-info-value">{session.location}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Dvorana ispisuje roomName sa backenda */}
             {session.roomName && (
               <div className="session-info-row" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', flexWrap: 'wrap' }}>
                 <span className="session-info-icon">🏢</span>
                 <div className="session-info-content" style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
-                  <span className="session-info-label">SALA</span>
+                  <span className="session-info-label">DVORANA</span>
                   <p className="session-info-value">{session.roomName}</p>
                 </div>
               </div>

@@ -4,9 +4,15 @@ import type { Session, CreateSessionData, UpdateSessionData, AssignSpeakerData, 
 // API base URL - uses env variable, falls back to Docker port 8082
 const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8082';
 
-export async function fetchSessions(conferenceId: string): Promise<Session[]> {
+export async function fetchSessions(conferenceId: string, token?: string): Promise<Session[]> {
   try {
-    const response = await axios.get<Session[]>(`${BASE_URL}/api/conferences/${conferenceId}/sessions`);
+    const response = await axios.get<Session[]>(`${BASE_URL}/api/conferences/${conferenceId}/sessions`, {
+      headers: token
+        ? {
+            Authorization: `Bearer ${token}`,
+          }
+        : undefined,
+    });
     return response.data;
   } catch (error) {
     console.error('Greška pri dohvatanju sesija:', error);
