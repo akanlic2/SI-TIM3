@@ -155,6 +155,16 @@ app.UseExceptionHandler(errorApp =>
 });
 
 app.UseCors("FrontendDev");
+
+var uploadsPath = Path.Combine(builder.Environment.ContentRootPath, "uploads", "materials");
+Directory.CreateDirectory(uploadsPath);
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(
+        Path.Combine(builder.Environment.ContentRootPath, "uploads")),
+    RequestPath = "/uploads"
+});
 app.UseAuthentication();
 app.UseAuthorization();
 

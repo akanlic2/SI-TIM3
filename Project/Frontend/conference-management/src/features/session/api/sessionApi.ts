@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { Session, CreateSessionData, UpdateSessionData, AssignSpeakerData, User } from '../types';
+import type { Session, CreateSessionData, UpdateSessionData, AssignSpeakerData, User, SessionMaterial } from '../types';
 
 // API base URL - uses env variable, falls back to Docker port 8082
 const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8082';
@@ -165,6 +165,53 @@ export async function fetchSessionById(id: string): Promise<Session | null> {
   } catch (error) {
     console.error('Greška pri dohvatanju sesije:', error);
     return null;
+  }
+}
+
+export async function fetchSessionMaterials(sessionId: string, token?: string): Promise<SessionMaterial[]> {
+  try {
+    const response = await axios.get<SessionMaterial[]>(`${BASE_URL}/api/sessions/${sessionId}/materials`, {
+      headers: token
+        ? {
+            Authorization: `Bearer ${token}`,
+          }
+        : undefined,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Greška pri dohvatanju materijala:', error);
+    return [];
+  }
+}
+
+export async function uploadSessionMaterial(
+  sessionId: string,
+  title: string,
+  description: string,
+  file: File,
+  token: string
+): Promise<void> {
+  try {
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('description', description);
+    formData.append('file', file);
+
+    await axios.post(`${BASE_URL}/api/sessions/${sessionId}/materials`, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const data = error.response?.data as { message?: string; Message?: string } | string | undefined;
+      const message =
+        typeof data === 'string'
+          ? data
+          : data?.message || data?.Message || error.message;
+      throw new Error(message || 'Greška pri uploadu materijala.');
+    }
+    throw new Error('Greška pri uploadu materijala.');
   }
 }
 

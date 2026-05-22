@@ -32,7 +32,6 @@ public class MaterialService : IMaterialService
 
         if (session == null) throw new KeyNotFoundException("Sesija nije pronađena.");
 
-        // S44-BE Role Guard
         bool canUpload = false;
         if (_userContextService.HasAnyRole("admin-sistema", "organizator"))
         {
@@ -46,7 +45,19 @@ public class MaterialService : IMaterialService
 
         if (!canUpload) throw new UnauthorizedAccessException("Nemate dozvolu za upload.");
 
-        var filePath = $"/uploads/materials/{Guid.NewGuid()}_{file.FileName}";
+        // ← DODAJ OVO: fizičko čuvanje fajla na disk
+        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "uploads", "materials");
+        Directory.CreateDirectory(uploadsFolder); // kreira folder ako ne postoji
+
+        var fileName = $"{Guid.NewGuid()}_{file.FileName}";
+        var fullPath = Path.Combine(uploadsFolder, fileName);
+
+        using (var stream = new FileStream(fullPath, FileMode.Create))
+        {
+            await file.CopyToAsync(stream, cancellationToken);
+        }
+
+        var filePath = $"/uploads/materials/{fileName}"; // relativna putanja za bazu
 
         var material = new Material
         {

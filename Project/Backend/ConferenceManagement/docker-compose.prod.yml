@@ -53,6 +53,8 @@ services:
       Jwt__Audience: ConferenceManagement.Client
     ports:
       - "8082:8080"
+    volumes:
+      - conferencemanagement-uploads:/app/uploads  # dodano
   conferencemanagement.frontend:
     build:
       context: /root/SI-TIM3/Project/Frontend/conference-management
@@ -68,5 +70,6 @@ services:
         condition: service_started
 volumes:
   conferencemanagement-db-data:
+  conferencemanagement-uploads:
 
 

@@ -1,10 +1,19 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../auth/AuthProvider';
+import { useMaterials } from '../features/session/hooks/useMaterials';
+import { UploadMaterialModal } from '../features/session/components/UploadMaterialModal';
 import '../features/conference/ConferencesPage.css';
 
 export default function SessionDetailsPage() {
   const { token, isLoading: isAuthLoading } = useAuth();
   const sessionId = window.location.pathname.split('/')[2] ?? '';
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const {
+    items: materials,
+    isLoading: isLoadingMaterials,
+    error: materialsError,
+    refresh: refreshMaterials,
+  } = useMaterials(sessionId);
 
   interface SpeakerSessionDetails {
     sessionId: string;
@@ -210,15 +219,52 @@ export default function SessionDetailsPage() {
             )}
 
             {/* Dvorana ispisuje roomName sa backenda */}
-            {session.roomName && (
-              <div className="session-info-row" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', flexWrap: 'wrap' }}>
-                <span className="session-info-icon">🏢</span>
-                <div className="session-info-content" style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
-                  <span className="session-info-label">DVORANA</span>
-                  <p className="session-info-value">{session.roomName}</p>
-                </div>
+            <div className="session-info-row" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', flexWrap: 'wrap' }}>
+              <span className="session-info-icon">🏢</span>
+              <div className="session-info-content" style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
+                <span className="session-info-label">DVORANA</span>
+                <p className="session-info-value">{session.roomName ?? 'Nije dostupno'}</p>
               </div>
-            )}
+            </div>
+
+            <div className="session-info-row" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', flexWrap: 'wrap' }}>
+              <span className="session-info-icon">📎</span>
+              <div className="session-info-content" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <span className="session-info-label">MATERIJALI</span>
+                {isLoadingMaterials ? (
+                  <p className="session-info-value">Učitavanje materijala...</p>
+                ) : materialsError ? (
+                  <p className="session-info-value">{materialsError}</p>
+                ) : materials.length === 0 ? (
+                  <p className="session-info-value">Nema materijala</p>
+                ) : (
+                  materials.map((material, index) => (
+                    <div key={material.materialId} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <div>
+                        <strong>{material.title}</strong>
+                        {material.description && (
+                          <p className="session-info-value" style={{ margin: '4px 0 0 0' }}>
+                            {material.description}
+                          </p>
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        className="btn-primary-sm"
+                        style={{ width: 'fit-content', padding: '8px 16px', cursor: 'pointer', border: 'none' }}
+                        onClick={() => {
+                          const url = `${import.meta.env.VITE_API_URL ?? 'http://localhost:8082'}${material.fileUrl}`;
+                          window.open(url, '_blank');
+                        }}
+                      >
+                        Preuzmi
+                      </button>
+                      {index < materials.length - 1 && <hr style={{ borderColor: 'rgba(148,163,184,0.2)', margin: '8px 0' }} />}
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
 
             {session.speakerName && (
               <div className="session-info-row" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', flexWrap: 'wrap' }}>
@@ -242,11 +288,24 @@ export default function SessionDetailsPage() {
                 border: 'none',
                 cursor: 'pointer',
               }}
-              onClick={() => console.log('Upload Materijala clicked', session.sessionId)}
+              onClick={() => setShowUploadModal(true)}
             >
               Upload Materijala
             </button>
           </div>
+
+          {showUploadModal && (
+            <div className="modal-overlay" style={{ overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
+              <UploadMaterialModal
+                sessionId={session.sessionId}
+                onCancel={() => setShowUploadModal(false)}
+                onSuccess={() => {
+                  setShowUploadModal(false);
+                  refreshMaterials();
+                }}
+              />
+            </div>
+          )}
         </div>
       </div>
     </main>
