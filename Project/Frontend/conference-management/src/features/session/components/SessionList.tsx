@@ -2,6 +2,62 @@ import type { Session } from '../types'
 import { cancelSessionRegistration, deleteSession, fetchRegisteredSessions, registerForSession } from '../api/sessionApi'
 import { useAuth } from '../../../auth/AuthProvider'
 import { useCallback, useEffect, useState } from 'react'
+import { useMaterials } from '../hooks/useMaterials'
+import { UploadMaterialModal } from './UploadMaterialModal'
+
+interface SessionMaterialsSectionProps {
+  sessionId: string
+  refreshKey: number
+}
+
+function SessionMaterialsSection({ sessionId, refreshKey }: SessionMaterialsSectionProps) {
+  const { items, isLoading, error, refresh } = useMaterials(sessionId)
+
+  useEffect(() => {
+    if (refreshKey > 0) {
+      void refresh()
+    }
+  }, [refreshKey, refresh])
+
+  return (
+    <div className="session-info-row" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', flexWrap: 'wrap' }}>
+      <span className="session-info-icon">📎</span>
+      <div className="session-info-content" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        <span className="session-info-label">MATERIJALI</span>
+        {isLoading ? (
+          <p className="session-info-value">Učitavanje materijala...</p>
+        ) : error ? (
+          <p className="session-info-value">{error}</p>
+        ) : items.length === 0 ? (
+          <p className="session-info-value">Nema materijala</p>
+        ) : (
+          items.map((material, index) => (
+            <div key={material.materialId} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div>
+                <strong>{material.title}</strong>
+                {material.description && (
+                  <p className="session-info-value" style={{ margin: '4px 0 0 0' }}>
+                    {material.description}
+                  </p>
+                )}
+              </div>
+              <a
+                href={`${import.meta.env.VITE_API_URL ?? 'http://localhost:8082'}${material.fileUrl}`}
+                target="_blank"
+                rel="noreferrer"
+                className="btn-primary-sm"
+                style={{ width: 'fit-content', padding: '8px 16px' }}
+              >
+                Preuzmi
+              </a>
+              {index < items.length - 1 && <hr style={{ borderColor: 'rgba(148,163,184,0.2)', margin: '8px 0' }} />}
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  )
+}
 
 interface SessionListProps {
   sessions: Session[]
@@ -34,12 +90,7 @@ export function SessionList({
   const [cancellingSessionId, setCancellingSessionId] = useState<string | null>(null);
 
   // Filter sessions based on role
-  const filteredSessions = sessions.filter(session => {
-    if (isAdminOrOrganizer) return true;
-    if (isParticipant) return true;
-    if (isSpeaker) return session.speakerName === `${user?.firstName} ${user?.lastName}`;
-    return true;
-  });
+  const filteredSessions = sessions;
 
   useEffect(() => {
     if (!token) return;
@@ -94,6 +145,8 @@ export function SessionList({
     : 'Morate se prvo prijaviti na konferenciju.'
 
   const isRegisteredForSession = (sessionId: string) => Boolean(registeredSessions[sessionId])
+  const [activeUploadSessionId, setActiveUploadSessionId] = useState<string | null>(null)
+  const [materialsRefreshKey, setMaterialsRefreshKey] = useState(0)
 
   const handleDelete = async (id: string) => {
     try {
@@ -335,6 +388,10 @@ export function SessionList({
                 </div>
               </div>
             )}
+
+            {isAdminOrOrganizer && (
+              <SessionMaterialsSection sessionId={session.sessionId} refreshKey={materialsRefreshKey} />
+            )}
           </div>
 
           {/* Actions */}
@@ -385,6 +442,21 @@ export function SessionList({
             {/* Admin / Organizer */}
             {isAdminOrOrganizer && (
               <>
+                <button
+                  onClick={() => setActiveUploadSessionId(session.sessionId)}
+                  className="btn-edit"
+                  style={{
+                    backgroundColor: '#EAB308',
+                    color: '#000',
+                    borderRadius: '9999px',
+                    padding: '8px 20px',
+                    border: 'none',
+                    cursor: 'pointer',
+                  }}
+                >
+                  Upload Materijala
+                </button>
+
                 <button
                   onClick={() => onEditClick(session)}
                   className="btn-edit"
@@ -438,6 +510,19 @@ export function SessionList({
             </button>
           </div>
         </div>
+      </div>
+    )}
+
+    {activeUploadSessionId && (
+      <div className="modal-overlay" style={{ overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
+        <UploadMaterialModal
+          sessionId={activeUploadSessionId}
+          onCancel={() => setActiveUploadSessionId(null)}
+          onSuccess={() => {
+            setActiveUploadSessionId(null);
+            setMaterialsRefreshKey((prev) => prev + 1);
+          }}
+        />
       </div>
     )}
     </>

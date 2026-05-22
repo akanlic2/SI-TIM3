@@ -55,6 +55,8 @@ services:
       Jwt__Audience: ConferenceManagement.Client
     ports:
       - '8082:8080'
+    volumes:
+      - conferencemanagement-uploads:/app/uploads # dodano
 
   conferencemanagement.frontend:
     build:
@@ -73,3 +75,4 @@ services:
 
 volumes:
   conferencemanagement-db-data:
+  conferencemanagement-uploads:
