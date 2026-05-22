@@ -389,7 +389,7 @@ export function SessionList({
               </div>
             )}
 
-            {isAdminOrOrganizer && (
+            {(isAdminOrOrganizer || (isParticipant && isRegisteredForSession(session.sessionId))) && (
               <SessionMaterialsSection sessionId={session.sessionId} refreshKey={materialsRefreshKey} />
             )}
           </div>
