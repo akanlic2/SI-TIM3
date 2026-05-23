@@ -1,4 +1,4 @@
-﻿using ConferenceManagement.Application.DTOs;
+using ConferenceManagement.Application.DTOs;
 using ConferenceManagement.Application.DTOs.Session;
 
 namespace ConferenceManagement.Application.Interfaces;
@@ -14,6 +14,7 @@ public interface ISessionService
     Task<bool> UpdateSessionAsync(Guid id, UpdateSessionDto dto);
     Task<bool> DeleteSessionAsync(Guid id);
     Task<bool> AssignSpeakerAsync(Guid sessionId, Guid userId);
+    Task<bool> RemoveSpeakerAsync(Guid sessionId, Guid userId);
     Task RegisterAsync(Guid sessionId, CancellationToken cancellationToken = default);
     Task CancelRegistrationAsync(Guid registrationId, CancellationToken cancellationToken = default);
     Task<List<SessionListDTO>> GetRegisteredForCurrentUserAsync(CancellationToken cancellationToken = default);

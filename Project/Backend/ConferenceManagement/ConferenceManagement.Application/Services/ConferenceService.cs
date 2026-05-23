@@ -1,7 +1,6 @@
-﻿using ConferenceManagement.Application.DTOs.Common;
+using ConferenceManagement.Application.DTOs.Common;
 using ConferenceManagement.Application.DTOs.Conference;
 using ConferenceManagement.Application.Interfaces;
-using ConferenceManagement.Application.DTOs.Conference;
 using ConferenceManagement.Domain.Abstractions.Repositories;
 using ConferenceManagement.Domain.Entities;
 
@@ -13,17 +12,20 @@ public class ConferenceService : IConferenceService
     private readonly IConferenceRegistrationRepository _conferenceRegistrationRepository;
     private readonly IUserContextService _userContextService;
     private readonly IUserRepository _userRepository; //novo
+    private readonly INotificationService _notificationService;
 
     public ConferenceService(
         IConferenceRepository conferenceRepository,
         IConferenceRegistrationRepository conferenceRegistrationRepository,
         IUserContextService userContextService,
-        IUserRepository userRepository) // novo
+        IUserRepository userRepository,
+        INotificationService notificationService) // novo
     {
         _conferenceRepository = conferenceRepository;
         _conferenceRegistrationRepository = conferenceRegistrationRepository;
         _userContextService = userContextService;
         _userRepository = userRepository; // novo
+        _notificationService = notificationService;
     }
 
     public async Task<List<ConferenceDto>> GetAllAsync(CancellationToken cancellationToken = default)
@@ -154,6 +156,8 @@ public class ConferenceService : IConferenceService
             throw new ArgumentException("Maksimalan broj učesnika mora biti veći od 0.");
         }
 
+        bool isScheduleChanged = conference.StartDate != dto.StartDate.ToUniversalTime() || conference.EndDate != dto.EndDate.ToUniversalTime() || conference.Location != dto.Location;
+
         conference.Title = dto.Title;
         conference.Description = dto.Description;
         conference.StartDate = dto.StartDate.ToUniversalTime();
@@ -163,6 +167,21 @@ public class ConferenceService : IConferenceService
         conference.MaxParticipants = dto.MaxParticipants;
 
         await _conferenceRepository.UpdateAsync(conference, cancellationToken);
+
+        if (isScheduleChanged)
+        {
+            var registrations = await _conferenceRegistrationRepository.GetRegistrationsByConferenceAsync(id, cancellationToken);
+            foreach (var registration in registrations.Where(r => r.RegistrationStatus == "Confirmed"))
+            {
+                await _notificationService.CreateNotificationAsync(new DTOs.Notification.CreateNotificationDto
+                {
+                    UserId = registration.UserId,
+                    Title = "Promjena termina konferencije",
+                    Content = $"Konferencija {conference.Title} na koju ste prijavljeni je promijenila termin ili lokaciju.",
+                    NotificationType = "ConferenceUpdated"
+                }, cancellationToken);
+            }
+        }
     }
 
     public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
@@ -172,6 +191,18 @@ public class ConferenceService : IConferenceService
         if (conference == null)
         {
             throw new KeyNotFoundException($"Conference with ID {id} not found.");
+        }
+
+        var registrations = await _conferenceRegistrationRepository.GetRegistrationsByConferenceAsync(id, cancellationToken);
+        foreach (var registration in registrations.Where(r => r.RegistrationStatus == "Confirmed"))
+        {
+            await _notificationService.CreateNotificationAsync(new DTOs.Notification.CreateNotificationDto
+            {
+                UserId = registration.UserId,
+                Title = "Konferencija otkazana",
+                Content = $"Konferencija {conference.Title} na koju ste prijavljeni je otkazana.",
+                NotificationType = "ConferenceCancelled"
+            }, cancellationToken);
         }
 
         await _conferenceRepository.DeleteAsync(conference, cancellationToken);

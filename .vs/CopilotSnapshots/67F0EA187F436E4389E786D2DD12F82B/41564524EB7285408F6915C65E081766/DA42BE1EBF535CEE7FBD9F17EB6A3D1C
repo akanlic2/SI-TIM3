@@ -1,4 +1,4 @@
-using ConferenceManagement.Api.Extensions;
+﻿using ConferenceManagement.Api.Extensions;
 using ConferenceManagement.Application.Interfaces;
 using ConferenceManagement.Application.Services;
 using ConferenceManagement.Dal;
@@ -115,7 +115,7 @@ if (runMigrationsOnly)
 {
     await app.Services.WaitForDatabaseAndApplyMigrationsAsync(app.Logger);
     app.Logger.LogInformation("Migrations finished successfully. Exiting migrator container.");
-    Environment.Exit(0);
+    return;
 }
 
 // Velika izmjena: osigurava da API pri standardnom startup-u automatski primijeni
