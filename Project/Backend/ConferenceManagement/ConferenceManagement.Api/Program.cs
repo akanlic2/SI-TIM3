@@ -92,6 +92,11 @@ builder.Services.AddScoped<ISessionService, SessionService>();
 builder.Services.AddScoped<ISessionRegistrationRepository, SessionRegistrationRepository>();
 builder.Services.AddScoped<IAgendaItemRepository, AgendaItemRepository>();
 builder.Services.AddScoped<IAgendaItemService, AgendaItemService>();
+<<<<<<< HEAD
+=======
+builder.Services.AddScoped<IMaterialService, MaterialService>();
+builder.Services.AddScoped<IMaterialRepository, MaterialRepository>();
+>>>>>>> origin/main
 
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("AdminPolicy", policy => policy.RequireRole("admin-sistema"))
@@ -99,6 +104,7 @@ builder.Services.AddAuthorizationBuilder()
     .AddPolicy("AdminOrOrganizerPolicy", policy => policy.RequireRole("admin-sistema", "organizator"))
     .AddPolicy("SpeakerPolicy", policy => policy.RequireRole("predavac"))
     .AddPolicy("AttendeePolicy", policy => policy.RequireRole("ucesnik"))
+    .AddPolicy("AdminOrSpeakerPolicy", policy => policy.RequireRole("admin-sistema", "predavac"))
     .AddPolicy("ParticipantPolicy", policy =>
         policy.RequireAuthenticatedUser());
 
@@ -154,6 +160,16 @@ app.UseExceptionHandler(errorApp =>
 });
 
 app.UseCors("FrontendDev");
+
+var uploadsPath = Path.Combine(builder.Environment.ContentRootPath, "uploads", "materials");
+Directory.CreateDirectory(uploadsPath);
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(
+        Path.Combine(builder.Environment.ContentRootPath, "uploads")),
+    RequestPath = "/uploads"
+});
 app.UseAuthentication();
 app.UseAuthorization();
 

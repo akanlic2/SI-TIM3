@@ -7,12 +7,21 @@ public interface ISessionRepository
     Task<Session?> GetByIdAsync(Guid id);
     Task AddAsync(Session session);
     Task UpdateAsync(Session session);
-
     Task DeleteAsync(Session session);
     Task SaveChangesAsync();
     Task<IEnumerable<Session>> GetSessionsByConferenceIdAsync(Guid conferenceId);
-
     Task<bool> CheckOverlapAsync(Guid roomId, DateTime start, DateTime end, Guid? excludeSessionId = null);
+<<<<<<< HEAD
 
     Task<Session?> GetByIdWithRegistrationsAsync(Guid id);
+=======
+    Task<Session?> GetByIdWithRegistrationsAsync(Guid id);
+
+    // --- DODATO ZA S43 PREDAVAC DASHBOARD ---
+
+    /// <summary>
+    /// Dobavlja sve sesije za određenog predavača uključujući podatke o konferenciji.
+    /// </summary>
+    Task<List<Session>> GetSessionsBySpeakerIdAsync(Guid userId, CancellationToken cancellationToken = default);
+>>>>>>> origin/main
 }

@@ -36,6 +36,15 @@ export interface AssignSpeakerData {
   userId: string;
 }
 
+export interface SessionMaterial {
+  materialId: string;
+  title: string;
+  description?: string;
+  fileUrl: string;
+  materialType: string;
+  uploadDate: string;
+}
+
 export interface User {
   userId: string;
   username: string;

@@ -8,6 +8,8 @@ import SessionsPage from '../pages/SessionsPage';
 import AgendaPage from '../pages/AgendaPage';
 import LoginPage from '../pages/LoginPage';
 import RegisterPage from '../pages/RegisterPage';
+import SessionDetailsPage from '../pages/SessionDetailsPage';
+
 
 function AppRoutes() {
   const [pathname, setPathname] = useState(window.location.pathname);
@@ -38,7 +40,8 @@ function AppRoutes() {
       pathname === '/dashboard' ||
       pathname === '/conferences' ||
       pathname.startsWith('/conferences/') ||
-      pathname === '/rooms';
+      pathname === '/rooms' ||
+      pathname.startsWith('/sessions/');
 
     if (!isLoggedIn && isProtectedRoute) {
       window.history.replaceState({}, '', '/login');
@@ -66,6 +69,16 @@ function AppRoutes() {
 
   if (pathname === '/dashboard') {
     if (isLoggedIn) return <DashboardPage />;
+    return (
+      <div className="global-loading">
+        <div className="global-spinner" />
+        <p>Preusmjeravanje na prijavu...</p>
+      </div>
+    );
+  }
+
+  if (pathname.startsWith('/sessions/')) {
+    if (isLoggedIn) return <SessionDetailsPage />;
     return (
       <div className="global-loading">
         <div className="global-spinner" />
