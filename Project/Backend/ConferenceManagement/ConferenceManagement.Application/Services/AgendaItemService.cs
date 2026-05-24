@@ -38,10 +38,13 @@ public class AgendaItemService : IAgendaItemService
             throw new KeyNotFoundException($"Konferencija sa ID-jem {conferenceId} nije pronađena.");
 
         ValidateType(dto.Type);
-        ValidateTime(dto.StartTime, dto.EndTime);
 
-        var startUtc = dto.StartTime.ToUniversalTime();
-        var endUtc = dto.EndTime.ToUniversalTime();
+        var startLocal = AssumeLocal(dto.StartTime);
+        var endLocal = AssumeLocal(dto.EndTime);
+        ValidateTime(startLocal, endLocal);
+
+        var startUtc = startLocal.ToUniversalTime();
+        var endUtc = endLocal.ToUniversalTime();
         ValidateWithinConferenceTime(conference, startUtc, endUtc);
 
         string title = dto.Title;
@@ -101,10 +104,13 @@ public class AgendaItemService : IAgendaItemService
             throw new KeyNotFoundException($"Konferencija sa ID-jem {agendaItem.ConferenceId} nije pronađena.");
 
         ValidateType(dto.Type);
-        ValidateTime(dto.StartTime, dto.EndTime);
 
-        var startUtc = dto.StartTime.ToUniversalTime();
-        var endUtc = dto.EndTime.ToUniversalTime();
+        var startLocal = AssumeLocal(dto.StartTime);
+        var endLocal = AssumeLocal(dto.EndTime);
+        ValidateTime(startLocal, endLocal);
+
+        var startUtc = startLocal.ToUniversalTime();
+        var endUtc = endLocal.ToUniversalTime();
         ValidateWithinConferenceTime(conference, startUtc, endUtc);
 
         string title = dto.Title;
@@ -168,8 +174,8 @@ public class AgendaItemService : IAgendaItemService
 
     private static void ValidateWithinConferenceTime(Conference conference, DateTime startUtc, DateTime endUtc)
     {
-        var conferenceStartUtc = conference.StartDate.ToUniversalTime();
-        var conferenceEndUtc = conference.EndDate.ToUniversalTime();
+        var conferenceStartUtc = AssumeUtc(conference.StartDate);
+        var conferenceEndUtc = AssumeUtc(conference.EndDate);
 
         if (startUtc < conferenceStartUtc || endUtc > conferenceEndUtc)
             throw new ArgumentException("Stavka agende mora biti unutar vremena konferencije.");
@@ -177,11 +183,31 @@ public class AgendaItemService : IAgendaItemService
 
     private static void ValidateMatchesSessionTime(Session session, DateTime startUtc, DateTime endUtc)
     {
-        var sessionStartUtc = session.StartTime.ToUniversalTime();
-        var sessionEndUtc = session.EndTime.ToUniversalTime();
+        var sessionStartUtc = AssumeUtc(session.StartTime);
+        var sessionEndUtc = AssumeUtc(session.EndTime);
 
         if (startUtc != sessionStartUtc || endUtc != sessionEndUtc)
             throw new ArgumentException("Vrijeme stavke agende mora tačno odgovarati vremenu sesije.");
+    }
+
+    private static DateTime AssumeLocal(DateTime value)
+    {
+        return value.Kind switch
+        {
+            DateTimeKind.Local => value,
+            DateTimeKind.Utc => value.ToLocalTime(),
+            _ => DateTime.SpecifyKind(value, DateTimeKind.Local)
+        };
+    }
+
+    private static DateTime AssumeUtc(DateTime value)
+    {
+        return value.Kind switch
+        {
+            DateTimeKind.Utc => value,
+            DateTimeKind.Local => value.ToUniversalTime(),
+            _ => DateTime.SpecifyKind(value, DateTimeKind.Utc)
+        };
     }
 
     private static bool IsSessionType(string type)
@@ -189,6 +215,10 @@ public class AgendaItemService : IAgendaItemService
 
     private static AgendaItemDto MapToDto(AgendaItem item)
     {
+        var startLocal = AssumeUtc(item.StartTime).ToLocalTime();
+        var endLocal = AssumeUtc(item.EndTime).ToLocalTime();
+        var createdLocal = AssumeUtc(item.CreatedAt).ToLocalTime();
+
         return new AgendaItemDto
         {
             AgendaItemId = item.AgendaItemId,
@@ -197,10 +227,10 @@ public class AgendaItemService : IAgendaItemService
             RoomId = item.RoomId,
             Title = item.Title,
             Description = item.Description,
-            StartTime = item.StartTime,
-            EndTime = item.EndTime,
+            StartTime = startLocal,
+            EndTime = endLocal,
             Type = item.Type,
-            CreatedAt = item.CreatedAt,
+            CreatedAt = createdLocal,
             SessionTitle = item.Session?.Title,
             SessionType = item.Session?.SessionType,
             SpeakerName = item.Session?.SessionRegistrations
