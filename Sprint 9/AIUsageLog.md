@@ -792,5 +792,50 @@ Claude AI je korišten kao podrška pri kreiranju nove database migracije nakon 
 - Nisu uočeni dodatni rizici
 
 ---
+## Unos #21
 
+| Polje | Detalji |
+|---|---|
+| Datum | 25.05.2026. |
+| Sprint broj | Sprint 9 |
+| Alat | ChatGPT |
+| Ko je koristio alat | Ajra Kerla |
+
+### Svrha korištenja
+Pomoć pri implementaciji i testiranju backend i frontend funkcionalnosti za Sprint 9, uključujući Q&A panel, sistem notifikacija, upload materijala i predavački dashboard.
+
+### Kratak opis zadatka ili upita
+ChatGPT je korišten kao podrška pri pisanju unit testova za backend servise i frontend komponente, dijagnostici grešaka u postojećim testovima, mockovanju zavisnosti i usklađivanju testova sa trenutnom implementacijom aplikacije.
+
+### Šta je AI predložio ili generisao
+- Backend unit testove za:
+  - `NotificationService`
+  - `QuestionService`
+  - `MaterialService`
+- Mock konfiguracije za repozitorije i servise korištenjem `Moq`
+- Frontend testove za `NotificationBell` komponentu koristeći `Vitest` i `React Testing Library`
+- Korekcije postojećih frontend testova (`SessionList.test.tsx`)
+- Upute za rješavanje problema sa frontend testovima i nedostajućim dependency paketima
+- Strukturu i sadržaj dokumentacije:
+  - `ProofOfTesting.md`
+  - `SprintRetrospectiveSummary.md`
+
+### Šta je tim prihvatio
+- Predložene backend unit testove
+- Mock konfiguracije i test scenarije
+- Frontend testove za notifikacije
+- Korekcije postojećih testova
+- Strukturu dokumentacije za Sprint 9
+
+### Šta je tim izmijenio
+- Nazive pojedinih testova i dijelove tekstualnih opisa radi usklađivanja sa stilom ostatka projekta
+- Dio frontend testova prilagođen je trenutnom UI prikazu i postojećim komponentama
+
+### Šta je tim odbacio
+- Prijedlog za detaljnije refaktorisanje postojećih frontend testova iz prethodnih sprintova koji nisu bili direktno povezani sa Sprint 9 funkcionalnostima
+
+### Rizici, problemi ili greške koje su uočene
+- Postojala je mogućnost neusaglašenosti između postojećih frontend testova i novog UI ponašanja nakon izmjena komponenti
+- Uočeni su problemi sa nedostajućim frontend dependency paketima (`react-datepicker`) koji su naknadno instalirani
+- Backend testovi su dodatno prilagođeni nakon uvođenja novih zavisnosti (`INotificationService`) u postojeće servise
 *Dokument se ažurira tokom trajanja projekta. Svaki novi slučaj korištenja AI dodaje se kao novi unos.*
