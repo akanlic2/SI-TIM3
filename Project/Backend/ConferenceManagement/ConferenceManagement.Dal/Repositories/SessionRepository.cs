@@ -52,19 +52,20 @@ public class SessionRepository : ISessionRepository
     public async Task SaveChangesAsync() => await _context.SaveChangesAsync();
 
     public async Task<Session?> GetByIdWithRegistrationsAsync(Guid id) =>
-        await _context.Sessions
-            .Include(s => s.Room)                  // <-- DODANO: Da roomName ne bude "N/A" u detaljima
-            .Include(s => s.Conference)
-            .Include(s => s.SessionRegistrations)   // Uključujemo registracije
-                .ThenInclude(r => r.User)          // <-- DODANO: Da učesnici (Attendees) ne budu "N/A"
-            .FirstOrDefaultAsync(s => s.SessionId == id);
+     await _context.Sessions
+         .Include(s => s.Room)
+         .Include(s => s.Conference)
+         .Include(s => s.SessionRegistrations)
+             .ThenInclude(r => r.User)
+         .FirstOrDefaultAsync(s => s.SessionId == id);
+
 
     // --- IMPLEMENTACIJA ZA S43 PREDAVAC DASHBOARD ---
     public async Task<List<Session>> GetSessionsBySpeakerIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         return await _context.Sessions
             .Include(s => s.Conference)
-            .Include(s => s.Room)                  // <-- DODANO: Da roomName ne bude "N/A" na listi/karticama
+            .Include(s => s.Room)
             .Where(s => s.SessionRegistrations
                 .Any(sr => sr.UserId == userId && sr.IsSpeaker))
             .OrderBy(s => s.StartTime)

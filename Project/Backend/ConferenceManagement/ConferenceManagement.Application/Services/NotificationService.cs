@@ -23,6 +23,7 @@ public class NotificationService : INotificationService
 
     public async Task<NotificationDto> CreateNotificationAsync(CreateNotificationDto dto, CancellationToken cancellationToken = default)
     {
+        
         var user = await _userRepository.GetByIdAsync(dto.UserId, cancellationToken);
         if (user == null)
         {

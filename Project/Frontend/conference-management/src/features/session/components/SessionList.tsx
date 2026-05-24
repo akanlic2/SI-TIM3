@@ -1,7 +1,13 @@
 import type { Session } from '../types'
-import { cancelSessionRegistration, deleteSession, fetchRegisteredSessions, registerForSession } from '../api/sessionApi'
+import {
+  cancelSessionRegistration,
+  deleteSession,
+  fetchRegisteredSessions,
+  registerForSession
+} from '../api/sessionApi'
 import { useAuth } from '../../../auth/AuthProvider'
 import { useCallback, useEffect, useState } from 'react'
+import QAPanel from './QAPanel'
 import { useMaterials } from '../hooks/useMaterials'
 import { UploadMaterialModal } from './UploadMaterialModal'
 
@@ -24,6 +30,7 @@ function SessionMaterialsSection({ sessionId, refreshKey }: SessionMaterialsSect
       <span className="session-info-icon">📎</span>
       <div className="session-info-content" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
         <span className="session-info-label">MATERIJALI</span>
+
         {isLoading ? (
           <p className="session-info-value">Učitavanje materijala...</p>
         ) : error ? (
@@ -41,6 +48,7 @@ function SessionMaterialsSection({ sessionId, refreshKey }: SessionMaterialsSect
                   </p>
                 )}
               </div>
+
               <a
                 href={`${import.meta.env.VITE_API_URL ?? 'http://localhost:8082'}${material.fileUrl}`}
                 target="_blank"
@@ -50,7 +58,10 @@ function SessionMaterialsSection({ sessionId, refreshKey }: SessionMaterialsSect
               >
                 Preuzmi
               </a>
-              {index < items.length - 1 && <hr style={{ borderColor: 'rgba(148,163,184,0.2)', margin: '8px 0' }} />}
+
+              {index < items.length - 1 && (
+                <hr style={{ borderColor: 'rgba(148,163,184,0.2)', margin: '8px 0' }} />
+              )}
             </div>
           ))
         )}
@@ -81,72 +92,90 @@ export function SessionList({
   const isParticipant = role === 'ucesnik'
   const isSpeaker = role === 'predavac'
 
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
-  const [registeredConferenceIds, setRegisteredConferenceIds] = useState<Set<string>>(new Set());
-  const [isLoadingRegistered, setIsLoadingRegistered] = useState(true);
-  const [registeredSessions, setRegisteredSessions] = useState<Record<string, string>>({});
-  const [isLoadingRegisteredSessions, setIsLoadingRegisteredSessions] = useState(true);
-  const [cancellingSessionId, setCancellingSessionId] = useState<string | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [sessionToDelete, setSessionToDelete] = useState<string | null>(null)
 
-  // Filter sessions based on role
-  const filteredSessions = sessions;
+  const [registeredConferenceIds, setRegisteredConferenceIds] = useState<Set<string>>(new Set())
+  const [isLoadingRegistered, setIsLoadingRegistered] = useState(true)
+
+  const [registeredSessions, setRegisteredSessions] = useState<Record<string, string>>({})
+  const [isLoadingRegisteredSessions, setIsLoadingRegisteredSessions] = useState(true)
+
+  const [cancellingSessionId, setCancellingSessionId] = useState<string | null>(null)
+  const [openQASessionId, setOpenQASessionId] = useState<string | null>(null)
+
+  const [activeUploadSessionId, setActiveUploadSessionId] = useState<string | null>(null)
+  const [materialsRefreshKey, setMaterialsRefreshKey] = useState(0)
+
+  const filteredSessions = sessions.filter(() => {
+    if (isAdminOrOrganizer) return true
+    if (isParticipant) return true
+    if (isSpeaker) return true
+    return true
+  })
 
   useEffect(() => {
-    if (!token) return;
-    setIsLoadingRegistered(true);
+    if (!token) return
+
+    setIsLoadingRegistered(true)
+
     fetch('/api/Conference/registered', {
       headers: { Authorization: `Bearer ${token}` },
     })
-      .then((r) => (r.ok ? r.json() : []))
-      .then((data) => {
-        const items = Array.isArray(data) ? data : [];
+      .then(r => (r.ok ? r.json() : []))
+      .then(data => {
+        const items = Array.isArray(data) ? data : []
         const ids = new Set<string>(
           items.map((item: { conferenceId?: string }) => item.conferenceId).filter(Boolean) as string[]
-        );
-        setRegisteredConferenceIds(ids);
+        )
+        setRegisteredConferenceIds(ids)
       })
       .catch(() => setRegisteredConferenceIds(new Set()))
-      .finally(() => setIsLoadingRegistered(false));
-  }, [token]);
+      .finally(() => setIsLoadingRegistered(false))
+  }, [token])
 
   const loadRegisteredSessions = useCallback(async () => {
     if (!token || !isParticipant) {
-      setRegisteredSessions({});
-      setIsLoadingRegisteredSessions(false);
-      return;
+      setRegisteredSessions({})
+      setIsLoadingRegisteredSessions(false)
+      return
     }
 
-    setIsLoadingRegisteredSessions(true);
+    setIsLoadingRegisteredSessions(true)
+
     try {
-      const items = await fetchRegisteredSessions();
-      const next: Record<string, string> = {};
+      const items = await fetchRegisteredSessions()
+
+      const next: Record<string, string> = {}
+
       for (const item of items) {
         if (item.sessionId && item.sessionRegistrationId) {
-          next[item.sessionId] = item.sessionRegistrationId;
+          next[item.sessionId] = item.sessionRegistrationId
         }
       }
-      setRegisteredSessions(next);
+
+      setRegisteredSessions(next)
     } catch {
-      setRegisteredSessions({});
+      setRegisteredSessions({})
     } finally {
-      setIsLoadingRegisteredSessions(false);
+      setIsLoadingRegisteredSessions(false)
     }
-  }, [token, isParticipant]);
+  }, [token, isParticipant])
 
   useEffect(() => {
-    void loadRegisteredSessions();
-  }, [loadRegisteredSessions]);
+    void loadRegisteredSessions()
+  }, [loadRegisteredSessions])
 
-  const isRegisteredForConference = registeredConferenceIds.has(conferenceId);
-  const isRegistrationBlocked = !isRegisteredForConference || isLoadingRegistered;
+  const isRegisteredForConference = registeredConferenceIds.has(conferenceId)
+
+  const isRegistrationBlocked = !isRegisteredForConference || isLoadingRegistered
+
   const registrationTooltip = isRegisteredForConference
     ? 'Prijavi se na sesiju'
     : 'Morate se prvo prijaviti na konferenciju.'
 
-  const isRegisteredForSession = (sessionId: string) => Boolean(registeredSessions[sessionId])
-  const [activeUploadSessionId, setActiveUploadSessionId] = useState<string | null>(null)
-  const [materialsRefreshKey, setMaterialsRefreshKey] = useState(0)
+  const isRegisteredForSession = (sessionId: string) =>
+    Boolean(registeredSessions[sessionId])
 
   const handleDelete = async (id: string) => {
     try {
@@ -154,7 +183,7 @@ export function SessionList({
       onDeleteSuccess()
     } catch (error) {
       console.error('Delete failed:', error)
-      alert('Greška prilikom brisanja. Provjerite konzolu.')
+      alert('Greška prilikom brisanja.')
     }
   }
 
@@ -164,8 +193,7 @@ export function SessionList({
       await loadRegisteredSessions()
       alert(message)
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Greška prilikom prijave na sesiju.'
-      alert(message)
+      alert(error instanceof Error ? error.message : 'Greška')
     }
   }
 
@@ -173,18 +201,17 @@ export function SessionList({
     if (cancellingSessionId) return
 
     const registrationId = registeredSessions[id]
+
     if (!registrationId) {
-      alert('Nije pronađena prijava za ovu sesiju.')
+      alert('Nije pronađena prijava.')
       return
     }
 
     setCancellingSessionId(id)
+
     try {
       const message = await cancelSessionRegistration(registrationId)
       await loadRegisteredSessions()
-      alert(message)
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Greška prilikom odjave sa sesije.'
       alert(message)
     } finally {
       setCancellingSessionId(null)
@@ -210,321 +237,236 @@ export function SessionList({
       <div className="session-empty-state">
         <div className="session-empty-icon">📅</div>
         <h3>Nema pronađenih sesija</h3>
-        <p>Sesije će se pojaviti ovdje čim budu dodane</p>
       </div>
     )
   }
 
+  const activeQASession = openQASessionId
+    ? sessions.find(session => session.sessionId === openQASessionId)
+    : null
+
   return (
     <>
-    <div className="session-grid">
-      {filteredSessions.map((session) => (
-        <div
-          key={session.sessionId}
-          className="session-card"
-        >
-          {/* Header */}
-          <div className="session-card-header">
-            <h3 className="session-card-title">{session.title}</h3>
+      <div className="session-grid">
+        {filteredSessions.map(session => (
+          <div key={session.sessionId} className="session-card">
 
-            <span
-              className={`session-status session-status-${session.status.toLowerCase()}`}
-            >
-              {session.status}
-            </span>
-          </div>
-
-          {/* Description */}
-          {session.description && (
-            <p style={{ color: '#94a3b8', fontSize: '14px', margin: '8px 0 12px 0' }}>
-              {session.description}
-            </p>
-          )}
-
-          {/* Speaker Badge */}
-          {isSpeaker && (
-            <div style={{ marginBottom: '12px' }}>
-              <span
-                style={{
-                  backgroundColor: '#2563EB',
-                  color: 'white',
-                  padding: '6px 12px',
-                  borderRadius: '9999px',
-                  fontSize: '12px',
-                  fontWeight: 600,
-                }}
-              >
-                Predavač
+            <div className="session-card-header">
+              <h3 className="session-card-title">{session.title}</h3>
+              <span className={`session-status session-status-${session.status.toLowerCase()}`}>
+                {session.status}
               </span>
             </div>
-          )}
 
-          {/* Info */}
-          <div className="session-card-info">
-            <div
-              className="session-info-row"
-              style={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: '0.75rem',
-                flexWrap: 'wrap',
-              }}
-            >
-              <span className="session-info-icon">⏰</span>
+            {session.description && (
+              <p>{session.description}</p>
+            )}
 
-              <div
-                className="session-info-content"
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '0.15rem',
-                }}
-              >
-                <span className="session-info-label">Početak</span>
-                <p className="session-info-value">
-                  {formatDateTime(session.startTime)}
-                </p>
-              </div>
+            {isSpeaker && (
+              <span>Predavač</span>
+            )}
+
+            <div className="session-card-info">
+
+              <p>⏰ {formatDateTime(session.startTime)}</p>
+              <p>🏁 {formatDateTime(session.endTime)}</p>
+              <p>🏷️ {session.sessionType}</p>
+              {session.roomName && <p>🏢 {session.roomName}</p>}
+              {session.speakerName && <p>🎤 {session.speakerName}</p>}
+
+              {(isAdminOrOrganizer || (isParticipant && isRegisteredForSession(session.sessionId))) && (
+                <SessionMaterialsSection
+                  sessionId={session.sessionId}
+                  refreshKey={materialsRefreshKey}
+                />
+              )}
             </div>
 
-            <div
-              className="session-info-row"
-              style={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: '0.75rem',
-                flexWrap: 'wrap',
-              }}
-            >
-              <span className="session-info-icon">🏁</span>
+            <div className="session-card-actions">
 
-              <div
-                className="session-info-content"
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '0.15rem',
-                }}
-              >
-                <span className="session-info-label">Završetak</span>
-                <p className="session-info-value">
-                  {formatDateTime(session.endTime)}
-                </p>
-              </div>
-            </div>
-
-            <div
-              className="session-info-row"
-              style={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: '0.75rem',
-                flexWrap: 'wrap',
-              }}
-            >
-              <span className="session-info-icon">🏷️</span>
-
-              <div
-                className="session-info-content"
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '0.15rem',
-                }}
-              >
-                <span className="session-info-label">Tip sesije</span>
-                <p className="session-info-value">{session.sessionType}</p>
-              </div>
-            </div>
-
-            {session.roomName && (
-              <div
-                className="session-info-row"
-                style={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: '0.75rem',
-                  flexWrap: 'wrap',
-                }}
-              >
-                <span className="session-info-icon">🏢</span>
-
-                <div
-                  className="session-info-content"
+              {isParticipant && (
+                <button
+                  onClick={() => handleRegister(session.sessionId)}
+                  disabled={isRegistrationBlocked || isRegisteredForSession(session.sessionId)}
+                  className="btn-primary-sm"
                   style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '0.15rem',
+                    backgroundColor: '#10B981',
+                    color: 'white',
+                    borderRadius: 'var(--radius-md)',
                   }}
                 >
-                  <span className="session-info-label">Sala</span>
-                  <p className="session-info-value">{session.roomName}</p>
-                </div>
-              </div>
-            )}
+                  Prijavi se
+                </button>
+              )}
 
-            {session.speakerName && (
-              <div
-                className="session-info-row"
-                style={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: '0.75rem',
-                  flexWrap: 'wrap',
-                }}
-              >
-                <span className="session-info-icon">🎤</span>
-
-                <div
-                  className="session-info-content"
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '0.15rem',
-                  }}
+              {(isParticipant && isRegisteredForSession(session.sessionId)) && (
+                <button
+                  onClick={() => handleCancel(session.sessionId)}
+                  className="btn-secondary"
                 >
-                  <span className="session-info-label">Predavač</span>
-                  <p className="session-info-value">{session.speakerName}</p>
-                </div>
-              </div>
-            )}
+                  Odjavi
+                </button>
+              )}
 
-            {(isAdminOrOrganizer || (isParticipant && isRegisteredForSession(session.sessionId))) && (
-              <SessionMaterialsSection sessionId={session.sessionId} refreshKey={materialsRefreshKey} />
-            )}
+              {(isParticipant || isSpeaker || isAdminOrOrganizer) && (
+                <button
+                  onClick={() =>
+                    setOpenQASessionId(
+                      openQASessionId === session.sessionId
+                        ? null
+                        : session.sessionId
+                    )
+                  }
+                  className="btn-qa"
+                >
+                  Q&A
+                </button>
+              )}
+
+              {isAdminOrOrganizer && (
+                <>
+                  <div className="session-admin-actions">
+                    <button
+                      onClick={() => setActiveUploadSessionId(session.sessionId)}
+                      className="btn-secondary"
+                    >
+                      Upload Materijala
+                    </button>
+
+                    <button
+                      onClick={() => onEditClick(session)}
+                      className="btn-edit"
+                      style={{
+                        backgroundColor: '#EAB308',
+                        color: '#000',
+                        borderRadius: 'var(--radius-md)',
+                        padding: '8px 20px',
+                        border: 'none',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Uredi
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setSessionToDelete(session.sessionId)
+                        setShowDeleteModal(true)
+                      }}
+                      className="btn-delete"
+                      style={{
+                        backgroundColor: '#EF4444',
+                        color: '#fff',
+                        borderRadius: 'var(--radius-md)',
+                        padding: '8px 20px',
+                        border: 'none',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Obriši
+                    </button>
+                  </div>
+
+                  <details className="session-admin-menu">
+                    <summary className="btn-secondary session-admin-menu-trigger" aria-label="Akcije">
+                      ...
+                    </summary>
+                    <div className="session-admin-menu-list">
+                      <button
+                        onClick={() => setActiveUploadSessionId(session.sessionId)}
+                        className="session-admin-menu-item"
+                      >
+                        Upload Materijala
+                      </button>
+                      <button
+                        onClick={() => onEditClick(session)}
+                        className="session-admin-menu-item"
+                      >
+                        Uredi
+                      </button>
+                      <button
+                        onClick={() => {
+                          setSessionToDelete(session.sessionId)
+                          setShowDeleteModal(true)
+                        }}
+                        className="session-admin-menu-item session-admin-menu-item-danger"
+                      >
+                        Obriši
+                      </button>
+                    </div>
+                  </details>
+                </>
+              )}
+            </div>
+
           </div>
+        ))}
+      </div>
 
-          {/* Actions */}
+      {activeQASession && (
+        <div
+          className="modal-overlay qa-modal-overlay"
+          onClick={() => setOpenQASessionId(null)}
+        >
           <div
-            className="session-card-actions"
-            style={{
-              display: 'flex',
-              justifyContent: 'flex-end',
-              gap: '12px',
-              paddingTop: '16px',
-              borderTop: '1px solid rgba(148,163,184,0.2)',
-              flexWrap: 'wrap',
-            }}
+            className="qa-modal-content"
+            onClick={(event) => event.stopPropagation()}
           >
-            {/* Participant */}
-            {isParticipant && (
-              <button
-                className="btn-primary-sm"
-                style={{
-                  backgroundColor: '#10B981',
-                  color: 'white',
-                }}
-                onClick={() => handleRegister(session.sessionId)}
-                disabled={
-                  isRegistrationBlocked ||
-                  isLoadingRegisteredSessions ||
-                  isRegisteredForSession(session.sessionId)
-                }
-                title={
-                  isRegisteredForSession(session.sessionId)
-                    ? 'Već ste prijavljeni na sesiju.'
-                    : registrationTooltip
-                }
-              >
-                Prijavi se
-              </button>
-            )}
-            {isParticipant && !isLoadingRegisteredSessions && isRegisteredForSession(session.sessionId) && (
+            <div className="qa-modal-header">
+              <div>
+                <h2 className="qa-modal-title">Q&A</h2>
+                <p className="qa-modal-subtitle">{activeQASession.title}</p>
+              </div>
               <button
                 className="btn-secondary"
-                onClick={() => handleCancel(session.sessionId)}
-                disabled={cancellingSessionId === session.sessionId}
-                title="Odjavi se sa sesije"
+                onClick={() => setOpenQASessionId(null)}
               >
-                Odjavi
+                Zatvori
               </button>
-            )}
-            {/* Admin / Organizer */}
-            {isAdminOrOrganizer && (
-              <>
-                <button
-                  onClick={() => setActiveUploadSessionId(session.sessionId)}
-                  className="btn-edit"
-                  style={{
-                    backgroundColor: '#EAB308',
-                    color: '#000',
-                    borderRadius: '9999px',
-                    padding: '8px 20px',
-                    border: 'none',
-                    cursor: 'pointer',
-                  }}
-                >
-                  Upload Materijala
-                </button>
+            </div>
 
-                <button
-                  onClick={() => onEditClick(session)}
-                  className="btn-edit"
-                  style={{
-                    backgroundColor: '#EAB308',
-                    color: '#000',
-                    borderRadius: '9999px',
-                    padding: '8px 20px',
-                    border: 'none',
-                    cursor: 'pointer',
-                  }}
-                >
-                  Uredi
-                </button>
-
-                <button
-                  onClick={() => {
-                    setSessionToDelete(session.sessionId);
-                    setShowDeleteModal(true);
-                  }}
-                  className="btn-delete"
-                  style={{
-                    backgroundColor: '#EF4444',
-                    color: '#fff',
-                    borderRadius: '9999px',
-                    padding: '8px 20px',
-                    border: 'none',
-                    cursor: 'pointer',
-                  }}
-                >
-                  Obriši
-                </button>
-              </>
-            )}
+            <QAPanel
+              sessionId={activeQASession.sessionId}
+              sessionStartTime={activeQASession.startTime}
+              sessionEndTime={activeQASession.endTime}
+              role={role}
+              canAnswer={
+                isSpeaker &&
+                activeQASession.speakerName === `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim()
+              }
+              canAsk={isParticipant && isRegisteredForSession(activeQASession.sessionId)}
+            />
           </div>
         </div>
-      ))}
-    </div>
+      )}
 
-    {showDeleteModal && (
-      <div className="modal-overlay" style={{ overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
-        <div className="modal-content" style={{ maxHeight: '90vh', overflowY: 'auto' }}>
-          <h2 className="modal-title">Potvrda brisanja</h2>
-          <p>Jeste li sigurni da želite obrisati ovu sesiju?</p>
-          <div className="form-actions">
-            <button type="button" onClick={() => { setShowDeleteModal(false); setSessionToDelete(null); }} className="btn-secondary">
-              Ne
-            </button>
-            <button type="button" onClick={() => { if (sessionToDelete) handleDelete(sessionToDelete); setShowDeleteModal(false); setSessionToDelete(null); }} className="btn-delete">
+      {showDeleteModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2>Potvrda</h2>
+            <button onClick={() => setShowDeleteModal(false)}>Ne</button>
+            <button
+              onClick={() => {
+                if (sessionToDelete) handleDelete(sessionToDelete)
+                setShowDeleteModal(false)
+              }}
+            >
               Da
             </button>
           </div>
         </div>
-      </div>
-    )}
+      )}
 
-    {activeUploadSessionId && (
-      <div className="modal-overlay" style={{ overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
+      {activeUploadSessionId && (
         <UploadMaterialModal
           sessionId={activeUploadSessionId}
           onCancel={() => setActiveUploadSessionId(null)}
           onSuccess={() => {
-            setActiveUploadSessionId(null);
-            setMaterialsRefreshKey((prev) => prev + 1);
+            setActiveUploadSessionId(null)
+            setMaterialsRefreshKey(prev => prev + 1)
           }}
         />
-      </div>
-    )}
+      )}
     </>
   )
 }

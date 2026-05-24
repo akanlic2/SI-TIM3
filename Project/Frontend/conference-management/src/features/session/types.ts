@@ -60,3 +60,23 @@ export interface SessionState {
   error: string | null;
   refresh?: () => Promise<void>;
 }
+
+export interface Question {
+  questionId: string;
+  sessionId: string;
+  userId: string;
+  authorName: string;
+  content: string;
+  askedAt: string;
+  answer: string | null;
+  status: string;
+}
+ 
+export interface CreateQuestionData {
+  content: string;
+}
+
+export interface AnswerQuestionData {
+  answer: string;
+  answeredOrally: boolean;
+}
