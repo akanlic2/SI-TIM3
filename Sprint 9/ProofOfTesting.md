@@ -1,181 +1,133 @@
-# Proof of Testing — Sprint 8
+# Proof of Testing — Sprint 9
   
 **Test framework backend:** xUnit  
 **Biblioteka za mockovanje backend:** Moq  
 **Test framework frontend:** Vitest  
 **Biblioteka za UI testiranje:** React Testing Library  
-**Ukupan broj backend testova dodanih u Sprintu 8:** 50  
-**Ukupan broj frontend testova:** 46  
-**Ukupan broj Sprint 8 testova:** 96
+**Ukupan broj backend testova dodanih u Sprintu 9:** 29  
+**Ukupan broj frontend testova dodanih u Sprintu 9:** 5  
+**Ukupan broj Sprint 9 testova:** 34
 
 ---
 
-## 1. RoomsControllerTests
+## 1. NotificationServiceTests
 
-**Klasa koja se testira:** `RoomsController`  
-**Zavisnosti koje se mockuju:** autorizacijski policy i test konfiguracija za role
+**Klasa koja se testira:** `NotificationService`  
+**Zavisnosti koje se mockuju:** `INotificationRepository`, `IUserContextService`, `IUserRepository`
 
-### 1.1 Upravljanje dvoranama
+### 1.1 Kreiranje i dohvat notifikacija
 
 | # | Naziv testa | Opis | Očekivani ishod |
 |---|-------------|------|-----------------|
-| 1 | `RoomsActions_RequireAdminOrOrganizerPolicy` | CRUD akcije koriste `AdminOrOrganizerPolicy` | CRUD akcije dostupne samo adminu i organizatoru |
-| 2 | `PostPutDelete_RequireAdminOrOrganizerPolicy` | Provjerava autorizaciju za POST, PUT i DELETE | Pristup imaju admin i organizator |
-| 3 | `RoomsController_HasExpectedApiRoute` | Provjerava baznu rutu kontrolera | Koristi očekivanu baznu rutu |
-| 4 | `GetAllRooms_UsesHttpGet` | Provjerava GET endpoint | Koristi HTTP GET |
-| 5 | `CreateRoom_UsesHttpPost` | Provjerava POST endpoint | Koristi HTTP POST |
-| 6 | `UpdateRoom_UsesHttpPutWithIdRoute` | Provjerava PUT endpoint | Koristi HTTP PUT sa ID parametrom |
-| 7 | `DeleteRoom_UsesHttpDeleteWithIdRoute` | Provjerava DELETE endpoint | Koristi HTTP DELETE sa ID parametrom |
-| 8 | `AdminOrOrganizerPolicy_AllowsOnlyExpectedRoles` | Provjerava role pristupa | `admin-sistema` i `organizator` imaju pristup |
+| 1 | `CreateNotificationAsync_UserNotFound_ThrowsKeyNotFoundException` | Notifikacija se kreira za korisnika koji ne postoji | Baca `KeyNotFoundException` |
+| 2 | `CreateNotificationAsync_ValidData_CreatesUnreadNotification` | Kreira se validna notifikacija | Notifikacija se kreira kao nepročitana |
+| 3 | `GetMyNotificationsAsync_ReturnsCurrentUserNotifications` | Trenutni korisnik dohvaća svoje notifikacije | Vraća listu njegovih notifikacija |
 
-<img width="670" height="401" alt="image" src="https://github.com/user-attachments/assets/99a39b21-b249-491d-8f62-4f2f24ebe25b" />
+### 1.2 Označavanje notifikacija pročitanim
+
+| # | Naziv testa | Opis | Očekivani ishod |
+|---|-------------|------|-----------------|
+| 4 | `MarkAsReadAsync_NotificationNotFound_ThrowsKeyNotFoundException` | Notifikacija ne postoji | Baca `KeyNotFoundException` |
+| 5 | `MarkAsReadAsync_NotificationBelongsToOtherUser_ThrowsUnauthorizedAccessException` | Korisnik pokušava označiti tuđu notifikaciju | Baca `UnauthorizedAccessException` |
+| 6 | `MarkAsReadAsync_UnreadNotification_MarksAsRead` | Nepročitana notifikacija se označava pročitanom | `IsRead = true` |
+| 7 | `MarkAllAsReadAsync_NoUnreadNotifications_DoesNotSave` | Korisnik nema nepročitanih notifikacija | Ne poziva se `SaveChangesAsync` |
+| 8 | `MarkAllAsReadAsync_UnreadNotifications_MarksAllAsRead` | Korisnik ima više nepročitanih notifikacija | Sve notifikacije postaju pročitane |
+
+<img width="1668" height="476" alt="image" src="https://github.com/user-attachments/assets/d9244ff3-53ec-4e9f-b432-8fa7e0151d02" />
 
 ---
 
-## 2. SessionRoomAssignmentTests
+## 2. QuestionServiceTests
 
-**Klasa koja se testira:** `SessionsController`  
-**Zavisnosti koje se mockuju:** autorizacijski policy i test konfiguracija za role
+**Klasa koja se testira:** `QuestionService`  
+**Zavisnosti koje se mockuju:** `IQuestionRepository`, `ISessionRepository`, `IUserContextService`, `IUserRepository`, `INotificationService`
 
-### 2.1 Dodjela dvorane sesiji
+### 2.1 Postavljanje pitanja
 
 | # | Naziv testa | Opis | Očekivani ishod |
 |---|-------------|------|-----------------|
-| 9 | `AssignRoomToSession_UsesHttpPutWithExpectedRoute` | Provjerava endpoint za dodjelu dvorane | Koristi rutu `PUT /sessions/{id}/room` |
-| 10 | `AssignRoomToSession_RequiresAdminOrOrganizerPolicy` | Provjerava autorizaciju | Dodjela dostupna adminu i organizatoru |
-| 11 | `SessionsController_UsesExpectedBaseRoute` | Provjerava baznu rutu | Koristi očekivanu baznu rutu |
-| 12 | `AdminOrOrganizerPolicy_AllowsOnlyExpectedRoles` | Provjerava role pristupa | Admin i organizator imaju pristup |
+| 9 | `CreateQuestionAsync_SessionNotFound_ThrowsKeyNotFoundException` | Korisnik postavlja pitanje za nepostojeću sesiju | Baca `KeyNotFoundException` |
+| 10 | `CreateQuestionAsync_SessionNotStarted_ThrowsInvalidOperationException` | Korisnik pokušava postaviti pitanje prije početka sesije | Baca `InvalidOperationException` |
+| 11 | `CreateQuestionAsync_EmptyContent_ThrowsArgumentException` | Pitanje je prazno | Baca `ArgumentException` |
+| 12 | `CreateQuestionAsync_ContentLongerThan500_ThrowsArgumentException` | Pitanje ima više od 500 karaktera | Baca `ArgumentException` |
+| 13 | `CreateQuestionAsync_ValidQuestion_CreatesQuestionAndNotifiesSpeaker` | Korisnik postavlja validno pitanje nakon početka sesije | Kreira se pitanje sa statusom `Open` i šalje notifikacija predavaču |
 
-<img width="597" height="222" alt="image" src="https://github.com/user-attachments/assets/f5979335-217d-40b0-81e2-74ac8d500b18" />
+### 2.2 Dohvat pitanja
+
+| # | Naziv testa | Opis | Očekivani ishod |
+|---|-------------|------|-----------------|
+| 14 | `GetQuestionsBySessionAsync_SessionNotFound_ThrowsKeyNotFoundException` | Sesija ne postoji | Baca `KeyNotFoundException` |
+| 15 | `GetQuestionsBySessionAsync_ExistingSession_ReturnsQuestions` | Sesija postoji i ima pitanja | Vraća listu pitanja sa autorom, statusom i odgovorom |
+
+### 2.3 Odgovaranje na pitanja
+
+| # | Naziv testa | Opis | Očekivani ishod |
+|---|-------------|------|-----------------|
+| 16 | `AnswerQuestionAsync_EmptyAnswerAndNotOral_ThrowsArgumentException` | Predavač ne unese odgovor i ne označi odgovoreno usmeno | Baca `ArgumentException` |
+| 17 | `AnswerQuestionAsync_QuestionNotFound_ThrowsKeyNotFoundException` | Pitanje ne postoji | Baca `KeyNotFoundException` |
+| 18 | `AnswerQuestionAsync_QuestionDoesNotBelongToSession_ThrowsArgumentException` | Pitanje ne pripada datoj sesiji | Baca `ArgumentException` |
+| 19 | `AnswerQuestionAsync_SessionNotFound_ThrowsKeyNotFoundException` | Sesija ne postoji | Baca `KeyNotFoundException` |
+| 20 | `AnswerQuestionAsync_UserIsNotAssignedSpeaker_ThrowsUnauthorizedAccessException` | Korisnik nije dodijeljeni predavač sesije | Baca `UnauthorizedAccessException` |
+| 21 | `AnswerQuestionAsync_AssignedSpeaker_AnswersQuestionAndNotifiesAuthor` | Dodijeljeni predavač odgovara na pitanje | Status pitanja postaje `Answered` i autor pitanja dobija notifikaciju |
 
 ---
 
-## 3. AgendaItemCrudTests
+## 3. MaterialServiceTests
 
-**Klasa koja se testira:** `AgendaItemService`  
-**Zavisnosti koje se mockuju:** repozitoriji i zavisnosti korištene u servisu
+**Klasa koja se testira:** `MaterialService`  
+**Zavisnosti koje se mockuju:** `ISessionRepository`, `ISessionRegistrationRepository`, `IUserContextService`, `IMaterialRepository`
 
-### 3.1 Agenda konferencije
+### 3.1 Upload materijala
 
 | # | Naziv testa | Opis | Očekivani ishod |
 |---|-------------|------|-----------------|
-| 13 | `CreateAsync_SupportedNonSessionTypes_CreateAgendaItem` | Kreiranje Break, Lunch, Networking, Opening i Closing stavki | Stavke se uspješno kreiraju |
-| 14 | `CreateAsync_SessionTypeWithoutSessionId_ThrowsArgumentException` | Session tip bez SessionId | Baca grešku |
-| 15 | `CreateAsync_SessionTypeWithExistingSession_CreatesAgendaItem` | Session tip sa validnom sesijom | Agenda stavka se kreira |
-| 16 | `GetByConferenceIdAsync_ReturnsMappedAgendaItemsIncludingSessionData` | Dohvatanje podataka o sesiji | DTO sadrži očekivane podatke |
-| 17 | `UpdateAsync_ExistingAgendaItem_ChangesTimeTitleDescriptionAndType` | Izmjena stavke | Uspješna izmjena |
-| 18 | `UpdateAsync_AgendaItemDoesNotExist_ThrowsKeyNotFoundException` | Stavka ne postoji | Baca grešku |
-| 19 | `DeleteAsync_ExistingAgendaItem_DeletesAgendaItem` | Brisanje stavke | Stavka se briše |
-| 20 | `DeleteAsync_AgendaItemDoesNotExist_ThrowsKeyNotFoundException` | Stavka ne postoji | Baca grešku |
+| 22 | `UploadMaterialAsync_SessionNotFound_ThrowsKeyNotFoundException` | Upload se pokušava za sesiju koja ne postoji | Baca `KeyNotFoundException` |
+| 23 | `UploadMaterialAsync_AttendeeWithoutPermission_ThrowsUnauthorizedAccessException` | Učesnik bez permisije pokušava upload | Baca `UnauthorizedAccessException` |
+| 24 | `UploadMaterialAsync_SpeakerNotAssignedToSession_ThrowsUnauthorizedAccessException` | Predavač nije dodijeljen toj sesiji | Baca `UnauthorizedAccessException` |
+| 25 | `UploadMaterialAsync_AssignedSpeaker_UploadsMaterial` | Dodijeljeni predavač uploaduje materijal | Materijal se dodaje i čuva u repozitorij |
+| 26 | `UploadMaterialAsync_AdminOrOrganizer_UploadsMaterial` | Admin ili organizator uploaduje materijal | Upload je uspješan |
 
-<img width="602" height="600" alt="image" src="https://github.com/user-attachments/assets/ecb90989-24f1-44a2-a04b-49a68f5cab76" />
+### 3.2 Pregled materijala
+
+| # | Naziv testa | Opis | Očekivani ishod |
+|---|-------------|------|-----------------|
+| 27 | `GetMaterialsBySessionIdAsync_UserNotRegisteredAndNotAdmin_ThrowsUnauthorizedAccessException` | Korisnik nije prijavljen na sesiju i nije admin/organizator | Baca `UnauthorizedAccessException` |
+| 28 | `GetMaterialsBySessionIdAsync_RegisteredUser_ReturnsMaterials` | Prijavljeni korisnik pregleda materijale sesije | Vraća listu materijala |
+| 29 | `GetMaterialsBySessionIdAsync_AdminOrOrganizer_ReturnsMaterials` | Admin ili organizator pregleda materijale | Vraća listu materijala |
 
 ---
 
-## 4. ConferenceCapacityParticipantsTests
-
-**Klasa koja se testira:** `ConferenceCapacityService`  
-**Zavisnosti koje se mockuju:** repozitoriji za kapacitet i učesnike
-
-### 4.1 Kapacitet konferencije i sesije
-
-| # | Naziv testa | Opis | Očekivani ishod |
-|---|-------------|------|-----------------|
-| 21 | `GetConferenceCapacityAsync_ReturnsRegisteredMaxAvailableAndFullStatus` | Dohvatanje kapaciteta konferencije | Vraća prijavljene, maksimum i status |
-| 22 | `GetConferenceCapacityAsync_ReturnsIsFullWhenRegisteredCountReachesCapacity` | Konferencija popunjena | `IsFull = true` |
-| 23 | `GetConferenceCapacityAsync_ConferenceDoesNotExist_ThrowsKeyNotFoundException` | Konferencija ne postoji | Baca grešku |
-| 24 | `GetSessionCapacityAsync_ReturnsRegisteredMaxAvailableAndFullStatus` | Session capacity | Vraća capacity podatke |
-| 25 | `GetSessionCapacityAsync_ReturnsIsFullWhenSessionRegistrationCountReachesCapacity` | Sesija popunjena | `IsFull = true` |
-| 26 | `GetSessionCapacityAsync_SessionDoesNotExist_ThrowsKeyNotFoundException` | Sesija ne postoji | Baca grešku |
-
-### 4.2 Lista učesnika
-
-| # | Naziv testa | Opis | Očekivani ishod |
-|---|-------------|------|-----------------|
-| 27 | `GetConferenceParticipantsAsync_ReturnsRegisteredParticipantsWithNameEmailAndStatus` | Dohvatanje učesnika | Vraća ime, email i status |
-| 28 | `GetConferenceParticipantsAsync_SupportsSearchByNameAndEmail` | Search funkcionalnost | Filtrira listu |
-| 29 | `GetConferenceParticipantsAsync_SupportsStatusFilter` | Filter statusa | Filtrira listu |
-| 30 | `GetConferenceParticipantsAsync_ReturnsEmptyListWhenNoParticipants` | Nema učesnika | Vraća praznu listu |
-| 31 | `GetConferenceParticipantsAsync_ConferenceDoesNotExist_ThrowsKeyNotFoundException` | Konferencija ne postoji | Baca grešku |
-| 32 | `GetParticipants_AdminCanSeeParticipantsForAnyConference` | Admin pristup | Admin vidi učesnike |
-| 33 | `GetParticipants_OrganizerCanSeeOwnConferenceParticipants` | Organizator pristup | Organizator vidi svoje |
-| 34 | `GetParticipants_OrganizerCannotSeeOtherConferenceParticipants` | Organizator pristupa tuđoj konferenciji | Pristup odbijen |
-
-<img width="742" height="748" alt="image" src="https://github.com/user-attachments/assets/b4558a40-ce44-4032-a19c-7caa593f42cd" />
-
----
-
-## 5. Frontend testovi
+## 4. Frontend testovi
 
 **Test runner:** Vitest  
 **Biblioteke:** React Testing Library, user-event  
-**Testirani fajlovi:** `RoomsPage.test.tsx`, `SessionForm.test.tsx`, `AgendaPage.test.tsx`, `ConferenceDetailsPage.test.tsx`
+**Testirani fajlovi:** `NotificationBell.test.tsx`
 
-### 5.1 RoomsPage testovi
-
-| # | Naziv testa | Opis | Očekivani ishod |
-|---|-------------|------|-----------------|
-| 35 | `renders rooms list` | Renderuje se lista dvorana | Prikazuje naziv, lokaciju i kapacitet |
-| 36 | `shows empty state` | Nema dvorana | Prikazuje prazno stanje |
-| 37 | `shows loading state` | Učitavanje dvorana | Prikazuje loading |
-| 38 | `shows error state` | API vraća grešku | Prikazuje error |
-| 39 | `opens AddRoomModal` | Klik na dodavanje | Otvara modal |
-| 40 | `creates room` | Dodavanje dvorane | Poziva create API |
-| 41 | `updates room` | Izmjena dvorane | Poziva update API |
-| 42 | `deletes room` | Brisanje dvorane | Poziva delete API |
-
-### 5.2 SessionForm testovi
+### 4.1 NotificationBell testovi
 
 | # | Naziv testa | Opis | Očekivani ishod |
 |---|-------------|------|-----------------|
-| 43 | `loads rooms` | Učitavanje dvorana | Dvorane se prikazuju |
-| 44 | `shows room dropdown` | Forma sesije | Dropdown postoji |
-| 45 | `assigns room` | Dodjela dvorane | Poziva assign API |
-| 46 | `shows room load error` | API greška | Prikazuje error |
-
-### 5.3 AgendaPage testovi
-
-| # | Naziv testa | Opis | Očekivani ishod |
-|---|-------------|------|-----------------|
-| 47 | `renders agenda list` | Prikaz agende | Agenda je prikazana |
-| 48 | `shows empty agenda state` | Agenda ne postoji | Prikazuje prazno stanje |
-| 49 | `creates agenda item` | Dodavanje stavke | Poziva create API |
-| 50 | `updates agenda item` | Izmjena stavke | Poziva update API |
-| 51 | `deletes agenda item` | Brisanje stavke | Poziva delete API |
-
-### 5.4 ConferenceDetailsPage testovi
-
-| # | Naziv testa | Opis | Očekivani ishod |
-|---|-------------|------|-----------------|
-| 52 | `renders capacity widget` | Capacity widget | Prikazuje podatke |
-| 53 | `shows capacity values` | Capacity API | Prikazuje maksimum i prijavljene |
-| 54 | `filters participants by name` | Search po imenu | Filtrira listu |
-| 55 | `filters participants by email` | Search po emailu | Filtrira listu |
-| 56 | `filters participants by status` | Filter statusa | Filtrira listu |
-| 57 | `shows empty participants state` | Nema učesnika | Prikazuje prazno stanje |
-
-<img width="892" height="115" alt="image" src="https://github.com/user-attachments/assets/b23d48b1-d516-4a90-a2f0-e2165137a45e" />
+| 30 | `shows unread notifications counter` | Postoji jedna nepročitana notifikacija | Prikazuje se brojač `1` |
+| 31 | `opens notification dropdown on click` | Korisnik klikne na ikonu notifikacija | Otvara se dropdown sa listom notifikacija |
+| 32 | `shows mark all as read button when unread notifications exist` | Postoje nepročitane notifikacije | Prikazuje se dugme `Označi sve kao pročitano` |
+| 33 | `calls markAllAsRead when clicking mark all button` | Korisnik klikne na označavanje svih kao pročitanih | Poziva se `markAllAsRead` |
+| 34 | `marks unread notification as read on click` | Korisnik klikne na nepročitanu notifikaciju | Poziva se `markAsRead` sa ID-em notifikacije |
 
 ---
 
-## 6. Pregled pokrivenosti Sprint 8 funkcionalnosti
+## 5. Pregled pokrivenosti Sprint 9 funkcionalnosti
 
 | Oblast | Testovi | Kriterij prolaza |
 |--------|---------|-----------------|
-| Upravljanje dvoranama | 8 | CRUD rute i autorizacija pokriveni |
-| Dodjela dvorane sesiji | 4 | Ruta i autorizacija pokriveni |
-| Agenda konferencije | 8 | Kreiranje, izmjena i brisanje pokriveni |
-| Kapacitet konferencije/sesije | 6 | Capacity funkcionalnosti pokrivene |
-| Lista učesnika | 8 | Search, filter i autorizacija pokriveni |
-| Frontend upravljanje dvoranama | 8 | Lista, modal i CRUD pokriveni |
-| Frontend dodjela dvorane | 4 | Dropdown i assign API pokriveni |
-| Frontend agenda | 5 | Prikaz i CRUD pokriveni |
-| Frontend kapacitet i učesnici | 6 | Capacity i participants pokriveni |
-| **Ukupno** | **96** | Backend i frontend testovi uspješno izvršeni |
+| Notifikacije backend | 8 | Kreiranje, dohvat, pojedinačno i grupno označavanje pročitanim pokriveno |
+| Q&A backend | 13 | Postavljanje pitanja, zabrana prije početka sesije, validacija sadržaja, odgovaranje i permisije predavača pokriveni |
+| Materijali backend | 8 | Upload materijala, permisije predavača/admina/organizatora i pregled materijala pokriveni |
+| Notifikacije frontend | 5 | Brojač, dropdown, označavanje pročitanim i klik na notifikaciju pokriveni |
+| **Ukupno** | **34** | Backend i frontend testovi za Sprint 9 funkcionalnosti izvršeni |
 
 ---
 
-## 5. Testno okruženje
+## 6. Testno okruženje
 
 | Postavka | Vrijednost |
 |----------|------------|
@@ -187,15 +139,15 @@
 | Backend baza | Nije potrebna za unit testove |
 | Frontend API pozivi | Mockovani kroz `vi.mock` |
 | Autentifikacija | Mockovan `useAuth` hook |
-| Pokretanje backend testova | `dotnet test` |
+| Pokretanje backend testova | `dotnet test ConferenceManagement.Tests/ConferenceManagement.Tests.csproj` |
 | Pokretanje frontend testova | `npm test` |
 
 ---
 
-## 6. Zaključak
+## 7. Zaključak
 
-Sprint 8 testiranje pokriva funkcionalnosti upravljanja dvoranama, dodjele dvorane sesiji, agende konferencije, kapaciteta konferencije i liste učesnika.
+Sprint 9 testiranje pokriva funkcionalnosti predavačkog dashboarda, Q&A panela, upload materijala i notifikacija.
 
-Backend testovi provjeravaju CRUD rute, autorizaciju i poslovnu logiku za agendu, kapacitet i učesnike. Frontend testovi provjeravaju upravljanje dvoranama, dodjelu dvorane sesiji, agendu, capacity widget i pregled učesnika.
+Backend testovi provjeravaju poslovnu logiku za notifikacije, postavljanje i odgovaranje na pitanja, permisije predavača, upload materijala i pristup materijalima. Frontend testovi provjeravaju prikaz notifikacija, brojač nepročitanih notifikacija, dropdown listu i označavanje notifikacija pročitanim.
 
-Svi frontend testovi su uspješno prošli, a backend testovi za Sprint 8 su također uspješno izvršeni.
+Backend testovi su uspješno prošli, dok frontend testovi za notifikacije prolaze odvojeno. Ostali postojeći frontend testovi iz prethodnih sprintova zahtijevaju manje prilagodbe zbog promjena UI-ja, ali nisu dio Sprint 9 taskova.
