@@ -107,6 +107,43 @@ public class QuestionService : IQuestionService
         return questions.Select(q => MapToDto(q, q.User)).ToList();
     }
 
+    // S47-BE-03
+    public async Task<QuestionDto> AnswerQuestionAsync(
+        Guid sessionId,
+        Guid questionId,
+        AnswerQuestionDto dto,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(dto.Answer) && !dto.AnsweredOrally)
+            throw new ArgumentException("Odgovor ne smije biti prazan.");
+
+        var question = await _questionRepository.GetByIdAsync(questionId);
+        if (question is null)
+            throw new KeyNotFoundException($"Pitanje sa ID-jem {questionId} nije pronađeno.");
+
+        if (question.SessionId != sessionId)
+            throw new ArgumentException("Pitanje ne pripada zadatoj sesiji.");
+
+        var session = await _sessionRepository.GetByIdWithRegistrationsAsync(sessionId);
+        if (session is null)
+            throw new KeyNotFoundException($"Sesija sa ID-jem {sessionId} nije pronađena.");
+
+        var userId = Guid.Parse(_userContextService.GetUserId());
+        var isSpeaker = session.SessionRegistrations
+            .Any(registration => registration.UserId == userId && registration.IsSpeaker);
+
+        if (!isSpeaker)
+            throw new UnauthorizedAccessException("Nemate dozvolu da odgovarate na pitanja za ovu sesiju.");
+
+        question.Answer = dto.Answer?.Trim() ?? string.Empty;
+        question.Status = "Answered";
+
+        await _questionRepository.SaveChangesAsync();
+
+        var author = await _userRepository.GetByIdAsync(question.UserId);
+        return MapToDto(question, author);
+    }
+
     private static QuestionDto MapToDto(Question question, User? author)
     {
         return new QuestionDto

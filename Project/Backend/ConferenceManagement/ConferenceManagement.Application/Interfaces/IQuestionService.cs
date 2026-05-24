@@ -15,4 +15,10 @@ public interface IQuestionService
     /// Uključuje odgovore predavača ako postoje.
     /// </summary>
     Task<List<QuestionDto>> GetQuestionsBySessionAsync(Guid sessionId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// S47-BE-03: Predavač odgovara na pitanje.
+    /// Dozvoljeno samo predavaču dodijeljenom toj sesiji.
+    /// </summary>
+    Task<QuestionDto> AnswerQuestionAsync(Guid sessionId, Guid questionId, AnswerQuestionDto dto, CancellationToken cancellationToken = default);
 }

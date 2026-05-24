@@ -75,3 +75,8 @@ export interface Question {
 export interface CreateQuestionData {
   content: string;
 }
+
+export interface AnswerQuestionData {
+  answer: string;
+  answeredOrally: boolean;
+}

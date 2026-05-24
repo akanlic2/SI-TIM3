@@ -107,10 +107,10 @@ export function SessionList({
   const [activeUploadSessionId, setActiveUploadSessionId] = useState<string | null>(null)
   const [materialsRefreshKey, setMaterialsRefreshKey] = useState(0)
 
-  const filteredSessions = sessions.filter(session => {
+  const filteredSessions = sessions.filter(() => {
     if (isAdminOrOrganizer) return true
     if (isParticipant) return true
-    if (isSpeaker) return session.speakerName === `${user?.firstName} ${user?.lastName}`
+    if (isSpeaker) return true
     return true
   })
 
@@ -241,6 +241,10 @@ export function SessionList({
     )
   }
 
+  const activeQASession = openQASessionId
+    ? sessions.find(session => session.sessionId === openQASessionId)
+    : null
+
   return (
     <>
       <div className="session-grid">
@@ -284,13 +288,22 @@ export function SessionList({
                 <button
                   onClick={() => handleRegister(session.sessionId)}
                   disabled={isRegistrationBlocked || isRegisteredForSession(session.sessionId)}
+                  className="btn-primary-sm"
+                  style={{
+                    backgroundColor: '#10B981',
+                    color: 'white',
+                    borderRadius: 'var(--radius-md)',
+                  }}
                 >
                   Prijavi se
                 </button>
               )}
 
               {(isParticipant && isRegisteredForSession(session.sessionId)) && (
-                <button onClick={() => handleCancel(session.sessionId)}>
+                <button
+                  onClick={() => handleCancel(session.sessionId)}
+                  className="btn-secondary"
+                >
                   Odjavi
                 </button>
               )}
@@ -304,6 +317,7 @@ export function SessionList({
                         : session.sessionId
                     )
                   }
+                  className="btn-qa"
                 >
                   Q&A
                 </button>
@@ -311,38 +325,120 @@ export function SessionList({
 
               {isAdminOrOrganizer && (
                 <>
-                  <button onClick={() => setActiveUploadSessionId(session.sessionId)}>
-                    Upload Materijala
-                  </button>
+                  <div className="session-admin-actions">
+                    <button
+                      onClick={() => setActiveUploadSessionId(session.sessionId)}
+                      className="btn-secondary"
+                    >
+                      Upload Materijala
+                    </button>
 
-                  <button onClick={() => onEditClick(session)}>
-                    Uredi
-                  </button>
+                    <button
+                      onClick={() => onEditClick(session)}
+                      className="btn-edit"
+                      style={{
+                        backgroundColor: '#EAB308',
+                        color: '#000',
+                        borderRadius: 'var(--radius-md)',
+                        padding: '8px 20px',
+                        border: 'none',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Uredi
+                    </button>
 
-                  <button
-                    onClick={() => {
-                      setSessionToDelete(session.sessionId)
-                      setShowDeleteModal(true)
-                    }}
-                  >
-                    Obriši
-                  </button>
+                    <button
+                      onClick={() => {
+                        setSessionToDelete(session.sessionId)
+                        setShowDeleteModal(true)
+                      }}
+                      className="btn-delete"
+                      style={{
+                        backgroundColor: '#EF4444',
+                        color: '#fff',
+                        borderRadius: 'var(--radius-md)',
+                        padding: '8px 20px',
+                        border: 'none',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Obriši
+                    </button>
+                  </div>
+
+                  <details className="session-admin-menu">
+                    <summary className="btn-secondary session-admin-menu-trigger" aria-label="Akcije">
+                      ...
+                    </summary>
+                    <div className="session-admin-menu-list">
+                      <button
+                        onClick={() => setActiveUploadSessionId(session.sessionId)}
+                        className="session-admin-menu-item"
+                      >
+                        Upload Materijala
+                      </button>
+                      <button
+                        onClick={() => onEditClick(session)}
+                        className="session-admin-menu-item"
+                      >
+                        Uredi
+                      </button>
+                      <button
+                        onClick={() => {
+                          setSessionToDelete(session.sessionId)
+                          setShowDeleteModal(true)
+                        }}
+                        className="session-admin-menu-item session-admin-menu-item-danger"
+                      >
+                        Obriši
+                      </button>
+                    </div>
+                  </details>
                 </>
               )}
             </div>
 
-            {openQASessionId === session.sessionId && (
-              <div>
-                <QAPanel
-                  sessionId={session.sessionId}
-                  sessionStartTime={session.startTime}
-                  role={role}
-                />
-              </div>
-            )}
           </div>
         ))}
       </div>
+
+      {activeQASession && (
+        <div
+          className="modal-overlay qa-modal-overlay"
+          onClick={() => setOpenQASessionId(null)}
+        >
+          <div
+            className="qa-modal-content"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="qa-modal-header">
+              <div>
+                <h2 className="qa-modal-title">Q&A</h2>
+                <p className="qa-modal-subtitle">{activeQASession.title}</p>
+              </div>
+              <button
+                className="btn-secondary"
+                onClick={() => setOpenQASessionId(null)}
+              >
+                Zatvori
+              </button>
+            </div>
+
+            <QAPanel
+              sessionId={activeQASession.sessionId}
+              sessionStartTime={activeQASession.startTime}
+              sessionEndTime={activeQASession.endTime}
+              role={role}
+              canAnswer={
+                isSpeaker &&
+                activeQASession.speakerName === `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim()
+              }
+              canAsk={isParticipant && isRegisteredForSession(activeQASession.sessionId)}
+            />
+          </div>
+        </div>
+      )}
 
       {showDeleteModal && (
         <div className="modal-overlay">

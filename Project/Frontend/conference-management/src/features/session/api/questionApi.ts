@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { Question, CreateQuestionData } from '../types';
+import type { Question, CreateQuestionData, AnswerQuestionData } from '../types';
  
 const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8082';
  
@@ -32,5 +32,25 @@ export async function createQuestion(
       throw error;
     }
     throw new Error('Greška pri slanju pitanja.');
+  }
+}
+
+// S47-BE-03: Predavac odgovara na pitanje za sesiju
+export async function answerQuestion(
+  sessionId: string,
+  questionId: string,
+  data: AnswerQuestionData
+): Promise<Question> {
+  try {
+    const response = await axios.put<Question>(
+      `${BASE_URL}/api/sessions/${sessionId}/questions/${questionId}/answer`,
+      data
+    );
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.data) {
+      throw error;
+    }
+    throw new Error('Greška pri slanju odgovora.');
   }
 }
