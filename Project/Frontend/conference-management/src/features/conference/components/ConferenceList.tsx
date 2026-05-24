@@ -275,6 +275,7 @@ export function ConferenceList({
                 style={{
                   backgroundColor: '#10B981',
                   color: 'white',
+                  borderRadius: 'var(--radius-md)',
                 }}
                 onClick={() => handleRegister(conference.conferenceId)}
               >
@@ -291,7 +292,7 @@ export function ConferenceList({
                   style={{
                     backgroundColor: '#EAB308',
                     color: '#000',
-                    borderRadius: '9999px',
+                    borderRadius: 'var(--radius-md)',
                     padding: '8px 20px',
                     border: 'none',
                     cursor: 'pointer',
@@ -306,7 +307,7 @@ export function ConferenceList({
                   style={{
                     backgroundColor: '#EF4444',
                     color: '#fff',
-                    borderRadius: '9999px',
+                    borderRadius: 'var(--radius-md)',
                     padding: '8px 20px',
                     border: 'none',
                     cursor: 'pointer',

@@ -13,8 +13,6 @@ public interface ISessionRepository
     Task<bool> CheckOverlapAsync(Guid roomId, DateTime start, DateTime end, Guid? excludeSessionId = null);
     Task<Session?> GetByIdWithRegistrationsAsync(Guid id);
 
-    // --- DODATO ZA S43 PREDAVAC DASHBOARD ---
-
     /// <summary>
     /// Dobavlja sve sesije za određenog predavača uključujući podatke o konferenciji.
     /// </summary>
