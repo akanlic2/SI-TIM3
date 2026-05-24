@@ -11,9 +11,15 @@ namespace ConferenceManagement.Dal.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "fk_agenda_items_sessions_session_id",
-                table: "agenda_items");
+            migrationBuilder.Sql(@"
+                ALTER TABLE agenda_items 
+                ADD COLUMN IF NOT EXISTS created_at timestamp with time zone NOT NULL DEFAULT (NOW());
+            ");
+
+            migrationBuilder.Sql(@"
+                ALTER TABLE agenda_items 
+                ADD COLUMN IF NOT EXISTS room_id uuid NULL;
+            ");
 
             migrationBuilder.AlterColumn<string>(
                 name: "type",
@@ -42,39 +48,43 @@ namespace ConferenceManagement.Dal.Migrations
                 oldClrType: typeof(string),
                 oldType: "text");
 
-            migrationBuilder.AddColumn<DateTime>(
-                name: "created_at",
-                table: "agenda_items",
-                type: "timestamp with time zone",
-                nullable: false,
-                defaultValueSql: "NOW()");
+            migrationBuilder.Sql(@"
+                CREATE INDEX IF NOT EXISTS ix_agenda_items_room_id 
+                ON agenda_items (room_id);
+            ");
 
-            migrationBuilder.AddColumn<Guid>(
-                name: "room_id",
-                table: "agenda_items",
-                type: "uuid",
-                nullable: true);
+            migrationBuilder.Sql(@"
+                ALTER TABLE agenda_items 
+                DROP CONSTRAINT IF EXISTS fk_agenda_items_sessions_session_id;
+            ");
 
-            migrationBuilder.CreateIndex(
-                name: "ix_agenda_items_room_id",
-                table: "agenda_items",
-                column: "room_id");
+            migrationBuilder.Sql(@"
+                DO $$ BEGIN
+                    IF NOT EXISTS (
+                        SELECT 1 FROM pg_constraint 
+                        WHERE conname = 'fk_agenda_items_rooms_room_id'
+                    ) THEN
+                        ALTER TABLE agenda_items
+                        ADD CONSTRAINT fk_agenda_items_rooms_room_id
+                        FOREIGN KEY (room_id) REFERENCES rooms(room_id)
+                        ON DELETE SET NULL;
+                    END IF;
+                END $$;
+            ");
 
-            migrationBuilder.AddForeignKey(
-                name: "fk_agenda_items_rooms_room_id",
-                table: "agenda_items",
-                column: "room_id",
-                principalTable: "rooms",
-                principalColumn: "room_id",
-                onDelete: ReferentialAction.SetNull);
-
-            migrationBuilder.AddForeignKey(
-                name: "fk_agenda_items_sessions_session_id",
-                table: "agenda_items",
-                column: "session_id",
-                principalTable: "sessions",
-                principalColumn: "session_id",
-                onDelete: ReferentialAction.SetNull);
+            migrationBuilder.Sql(@"
+                DO $$ BEGIN
+                    IF NOT EXISTS (
+                        SELECT 1 FROM pg_constraint 
+                        WHERE conname = 'fk_agenda_items_sessions_session_id'
+                    ) THEN
+                        ALTER TABLE agenda_items
+                        ADD CONSTRAINT fk_agenda_items_sessions_session_id
+                        FOREIGN KEY (session_id) REFERENCES sessions(session_id)
+                        ON DELETE SET NULL;
+                    END IF;
+                END $$;
+            ");
         }
 
         /// <inheritdoc />

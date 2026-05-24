@@ -1,4 +1,4 @@
-﻿using ConferenceManagement.Application.DTOs;
+using ConferenceManagement.Application.DTOs;
 using ConferenceManagement.Application.DTOs.Conference;
 using ConferenceManagement.Application.DTOs.Room;
 using ConferenceManagement.Application.DTOs.Session;
@@ -81,9 +81,23 @@ public class SessionsController : ControllerBase
         var result = await _sessionService.AssignSpeakerAsync(id, dto.UserId);
         if (!result)
         {
-            return BadRequest(new { error = "Greška: Korisnik nema rolu 'predavac'." });
+            return BadRequest(new { Message = "Predavač nije pronađen ili sesija ne postoji." });
         }
-        return Ok(new { message = "Predavač uspješno dodijeljen sesiji." });
+
+        return Ok(new { Message = "Predavač uspješno dodijeljen." });
+    }
+
+    [Authorize(Policy = "AdminOrOrganizerPolicy")]
+    [HttpPut("{id}/remove-speaker")]
+    public async Task<IActionResult> RemoveSpeaker(Guid id, [FromBody] AssignSpeakerDTO dto)
+    {
+        var result = await _sessionService.RemoveSpeakerAsync(id, dto.UserId);
+        if (!result)
+        {
+            return BadRequest(new { Message = "Predavač nije pronađen, sesija ne postoji, ili korisnik nije dodijeljen kao predavač." });
+        }
+
+        return Ok(new { Message = "Predavač uspješno uklonjen sa sesije." });
     }
 
     [HttpPut("{id}/room")]

@@ -3,6 +3,7 @@ import { ConferenceList, useConferences } from '../features/conference';
 import { useAuth } from '../auth/AuthProvider';
 import { createConference, updateConference } from '../features/conference/api/conferenceApi';
 import type { Conference, CreateConferenceData } from '../features/conference/types';
+import { NotificationBell } from '../features/notification';
 import '../features/conference/ConferencesPage.css';
 
 const toDatetimeLocal = (dateStr: string): string => {
@@ -219,11 +220,14 @@ const isAdminOrOrganizer = role === 'admin-sistema' || role === 'organizator';
             </div>
           </div>
 
-          {isAdminOrOrganizer && (
-            <button onClick={handleCreateClick} className="btn-primary">
-              + Kreiraj konferenciju
-            </button>
-          )}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <NotificationBell />
+            {isAdminOrOrganizer && (
+              <button onClick={handleCreateClick} className="btn-primary">
+                + Kreiraj konferenciju
+              </button>
+            )}
+          </div>
         </div>
       </div>
 

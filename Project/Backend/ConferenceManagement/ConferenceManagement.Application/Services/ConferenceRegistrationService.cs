@@ -15,15 +15,18 @@ public class ConferenceRegistrationService : IConferenceRegistrationService
     private readonly IConferenceRepository _conferenceRepository;
     private readonly IConferenceRegistrationRepository _conferenceRegistrationRepository;
     private readonly IUserContextService _userContextService;
+    private readonly INotificationService _notificationService;
 
     public ConferenceRegistrationService(
         IConferenceRepository conferenceRepository,
         IConferenceRegistrationRepository conferenceRegistrationRepository,
-        IUserContextService userContextService)
+        IUserContextService userContextService,
+        INotificationService notificationService)
     {
         _conferenceRepository = conferenceRepository;
         _conferenceRegistrationRepository = conferenceRegistrationRepository;
         _userContextService = userContextService;
+        _notificationService = notificationService;
     }
 
     public async Task RegisterAsync(Guid conferenceId, CancellationToken cancellationToken = default)
@@ -57,6 +60,15 @@ public class ConferenceRegistrationService : IConferenceRegistrationService
             existingRegistration.RegistrationDate = DateTime.UtcNow;
             await _conferenceRegistrationRepository.UpdateAsync(existingRegistration, cancellationToken);
             await _conferenceRegistrationRepository.SaveChangesAsync(cancellationToken);
+
+            await _notificationService.CreateNotificationAsync(new DTOs.Notification.CreateNotificationDto
+            {
+                UserId = userId,
+                Title = "Prijava potvrđena",
+                Content = $"Uspješno ste se prijavili na konferenciju: {conference.Title}.",
+                NotificationType = "ConferenceRegistration"
+            }, cancellationToken);
+
             return;
         }
 
@@ -79,6 +91,14 @@ public class ConferenceRegistrationService : IConferenceRegistrationService
 
         await _conferenceRegistrationRepository.AddAsync(registration, cancellationToken);
         await _conferenceRegistrationRepository.SaveChangesAsync(cancellationToken);
+
+        await _notificationService.CreateNotificationAsync(new DTOs.Notification.CreateNotificationDto
+        {
+            UserId = userId,
+            Title = "Prijava potvrđena",
+            Content = $"Uspješno ste se prijavili na konferenciju: {conference.Title}.",
+            NotificationType = "ConferenceRegistration"
+        }, cancellationToken);
     }
 
     public async Task CancelAsync(Guid registrationId, CancellationToken cancellationToken = default)

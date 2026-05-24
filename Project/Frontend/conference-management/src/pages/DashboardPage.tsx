@@ -3,6 +3,7 @@ import { useAuth } from '../auth/AuthProvider';
 import SettingsPage from './SettingsPage';
 import { AdminUsersPanel } from '../features/user';
 import { useSpeakerSessions } from '../features/session/hooks/useSpeakerSessions';
+import { NotificationBell } from '../features/notification';
 import './DashboardPage.css';
 
 // ─── Tip za konferenciju ───────────────────────────────────────────────────────
@@ -276,6 +277,7 @@ export default function DashboardPage() {
             <span className="dash-subtitle">Dobrodošli nazad, {displayName.split(' ')[0]}! 👋</span>
           </div>
           <div className="dash-header-right">
+            <NotificationBell />
             <div className="header-roles">
               {roles.map((r) => <RoleBadge key={r} role={r} />)}
             </div>

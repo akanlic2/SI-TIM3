@@ -107,6 +107,8 @@ builder.Services.AddAuthorizationBuilder()
         policy.RequireAuthenticatedUser());
 
 builder.Services.AddScoped<IConferenceCapacityService, ConferenceCapacityService>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 var app = builder.Build();
 
@@ -116,7 +118,7 @@ if (runMigrationsOnly)
 {
     await app.Services.WaitForDatabaseAndApplyMigrationsAsync(app.Logger);
     app.Logger.LogInformation("Migrations finished successfully. Exiting migrator container.");
-    return;
+    Environment.Exit(0);
 }
 
 // Velika izmjena: osigurava da API pri standardnom startup-u automatski primijeni

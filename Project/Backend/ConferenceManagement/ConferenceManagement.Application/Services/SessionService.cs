@@ -1,4 +1,4 @@
-﻿using ConferenceManagement.Application.DTOs;
+using ConferenceManagement.Application.DTOs;
 using ConferenceManagement.Application.DTOs.Session;
 using ConferenceManagement.Application.Interfaces;
 using ConferenceManagement.Domain.Abstractions.Repositories;
@@ -12,17 +12,20 @@ public class SessionService : ISessionService
     private readonly IUserRepository _userRepository;
     private readonly ISessionRegistrationRepository _registrationRepository;
     private readonly IUserContextService _userContextService;
+    private readonly INotificationService _notificationService;
 
     public SessionService(
         ISessionRepository sessionRepository,
         IUserRepository userRepository,
         ISessionRegistrationRepository registrationRepository,
-        IUserContextService userContextService)
+        IUserContextService userContextService,
+        INotificationService notificationService)
     {
         _sessionRepository = sessionRepository;
         _userRepository = userRepository;
         _registrationRepository = registrationRepository;
         _userContextService = userContextService;
+        _notificationService = notificationService;
     }
 
     public async Task<Guid?> CreateSessionAsync(CreateSessionDto dto)
@@ -59,6 +62,8 @@ public class SessionService : ISessionService
         bool isOverlapping = await _sessionRepository.CheckOverlapAsync(dto.RoomId, dto.StartTime, dto.EndTime, id);
         if (isOverlapping) return false;
 
+        bool isTimeChanged = session.StartTime != dto.StartTime || session.EndTime != dto.EndTime;
+
         session.Title = dto.Title;
         session.Description = dto.Description;
         session.StartTime = dto.StartTime;
@@ -69,13 +74,42 @@ public class SessionService : ISessionService
         await _sessionRepository.UpdateAsync(session);
         await _sessionRepository.SaveChangesAsync();
 
+        if (isTimeChanged)
+        {
+            var sessionWithRegs = await _sessionRepository.GetByIdWithRegistrationsAsync(id);
+            if (sessionWithRegs != null)
+            {
+                foreach (var reg in sessionWithRegs.SessionRegistrations.Where(r => r.RegistrationStatus == "Confirmed" || r.IsSpeaker))
+                {
+                    await _notificationService.CreateNotificationAsync(new DTOs.Notification.CreateNotificationDto
+                    {
+                        UserId = reg.UserId,
+                        Title = "Promjena termina sesije",
+                        Content = $"Sesija '{session.Title}' na koju ste prijavljeni je promijenila termin.",
+                        NotificationType = "SessionUpdated"
+                    });
+                }
+            }
+        }
+
         return true;
     }
 
     public async Task<bool> DeleteSessionAsync(Guid id)
     {
-        var session = await _sessionRepository.GetByIdAsync(id);
+        var session = await _sessionRepository.GetByIdWithRegistrationsAsync(id);
         if (session == null) return false;
+
+        foreach (var reg in session.SessionRegistrations.Where(r => r.RegistrationStatus == "Confirmed" || r.IsSpeaker))
+        {
+            await _notificationService.CreateNotificationAsync(new DTOs.Notification.CreateNotificationDto
+            {
+                UserId = reg.UserId,
+                Title = "Sesija otkazana",
+                Content = $"Sesija '{session.Title}' na koju ste prijavljeni je otkazana.",
+                NotificationType = "SessionCancelled"
+            });
+        }
 
         await _sessionRepository.DeleteAsync(session);
         await _sessionRepository.SaveChangesAsync();
@@ -113,7 +147,42 @@ public class SessionService : ISessionService
         }
 
         await _registrationRepository.SaveChangesAsync();
+
+        await _notificationService.CreateNotificationAsync(new DTOs.Notification.CreateNotificationDto
+        {
+            UserId = userId,
+            Title = "Dodijeljena sesija",
+            Content = $"Dodijeljeni ste kao predavač na sesiji '{session.Title}'.",
+            NotificationType = "SpeakerAssigned"
+        });
+
         return true;
+    }
+
+    public async Task<bool> RemoveSpeakerAsync(Guid sessionId, Guid userId)
+    {
+        var session = await _sessionRepository.GetByIdAsync(sessionId);
+        if (session == null) return false;
+
+        var existingReg = await _registrationRepository.GetBySessionAndUserAsync(sessionId, userId);
+        if (existingReg != null && existingReg.IsSpeaker)
+        {
+            existingReg.IsSpeaker = false;
+            await _registrationRepository.UpdateAsync(existingReg);
+            await _registrationRepository.SaveChangesAsync();
+
+            await _notificationService.CreateNotificationAsync(new DTOs.Notification.CreateNotificationDto
+            {
+                UserId = userId,
+                Title = "Uklonjeni sa sesije",
+                Content = $"Uklonjeni ste kao predavač sa sesije '{session.Title}'.",
+                NotificationType = "SpeakerRemoved"
+            });
+
+            return true;
+        }
+
+        return false;
     }
 
     public async Task RegisterAsync(Guid sessionId, CancellationToken cancellationToken = default)

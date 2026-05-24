@@ -1,4 +1,5 @@
-﻿using ConferenceManagement.Application.DTOs.Question;
+﻿using ConferenceManagement.Application.DTOs.Notification;
+using ConferenceManagement.Application.DTOs.Question;
 using ConferenceManagement.Application.Interfaces;
 using ConferenceManagement.Domain.Abstractions.Repositories;
 using ConferenceManagement.Domain.Entities;
@@ -11,39 +12,34 @@ public class QuestionService : IQuestionService
     private readonly ISessionRepository _sessionRepository;
     private readonly IUserContextService _userContextService;
     private readonly IUserRepository _userRepository;
-
-    // S47-BE-03: INotificationService injection — implementira Osoba E
-    // Kad Osoba E završi servis, dodaj: private readonly INotificationService _notificationService;
-    // i poziv ispod u CreateQuestionAsync
+    private readonly INotificationService _notificationService;
 
     public QuestionService(
         IQuestionRepository questionRepository,
         ISessionRepository sessionRepository,
         IUserContextService userContextService,
-        IUserRepository userRepository)
+        IUserRepository userRepository,
+        INotificationService notificationService)
     {
         _questionRepository = questionRepository;
         _sessionRepository = sessionRepository;
         _userContextService = userContextService;
         _userRepository = userRepository;
+        _notificationService = notificationService;
     }
 
-    // S47-BE-01
     public async Task<QuestionDto> CreateQuestionAsync(
         Guid sessionId,
         CreateQuestionDto dto,
         CancellationToken cancellationToken = default)
     {
-        // Validacija: sesija mora postojati
         var session = await _sessionRepository.GetByIdAsync(sessionId);
         if (session is null)
             throw new KeyNotFoundException($"Sesija sa ID-jem {sessionId} nije pronađena.");
 
-        // Validacija: sesija mora biti već počela (startTime <= now)
         if (session.StartTime > DateTime.UtcNow)
             throw new InvalidOperationException("Pitanja se mogu postavljati tek nakon početka sesije.");
 
-        // Validacija: content nije prazan
         if (string.IsNullOrWhiteSpace(dto.Content))
             throw new ArgumentException("Sadržaj pitanja ne smije biti prazan.");
 
@@ -66,34 +62,31 @@ public class QuestionService : IQuestionService
         await _questionRepository.AddAsync(question);
         await _questionRepository.SaveChangesAsync();
 
-        // S47-BE-03: Emituj notifikacijski event prema servisu (Osoba E)
-        // Event se šalje async — ne blokira 201 response
-        // Kad INotificationService bude dostupan, uncommentaj:
-        //
-        // _ = Task.Run(async () =>
-        // {
-        //     var lecturer = await GetSessionLecturerAsync(session);
-        //     if (lecturer is not null)
-        //     {
-        //         await _notificationService.SendAsync(new NewQuestionEvent
-        //         {
-        //             Event       = "NEW_QUESTION",
-        //             SessionId   = sessionId,
-        //             QuestionId  = question.QuestionId,
-        //             QuestionText = question.Content,
-        //             AuthorId    = userId,
-        //             LecturerId  = lecturer.UserId,
-        //             Timestamp   = question.AskedAt
-        //         });
-        //     }
-        // }, CancellationToken.None);
+        try
+        {
+            var fullSession = await _sessionRepository.GetByIdWithRegistrationsAsync(sessionId);
+            var speaker = fullSession?.SessionRegistrations.FirstOrDefault(r => r.IsSpeaker);
+
+            if (speaker is not null)
+            {
+                await _notificationService.CreateNotificationAsync(new CreateNotificationDto
+                {
+                    UserId = speaker.UserId,
+                    Title = "Novo pitanje u sesiji",
+                    Content = $"Postavljeno je novo pitanje u sesiji \"{fullSession!.Title}\": \"{question.Content.Substring(0, Math.Min(question.Content.Length, 100))}\" [conferenceId:{fullSession.ConferenceId}]",
+                    NotificationType = "QuestionAsked"
+                }, cancellationToken);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"[NotificationError] CreateQuestion: {ex.Message}");
+        }
 
         var author = await _userRepository.GetByIdAsync(userId);
-
         return MapToDto(question, author);
     }
 
-    // S47-BE-02
     public async Task<List<QuestionDto>> GetQuestionsBySessionAsync(
         Guid sessionId,
         CancellationToken cancellationToken = default)
@@ -107,7 +100,6 @@ public class QuestionService : IQuestionService
         return questions.Select(q => MapToDto(q, q.User)).ToList();
     }
 
-    // S47-BE-03
     public async Task<QuestionDto> AnswerQuestionAsync(
         Guid sessionId,
         Guid questionId,
@@ -139,6 +131,21 @@ public class QuestionService : IQuestionService
         question.Status = "Answered";
 
         await _questionRepository.SaveChangesAsync();
+
+        try
+        {
+            await _notificationService.CreateNotificationAsync(new CreateNotificationDto
+            {
+                UserId = question.UserId,
+                Title = "Vaše pitanje je dobilo odgovor",
+                Content = $"Predavač je odgovorio na vaše pitanje: \"{question.Content.Substring(0, Math.Min(question.Content.Length, 100))}\" [conferenceId:{session.ConferenceId}]",
+                NotificationType = "QuestionAnswered"
+            }, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"[NotificationError] AnswerQuestion: {ex.Message}");
+        }
 
         var author = await _userRepository.GetByIdAsync(question.UserId);
         return MapToDto(question, author);
