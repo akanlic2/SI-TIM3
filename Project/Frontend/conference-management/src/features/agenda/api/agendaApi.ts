@@ -22,8 +22,8 @@ export async function createAgendaItem(
 ): Promise<AgendaItem> {
   const payload = {
     ...data,
-    startTime: new Date(data.startTime).toISOString(),
-    endTime: new Date(data.endTime).toISOString(),
+    startTime: data.startTime,
+    endTime: data.endTime,
   };
   const response = await axios.post<AgendaItem>(
     `${BASE_URL}/api/conferences/${conferenceId}/agenda`,
@@ -38,8 +38,8 @@ export async function updateAgendaItem(
 ): Promise<void> {
   const payload = {
     ...data,
-    startTime: new Date(data.startTime).toISOString(),
-    endTime: new Date(data.endTime).toISOString(),
+    startTime: data.startTime,
+    endTime: data.endTime,
   };
   await axios.put(`${BASE_URL}/api/agenda/${id}`, payload);
 }

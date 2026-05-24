@@ -4,6 +4,8 @@ import { fetchRooms } from '../../room/api/roomApi';
 import type { Room } from '../../room/types';
 import { createAgendaItem, updateAgendaItem } from '../api/agendaApi';
 import { AGENDA_ITEM_TYPES, type AgendaItem } from '../types';
+import 'react-datepicker/dist/react-datepicker.css';
+import DatePicker from 'react-datepicker';
 
 interface AgendaFormProps {
   conferenceId: string;
@@ -13,9 +15,26 @@ interface AgendaFormProps {
 }
 
 export function AgendaForm({ conferenceId, editingItem, onSuccess, onCancel }: AgendaFormProps) {
+  const DatePickerComponent = DatePicker as any;
+
+  const toDatetimeLocalValue = (dateString: string) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) return '';
+
+    const pad = (v: number) => String(v).padStart(2, '0');
+    // Local getters — input shows user's local time
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  };
+
+  const fromDate = (date: Date) => {
+    const pad = (v: number) => String(v).padStart(2, '0');
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  };
+
   const [type, setType] = useState(editingItem?.type ?? 'Session');
-  const [startTime, setStartTime] = useState(editingItem ? new Date(editingItem.startTime).toISOString().slice(0, 16) : '');
-  const [endTime, setEndTime] = useState(editingItem ? new Date(editingItem.endTime).toISOString().slice(0, 16) : '');
+  const [startTime, setStartTime] = useState(editingItem ? toDatetimeLocalValue(editingItem.startTime) : '');
+  const [endTime, setEndTime] = useState(editingItem ? toDatetimeLocalValue(editingItem.endTime) : '');
 
   const [sessionId, setSessionId] = useState(editingItem?.sessionId ?? '');
   const [title, setTitle] = useState(editingItem?.title ?? '');
@@ -31,11 +50,8 @@ export function AgendaForm({ conferenceId, editingItem, onSuccess, onCancel }: A
   // Dohvatimo sesije iz conference-a da bi ponudili u dropdown-u (Tim C/Tim A hibrid)
   const { items: sessions, isLoading: sessionsLoading } = useSessions(conferenceId);
 
-  const toLocalDatetimeString = (utcString: string) => {
-    const date = new Date(utcString);
-    const offset = date.getTimezoneOffset() * 60000;
-    return new Date(date.getTime() - offset).toISOString().slice(0, 16);
-  };
+  // In handleSubmit, before building `data`:
+  const toUTCIso = (localDatetime: string) => new Date(localDatetime).toISOString();
 
   useEffect(() => {
     fetchRooms()
@@ -70,8 +86,8 @@ export function AgendaForm({ conferenceId, editingItem, onSuccess, onCancel }: A
     const selected = sessions.find((s) => s.sessionId === sessionId);
     if (!selected) return;
 
-    setStartTime(toLocalDatetimeString(selected.startTime));
-    setEndTime(toLocalDatetimeString(selected.endTime));
+    setStartTime(toDatetimeLocalValue(selected.startTime));
+    setEndTime(toDatetimeLocalValue(selected.endTime));
 
     if (selected.roomId)
       setRoomId(selected.roomId);
@@ -107,8 +123,8 @@ export function AgendaForm({ conferenceId, editingItem, onSuccess, onCancel }: A
     try {
       const data = {
         type,
-        startTime,
-        endTime,
+        startTime: toUTCIso(startTime),
+        endTime: toUTCIso(endTime),
         sessionId: isSessionType ? sessionId : undefined,
         title: !isSessionType ? title : undefined,
         description: !isSessionType ? description : undefined,
@@ -151,14 +167,17 @@ export function AgendaForm({ conferenceId, editingItem, onSuccess, onCancel }: A
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <div className="form-group">
+        <div className="form-group min-w-0">
           <label>Početak <span className="text-red-500">*</span></label>
-          <input
-            type="datetime-local"
-            value={startTime}
-            onChange={(e) => setStartTime(e.target.value)}
+          <DatePickerComponent
+            selected={startTime ? new Date(startTime) : null}
+            onChange={(date: Date | null) => setStartTime(date ? fromDate(date) : '')}
+            showTimeSelect
+            timeFormat="HH:mm"
+            timeIntervals={15}
+            dateFormat="dd.MM.yyyy HH:mm"
+            placeholderText="Odaberite datum i vrijeme"
             className="form-input"
-            required
             disabled={isSessionType}
           />
           {isSessionType && sessionId && (
@@ -166,14 +185,17 @@ export function AgendaForm({ conferenceId, editingItem, onSuccess, onCancel }: A
           )}
         </div>
 
-        <div className="form-group">
+        <div className="form-group min-w-0">
           <label>Završetak <span className="text-red-500">*</span></label>
-          <input
-            type="datetime-local"
-            value={endTime}
-            onChange={(e) => setEndTime(e.target.value)}
+          <DatePickerComponent
+            selected={endTime ? new Date(endTime) : null}
+            onChange={(date: Date | null) => setEndTime(date ? fromDate(date) : '')}
+            showTimeSelect
+            timeFormat="HH:mm"
+            timeIntervals={15}
+            dateFormat="dd.MM.yyyy HH:mm"
+            placeholderText="Odaberite datum i vrijeme"
             className="form-input"
-            required
             disabled={isSessionType}
           />
         </div>
