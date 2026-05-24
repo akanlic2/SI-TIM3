@@ -235,6 +235,115 @@
   border-color: var(--accent-blue);
 }
 
+.btn-qa {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.9), rgba(14, 165, 233, 0.9));
+  border: 1px solid rgba(56, 189, 248, 0.6);
+  color: #f8fafc;
+  padding: 10px 18px;
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: all var(--transition);
+  box-shadow: 0 6px 18px rgba(56, 189, 248, 0.2);
+}
+
+.btn-qa:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgba(56, 189, 248, 0.3);
+  border-color: rgba(125, 211, 252, 0.9);
+}
+
+.btn-qa:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.2);
+}
+
+.qa-modal-overlay {
+  padding: 24px;
+}
+
+.qa-modal-content {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  width: min(1100px, 92vw);
+  max-height: 88vh;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+}
+
+.qa-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.qa-modal-title {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.qa-modal-subtitle {
+  margin: 4px 0 0 0;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+}
+
+.qa-modal-content > div,
+.qa-modal-content > section {
+  overflow: hidden;
+}
+
+.qa-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.qa-panel-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow: auto;
+  padding-right: 6px;
+}
+
+.qa-panel-form {
+  flex-shrink: 0;
+}
+
+.qa-question-card {
+  position: relative;
+}
+
+.btn-qa-answer {
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition);
+}
+
+.qa-question-card:hover .btn-qa-answer {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 .btn-primary-sm {
   background: var(--accent-amber);
   border: 1px solid var(--accent-amber);
@@ -769,6 +878,88 @@ input[type="datetime-local"].form-input:not([value=""])::-webkit-datetime-edit-f
   gap: 12px;
   padding-top: 16px;
   border-top: 1px solid var(--border);
+}
+
+.session-admin-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.session-admin-menu {
+  position: relative;
+  display: none;
+}
+
+.session-admin-menu[open] .session-admin-menu-trigger {
+  border-color: var(--accent-blue);
+  color: var(--text-primary);
+  background: var(--bg-hover);
+}
+
+.session-admin-menu-trigger {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+.session-admin-menu-trigger::-webkit-details-marker {
+  display: none;
+}
+
+.session-admin-menu-list {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 8px;
+  min-width: 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: var(--shadow-card);
+  z-index: 5;
+}
+
+.session-admin-menu-item {
+  background: transparent;
+  border: 1px solid var(--border-light);
+  color: var(--text-secondary);
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+  text-align: left;
+}
+
+.session-admin-menu-item:hover {
+  border-color: var(--accent-blue);
+  color: var(--text-primary);
+  background: var(--bg-hover);
+}
+
+.session-admin-menu-item-danger {
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+}
+
+.session-admin-menu-item-danger:hover {
+  border-color: rgba(239, 68, 68, 0.8);
+  color: #fee2e2;
+  background: rgba(239, 68, 68, 0.12);
+}
+
+@media (max-width: 1040px) {
+  .session-admin-actions {
+    display: none;
+  }
+
+  .session-admin-menu {
+    display: inline-block;
+  }
 }
 
 .session-empty-state {
