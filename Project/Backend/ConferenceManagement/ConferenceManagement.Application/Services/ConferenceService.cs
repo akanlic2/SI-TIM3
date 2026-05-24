@@ -1,5 +1,6 @@
 using ConferenceManagement.Application.DTOs.Common;
 using ConferenceManagement.Application.DTOs.Conference;
+using ConferenceManagement.Application.DTOs.Notification;
 using ConferenceManagement.Application.Interfaces;
 using ConferenceManagement.Domain.Abstractions.Repositories;
 using ConferenceManagement.Domain.Entities;
@@ -12,17 +13,20 @@ public class ConferenceService : IConferenceService
     private readonly IConferenceRegistrationRepository _conferenceRegistrationRepository;
     private readonly IUserContextService _userContextService;
     private readonly IUserRepository _userRepository;
+    private readonly INotificationService _notificationService;
 
     public ConferenceService(
         IConferenceRepository conferenceRepository,
         IConferenceRegistrationRepository conferenceRegistrationRepository,
         IUserContextService userContextService,
-        IUserRepository userRepository)
+        IUserRepository userRepository,
+        INotificationService notificationService)
     {
         _conferenceRepository = conferenceRepository;
         _conferenceRegistrationRepository = conferenceRegistrationRepository;
         _userContextService = userContextService;
         _userRepository = userRepository;
+        _notificationService = notificationService;
     }
 
     public async Task<List<ConferenceDto>> GetAllAsync(CancellationToken cancellationToken = default)
@@ -57,6 +61,7 @@ public class ConferenceService : IConferenceService
 
     public async Task<ConferenceDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
+        // Zadržano tvoje jer ti treba učitavanje organizatora zbog mapiranja šifri u DTO
         var conference = await _conferenceRepository.GetByIdWithOrganizersAsync(id, cancellationToken);
 
         if (conference is null)
@@ -70,7 +75,6 @@ public class ConferenceService : IConferenceService
     public async Task<List<RegisteredConferenceDto>> GetConfirmedForCurrentUserAsync(CancellationToken cancellationToken = default)
     {
         var userId = Guid.Parse(_userContextService.GetUserId());
-
         var registrations = await _conferenceRegistrationRepository.GetConfirmedRegistrationsForUserAsync(userId, cancellationToken);
 
         return registrations
@@ -83,6 +87,11 @@ public class ConferenceService : IConferenceService
         if (dto.EndDate <= dto.StartDate)
         {
             throw new ArgumentException("Datum završetka mora biti nakon datuma početka.");
+        }
+
+        if (dto.MaxParticipants <= 0)
+        {
+            throw new ArgumentException("Maksimalan broj učesnika mora biti veći od 0.");
         }
 
         var organizerId = Guid.Parse(_userContextService.GetUserId());
@@ -135,6 +144,11 @@ public class ConferenceService : IConferenceService
             throw new ArgumentException("Maksimalan broj učesnika mora biti veći od 0.");
         }
 
+        // Provjera promjene rasporeda prije nego prepišemo stare vrijednosti
+        bool isScheduleChanged = conference.StartDate != dto.StartDate.ToUniversalTime() ||
+                                 conference.EndDate != dto.EndDate.ToUniversalTime() ||
+                                 conference.Location != dto.Location;
+
         conference.Title = dto.Title;
         conference.Description = dto.Description;
         conference.StartDate = dto.StartDate.ToUniversalTime();
@@ -144,6 +158,22 @@ public class ConferenceService : IConferenceService
         conference.MaxParticipants = dto.MaxParticipants;
 
         await _conferenceRepository.UpdateAsync(conference, cancellationToken);
+
+        // Vraćena logika slanja notifikacija u slučaju izmjene termina/lokacije
+        if (isScheduleChanged)
+        {
+            var registrations = await _conferenceRegistrationRepository.GetRegistrationsByConferenceAsync(id, cancellationToken);
+            foreach (var registration in registrations.Where(r => r.RegistrationStatus == "Confirmed"))
+            {
+                await _notificationService.CreateNotificationAsync(new CreateNotificationDto
+                {
+                    UserId = registration.UserId,
+                    Title = "Promjena termina konferencije",
+                    Content = $"Konferencija {conference.Title} na koju ste prijavljeni je promijenila termin ili lokaciju.",
+                    NotificationType = "ConferenceUpdated"
+                }, cancellationToken);
+            }
+        }
     }
 
     public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
@@ -153,6 +183,19 @@ public class ConferenceService : IConferenceService
         if (conference == null)
         {
             throw new KeyNotFoundException($"Conference with ID {id} not found.");
+        }
+
+        // Vraćena logika slanja notifikacija prije brisanja same konferencije
+        var registrations = await _conferenceRegistrationRepository.GetRegistrationsByConferenceAsync(id, cancellationToken);
+        foreach (var registration in registrations.Where(r => r.RegistrationStatus == "Confirmed"))
+        {
+            await _notificationService.CreateNotificationAsync(new CreateNotificationDto
+            {
+                UserId = registration.UserId,
+                Title = "Konferencija otkazana",
+                Content = $"Konferencija {conference.Title} na koju ste prijavljeni je otkazana.",
+                NotificationType = "ConferenceCancelled"
+            }, cancellationToken);
         }
 
         await _conferenceRepository.DeleteAsync(conference, cancellationToken);
