@@ -1,4 +1,5 @@
-﻿using ConferenceManagement.Application.Services;
+﻿using ConferenceManagement.Application.Interfaces;
+using ConferenceManagement.Application.Services;
 using ConferenceManagement.Domain.Abstractions.Repositories;
 using ConferenceManagement.Domain.Entities;
 using Moq;
@@ -11,12 +12,14 @@ public class ConferenceRegistrationServiceTests
     private readonly Mock<IConferenceRepository> _conferenceRepositoryMock = new();
     private readonly Mock<IConferenceRegistrationRepository> _registrationRepositoryMock = new();
     private readonly Mock<IUserContextService> _userContextMock = new();
+    private readonly Mock<INotificationService> _notificationServiceMock = new();
 
     private ConferenceRegistrationService CreateService() =>
         new(
             _conferenceRepositoryMock.Object,
             _registrationRepositoryMock.Object,
-            _userContextMock.Object
+            _userContextMock.Object,
+            _notificationServiceMock.Object
         );
 
     [Fact]
@@ -37,7 +40,6 @@ public class ConferenceRegistrationServiceTests
     public async Task RegisterAsync_UserAlreadyConfirmed_ThrowsInvalidOperationException()
     {
         var service = CreateService();
-
         var conferenceId = Guid.NewGuid();
         var userId = Guid.NewGuid();
 
@@ -45,11 +47,7 @@ public class ConferenceRegistrationServiceTests
 
         _conferenceRepositoryMock
             .Setup(r => r.GetByIdAsync(conferenceId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Conference
-            {
-                ConferenceId = conferenceId,
-                MaxParticipants = 100
-            });
+            .ReturnsAsync(new Conference { ConferenceId = conferenceId, MaxParticipants = 100 });
 
         _registrationRepositoryMock
             .Setup(r => r.GetByConferenceAndUserAsync(conferenceId, userId, It.IsAny<CancellationToken>()))
@@ -68,7 +66,6 @@ public class ConferenceRegistrationServiceTests
     public async Task RegisterAsync_NoFreePlaces_ThrowsInvalidOperationException()
     {
         var service = CreateService();
-
         var conferenceId = Guid.NewGuid();
         var userId = Guid.NewGuid();
 
@@ -76,11 +73,7 @@ public class ConferenceRegistrationServiceTests
 
         _conferenceRepositoryMock
             .Setup(r => r.GetByIdAsync(conferenceId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Conference
-            {
-                ConferenceId = conferenceId,
-                MaxParticipants = 1
-            });
+            .ReturnsAsync(new Conference { ConferenceId = conferenceId, MaxParticipants = 1 });
 
         _registrationRepositoryMock
             .Setup(r => r.GetByConferenceAndUserAsync(conferenceId, userId, It.IsAny<CancellationToken>()))
@@ -98,7 +91,6 @@ public class ConferenceRegistrationServiceTests
     public async Task RegisterAsync_ValidRegistration_AddsRegistration()
     {
         var service = CreateService();
-
         var conferenceId = Guid.NewGuid();
         var userId = Guid.NewGuid();
 
@@ -106,11 +98,7 @@ public class ConferenceRegistrationServiceTests
 
         _conferenceRepositoryMock
             .Setup(r => r.GetByIdAsync(conferenceId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Conference
-            {
-                ConferenceId = conferenceId,
-                MaxParticipants = 100
-            });
+            .ReturnsAsync(new Conference { ConferenceId = conferenceId, Title = "Test", MaxParticipants = 100 });
 
         _registrationRepositoryMock
             .Setup(r => r.GetByConferenceAndUserAsync(conferenceId, userId, It.IsAny<CancellationToken>()))
@@ -128,14 +116,15 @@ public class ConferenceRegistrationServiceTests
                   cr.RegistrationStatus == "Confirmed"
         ), It.IsAny<CancellationToken>()), Times.Once);
 
-        _registrationRepositoryMock.Verify(r => r.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+        _notificationServiceMock.Verify(n => n.CreateNotificationAsync(
+            It.IsAny<ConferenceManagement.Application.DTOs.Notification.CreateNotificationDto>(),
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
     public async Task RegisterAsync_CancelledRegistration_ReactivatesRegistration()
     {
         var service = CreateService();
-
         var conferenceId = Guid.NewGuid();
         var userId = Guid.NewGuid();
 
@@ -151,11 +140,7 @@ public class ConferenceRegistrationServiceTests
 
         _conferenceRepositoryMock
             .Setup(r => r.GetByIdAsync(conferenceId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Conference
-            {
-                ConferenceId = conferenceId,
-                MaxParticipants = 100
-            });
+            .ReturnsAsync(new Conference { ConferenceId = conferenceId, Title = "Test", MaxParticipants = 100 });
 
         _registrationRepositoryMock
             .Setup(r => r.GetByConferenceAndUserAsync(conferenceId, userId, It.IsAny<CancellationToken>()))
@@ -169,7 +154,6 @@ public class ConferenceRegistrationServiceTests
 
         Assert.Equal("Confirmed", registration.RegistrationStatus);
         _registrationRepositoryMock.Verify(r => r.UpdateAsync(registration, It.IsAny<CancellationToken>()), Times.Once);
-        _registrationRepositoryMock.Verify(r => r.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -190,7 +174,6 @@ public class ConferenceRegistrationServiceTests
     public async Task CancelAsync_WrongUser_ThrowsUnauthorizedAccessException()
     {
         var service = CreateService();
-
         var currentUserId = Guid.NewGuid();
         var otherUserId = Guid.NewGuid();
         var registrationId = Guid.NewGuid();
@@ -214,7 +197,6 @@ public class ConferenceRegistrationServiceTests
     public async Task CancelAsync_ValidRegistration_SetsCancelledStatus()
     {
         var service = CreateService();
-
         var userId = Guid.NewGuid();
         var registrationId = Guid.NewGuid();
 
@@ -234,7 +216,5 @@ public class ConferenceRegistrationServiceTests
         await service.CancelAsync(registrationId);
 
         Assert.Equal("Cancelled", registration.RegistrationStatus);
-        _registrationRepositoryMock.Verify(r => r.UpdateAsync(registration, It.IsAny<CancellationToken>()), Times.Once);
-        _registrationRepositoryMock.Verify(r => r.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 }

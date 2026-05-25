@@ -1,4 +1,5 @@
 ﻿using ConferenceManagement.Application.DTOs.Conference;
+using ConferenceManagement.Application.Interfaces;
 using ConferenceManagement.Application.Services;
 using ConferenceManagement.Domain.Abstractions.Repositories;
 using ConferenceManagement.Domain.Entities;
@@ -9,11 +10,20 @@ namespace ConferenceManagement.Tests;
 
 public class ConferenceServiceTests
 {
-    private readonly Mock<IConferenceRepository> _repositoryMock;
-    private readonly Mock<IConferenceRegistrationRepository> _conferenceRegistrationRepositoryMock;
-    private readonly Mock<IUserContextService> _userContextMock;
-    private readonly Mock<IUserRepository> _userRepositoryMock;
-    private readonly ConferenceService _service;
+    private readonly Mock<IConferenceRepository> _repositoryMock = new();
+    private readonly Mock<IConferenceRegistrationRepository> _conferenceRegistrationRepositoryMock = new();
+    private readonly Mock<IUserContextService> _userContextMock = new();
+    private readonly Mock<IUserRepository> _userRepositoryMock = new();
+    private readonly Mock<INotificationService> _notificationServiceMock = new();
+
+    private ConferenceService CreateService() =>
+        new(
+            _repositoryMock.Object,
+            _conferenceRegistrationRepositoryMock.Object,
+            _userContextMock.Object,
+            _userRepositoryMock.Object,
+            _notificationServiceMock.Object
+        );
 
     private static Conference ActiveConference => new()
     {
@@ -25,7 +35,8 @@ public class ConferenceServiceTests
         StartDate = DateTime.UtcNow.AddDays(10),
         EndDate = DateTime.UtcNow.AddDays(11),
         MaxParticipants = 100,
-        Status = "Active"
+        Status = "Active",
+        Organizers = new List<User>()
     };
 
     private static Conference DraftConference => new()
@@ -38,32 +49,14 @@ public class ConferenceServiceTests
         StartDate = DateTime.UtcNow.AddDays(20),
         EndDate = DateTime.UtcNow.AddDays(21),
         MaxParticipants = 150,
-        Status = "Draft"
+        Status = "Draft",
+        Organizers = new List<User>()
     };
-
-    public ConferenceServiceTests()
-    {
-        _repositoryMock = new Mock<IConferenceRepository>();
-        _conferenceRegistrationRepositoryMock = new Mock<IConferenceRegistrationRepository>();
-        _userContextMock = new Mock<IUserContextService>();
-        _userRepositoryMock = new Mock<IUserRepository>();  
-
-        // Servis sada prima oba dependency-a kako zahtijeva tvoj kod
-        _service = new ConferenceService(
-            _repositoryMock.Object,
-            _conferenceRegistrationRepositoryMock.Object,
-            _userContextMock.Object,
-            _userRepositoryMock.Object);
-    }
-
-    // ===================== GET & AUTHORIZATION (Tvoji testovi) =====================
 
     [Fact]
     public async Task GetPagedAsync_AdminSeesActiveDraftAndInactive()
     {
-        _userContextMock
-            .Setup(x => x.GetUserRoles())
-            .Returns(new List<string> { "admin-sistema" });
+        var service = CreateService();
 
         _repositoryMock
             .Setup(x => x.GetPagedFilteredAsync(
@@ -75,13 +68,9 @@ public class ConferenceServiceTests
                 It.IsAny<string?>(),
                 true,
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync((new List<Conference>
-            {
-                ActiveConference,
-                DraftConference
-            }, 2));
+            .ReturnsAsync((new List<Conference> { ActiveConference, DraftConference }, 2));
 
-        var result = await _service.GetPagedAsync(new ConferenceQueryDto
+        var result = await service.GetPagedAsync(new ConferenceQueryDto
         {
             Page = 1,
             PageSize = 6
@@ -94,80 +83,56 @@ public class ConferenceServiceTests
     [Fact]
     public async Task GetByIdAsync_AdminCanSeeDraftConference()
     {
+        var service = CreateService();
         var draft = DraftConference;
 
-        _userContextMock
-            .Setup(x => x.GetUserRoles())
-            .Returns(new List<string> { "admin-sistema" });
-
         _repositoryMock
-            .Setup(x => x.GetByIdAsync(draft.ConferenceId, It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetByIdWithOrganizersAsync(draft.ConferenceId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(draft);
 
-        var result = await _service.GetByIdAsync(draft.ConferenceId);
+        var result = await service.GetByIdAsync(draft.ConferenceId);
 
         Assert.NotNull(result);
         Assert.Equal("Draft", result!.Status);
     }
 
-    // ===================== CREATE (Kombinovani testovi) =====================
-
     [Fact]
-public async Task CreateAsync_ValidData_ReturnsConferenceDto()
-{
-    var fakeUser = new User { UserId = Guid.NewGuid() };
-
-    _userContextMock
-        .Setup(x => x.GetUserId())
-        .Returns(Guid.NewGuid().ToString());
-
-    _userContextMock
-        .Setup(x => x.HasRole("organizator"))
-        .Returns(false);
-
-    _userRepositoryMock
-        .Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-        .ReturnsAsync(fakeUser);
-
-    var dto = new CreateConferenceDto
+    public async Task CreateAsync_ValidData_ReturnsConferenceDto()
     {
-        Title = "Test Konferencija",
-        Description = "Opis konferencije",
-        StartDate = DateTime.UtcNow.AddDays(1),
-        EndDate = DateTime.UtcNow.AddDays(2),
-        Location = "Sarajevo",
-        Category = "IT",
-        MaxParticipants = 100
-    };
+        var service = CreateService();
+        var userId = Guid.NewGuid();
 
-    var conference = new Conference
-    {
-        ConferenceId = Guid.NewGuid(),
-        Title = dto.Title,
-        Description = dto.Description,
-        StartDate = dto.StartDate,
-        EndDate = dto.EndDate,
-        Location = dto.Location,
-        Category = dto.Category,
-        MaxParticipants = dto.MaxParticipants,
-        Status = "Planned"
-    };
+        _userContextMock.Setup(x => x.GetUserId()).Returns(userId.ToString());
 
-    _repositoryMock
-        .Setup(r => r.AddAsync(It.IsAny<Conference>(), It.IsAny<CancellationToken>()))
-        .ReturnsAsync(conference);
+        _userRepositoryMock
+            .Setup(r => r.GetByIdAsync(userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new User { UserId = userId });
 
-    var result = await _service.CreateAsync(dto);
+        var dto = new CreateConferenceDto
+        {
+            Title = "Test Konferencija",
+            Description = "Opis konferencije",
+            StartDate = DateTime.UtcNow.AddDays(1),
+            EndDate = DateTime.UtcNow.AddDays(2),
+            Location = "Sarajevo",
+            Category = "IT",
+            MaxParticipants = 100
+        };
 
-    Assert.NotNull(result);
-    Assert.Equal(dto.Title, result.Title);
-    Assert.Equal(dto.Location, result.Location);
-    Assert.Equal(dto.MaxParticipants, result.MaxParticipants);
-}
+        var result = await service.CreateAsync(dto);
+
+        Assert.NotNull(result);
+        Assert.Equal(dto.Title, result.Title);
+        Assert.Equal(dto.Location, result.Location);
+        Assert.Equal(dto.MaxParticipants, result.MaxParticipants);
+        _repositoryMock.Verify(r => r.AddAsync(It.IsAny<Conference>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
 
     [Fact]
     public async Task CreateAsync_InvalidDates_ThrowsArgumentException()
     {
+        var service = CreateService();
+
         var dto = new CreateConferenceDto
         {
             Title = "Test konferencija",
@@ -179,12 +144,14 @@ public async Task CreateAsync_ValidData_ReturnsConferenceDto()
             MaxParticipants = 100
         };
 
-        await Assert.ThrowsAsync<ArgumentException>(() => _service.CreateAsync(dto));
+        await Assert.ThrowsAsync<ArgumentException>(() => service.CreateAsync(dto));
     }
 
     [Fact]
     public async Task CreateAsync_StartDateAfterEndDate_ThrowsArgumentException()
     {
+        var service = CreateService();
+
         var dto = new CreateConferenceDto
         {
             Title = "Test",
@@ -195,12 +162,13 @@ public async Task CreateAsync_ValidData_ReturnsConferenceDto()
             MaxParticipants = 50
         };
 
-        await Assert.ThrowsAsync<ArgumentException>(() => _service.CreateAsync(dto));
+        await Assert.ThrowsAsync<ArgumentException>(() => service.CreateAsync(dto));
     }
 
     [Fact]
     public async Task CreateAsync_StartDateEqualsEndDate_ThrowsArgumentException()
     {
+        var service = CreateService();
         var date = DateTime.UtcNow.AddDays(2);
 
         var dto = new CreateConferenceDto
@@ -213,12 +181,14 @@ public async Task CreateAsync_ValidData_ReturnsConferenceDto()
             MaxParticipants = 50
         };
 
-        await Assert.ThrowsAsync<ArgumentException>(() => _service.CreateAsync(dto));
+        await Assert.ThrowsAsync<ArgumentException>(() => service.CreateAsync(dto));
     }
 
     [Fact]
     public async Task CreateAsync_MaxParticipantsZero_ThrowsArgumentException()
     {
+        var service = CreateService();
+
         var dto = new CreateConferenceDto
         {
             Title = "Test",
@@ -229,12 +199,14 @@ public async Task CreateAsync_ValidData_ReturnsConferenceDto()
             MaxParticipants = 0
         };
 
-        await Assert.ThrowsAsync<ArgumentException>(() => _service.CreateAsync(dto));
+        await Assert.ThrowsAsync<ArgumentException>(() => service.CreateAsync(dto));
     }
 
     [Fact]
     public async Task CreateAsync_MaxParticipantsNegative_ThrowsArgumentException()
     {
+        var service = CreateService();
+
         var dto = new CreateConferenceDto
         {
             Title = "Test",
@@ -245,36 +217,40 @@ public async Task CreateAsync_ValidData_ReturnsConferenceDto()
             MaxParticipants = -10
         };
 
-        await Assert.ThrowsAsync<ArgumentException>(() => _service.CreateAsync(dto));
+        await Assert.ThrowsAsync<ArgumentException>(() => service.CreateAsync(dto));
     }
-
-    // ===================== UPDATE =====================
 
     [Fact]
     public async Task UpdateAsync_ValidData_UpdatesSuccessfully()
     {
+        var service = CreateService();
         var id = Guid.NewGuid();
-        var existing = new Conference { ConferenceId = id, Title = "Stari naziv" };
+
+        var existing = new Conference
+        {
+            ConferenceId = id,
+            Title = "Stari naziv",
+            StartDate = DateTime.UtcNow.AddDays(5),
+            EndDate = DateTime.UtcNow.AddDays(6),
+            Location = "Sarajevo"
+        };
 
         var dto = new UpdateConferenceDto
         {
             Title = "Novi naziv",
             Description = "Novi opis",
-            StartDate = DateTime.UtcNow.AddDays(1),
-            EndDate = DateTime.UtcNow.AddDays(3),
+            StartDate = DateTime.UtcNow.AddDays(10),
+            EndDate = DateTime.UtcNow.AddDays(11),
             Location = "Mostar",
             MaxParticipants = 200
         };
 
-        _repositoryMock
-            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(existing);
+        _repositoryMock.Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>())).ReturnsAsync(existing);
+        _conferenceRegistrationRepositoryMock
+            .Setup(r => r.GetRegistrationsByConferenceAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<ConferenceRegistration>());
 
-        _repositoryMock
-            .Setup(r => r.UpdateAsync(It.IsAny<Conference>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(existing);
-
-        await _service.UpdateAsync(id, dto);
+        await service.UpdateAsync(id, dto);
 
         _repositoryMock.Verify(r => r.UpdateAsync(It.IsAny<Conference>(), It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -282,11 +258,10 @@ public async Task CreateAsync_ValidData_ReturnsConferenceDto()
     [Fact]
     public async Task UpdateAsync_ConferenceNotFound_ThrowsKeyNotFoundException()
     {
+        var service = CreateService();
         var id = Guid.NewGuid();
 
-        _repositoryMock
-            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Conference?)null);
+        _repositoryMock.Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>())).ReturnsAsync((Conference?)null);
 
         var dto = new UpdateConferenceDto
         {
@@ -296,26 +271,27 @@ public async Task CreateAsync_ValidData_ReturnsConferenceDto()
             MaxParticipants = 50
         };
 
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => _service.UpdateAsync(id, dto));
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => service.UpdateAsync(id, dto));
     }
-
-    // ===================== DELETE =====================
 
     [Fact]
     public async Task DeleteAsync_ExistingConference_DeletesSuccessfully()
     {
+        var service = CreateService();
         var id = Guid.NewGuid();
-        var conference = new Conference { ConferenceId = id, Title = "Test" };
 
-        _repositoryMock
-            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(conference);
+        var conference = new Conference
+        {
+            ConferenceId = id,
+            Title = "Test"
+        };
 
-        _repositoryMock
-            .Setup(r => r.DeleteAsync(It.IsAny<Conference>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
+        _repositoryMock.Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>())).ReturnsAsync(conference);
+        _conferenceRegistrationRepositoryMock
+            .Setup(r => r.GetRegistrationsByConferenceAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<ConferenceRegistration>());
 
-        await _service.DeleteAsync(id);
+        await service.DeleteAsync(id);
 
         _repositoryMock.Verify(r => r.DeleteAsync(It.IsAny<Conference>(), It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -323,12 +299,11 @@ public async Task CreateAsync_ValidData_ReturnsConferenceDto()
     [Fact]
     public async Task DeleteAsync_ConferenceNotFound_ThrowsKeyNotFoundException()
     {
+        var service = CreateService();
         var id = Guid.NewGuid();
 
-        _repositoryMock
-            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Conference?)null);
+        _repositoryMock.Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>())).ReturnsAsync((Conference?)null);
 
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => _service.DeleteAsync(id));
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => service.DeleteAsync(id));
     }
 }

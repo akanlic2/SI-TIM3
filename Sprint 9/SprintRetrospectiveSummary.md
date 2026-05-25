@@ -1,15 +1,36 @@
-# Sprint Retrospective Summary - Sprint 8
+# Sprint Retrospective Summary — Sprint 9
 
 ## Šta je išlo dobro
-* **Sveukupno zadovoljstvo i napredak:** Cjelokupan sprint je protekao izuzetno uspješno. Svi članovi tima su prezadovoljni ostvarenim rezultatima i atmosferom tokom rada.
-* **Kontinuitet i realizacija:** Svi planirani zadaci su izvršeni uspješno i na vrijeme, bez ikakvih tehničkih ili operativnih prepreka.
-* **Stabilnost i kvalitet:** Tim je zadržao visok nivo produktivnosti i stabilnosti u radu, prateći dobre prakse uspostavljene u prethodnim sprintovima.
+
+### Uspješna realizacija funkcionalnosti
+Sprint 9 je protekao veoma uspješno i sve planirane funkcionalnosti su implementirane i testirane na vrijeme. Tim je uspješno završio razvoj Q&A panela, sistema notifikacija, upload materijala i predavačkog dashboarda.
+
+### Dobra koordinacija između timova
+Komunikacija između članova tima bila je stabilna tokom cijelog sprinta. Backend i frontend dijelovi funkcionalnosti razvijani su paralelno, što je omogućilo bržu integraciju i testiranje sistema.
+
+### Stabilnost testiranja i integracije
+Backend unit testovi i frontend testovi su uspješno implementirani i izvršeni. Testiranje je pomoglo da se validiraju permisije korisnika, poslovna logika i ponašanje UI komponenti bez većih problema u integraciji.
+
+### Efikasna organizacija rada
+Podjela zadataka među članovima tima bila je jasna i omogućila je kontinuiran napredak bez zastoja. Svi članovi su redovno ažurirali svoj napredak i održavali stabilan workflow tokom sprinta.
+
+---
 
 ## Šta nije išlo dobro
-* **Kratak rok za realizaciju:** Zbog specifičnosti i dinamike ovog sprinta, suočili smo se sa nešto kraćim vremenskim rokom za rad, što je stvorilo blagi pritisak u završnoj fazi.
+
+### Ograničen vremenski period za realizaciju
+Zbog dinamike i obima funkcionalnosti u ovom sprintu, tim je radio u nešto kraćem vremenskom okviru, što je dovelo do blagog pritiska tokom završnih aktivnosti sprinta.
+
+---
 
 ## Šta treba promijeniti
-* **Ranija podjela zadataka:** Kako bismo amortizovali kraće rokove u budućnosti, potrebno je odmah na samom početku sprinta (ili čak tokom planiranja) izvršiti detaljnu podjelu taskova, čime bi se izbjegao pritisak pred kraj sprinta.
+
+### Ranije definisanje i raspodjela zadataka
+Kako bi se u budućim sprintovima smanjio pritisak pred kraj realizacije, potrebno je detaljniju podjelu zadataka napraviti odmah na početku sprinta, odnosno već tokom faze planiranja.
+
+---
 
 ## Koje konkretne akcije tim uvodi u narednom sprintu
-* **Efikasnije planiranje i delegiranje:** U sljedecem sprintu fokus će biti na instant podjeli zadataka odmah nakon retrospektive i planiranja, kako bi se maksimalno iskoristio svaki radni dan.
+
+### Bolje planiranje i brža raspodjela obaveza
+U narednom sprintu tim će fokus staviti na što raniju podjelu taskova odmah nakon planiranja i retrospektive, kako bi se svaki radni dan iskoristio efikasnije i organizovanije.
