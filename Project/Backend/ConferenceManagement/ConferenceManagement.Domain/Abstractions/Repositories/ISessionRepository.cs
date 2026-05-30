@@ -17,4 +17,6 @@ public interface ISessionRepository
     /// Dobavlja sve sesije za određenog predavača uključujući podatke o konferenciji.
     /// </summary>
     Task<List<Session>> GetSessionsBySpeakerIdAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<List<Session>> GetSessionsByConferenceIdWithDetailsAsync(
+    Guid conferenceId, CancellationToken cancellationToken = default);
 }

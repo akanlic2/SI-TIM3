@@ -215,6 +215,14 @@ export default function ConferenceDetailsPage() {
             }} className="btn-primary">
               📅 Sesije
             </button>
+            {canSeeCapacity && (
+              <button onClick={() => {
+                window.history.pushState({}, '', `/conferences/${id}/report`);
+                window.dispatchEvent(new PopStateEvent('popstate'));
+              }} className="btn-primary" style={{ backgroundColor: '#0f766e' }}>
+                📊 Izvještaj
+              </button>
+              )}
             <button onClick={goBack} className="btn-secondary">
               ← Nazad
             </button>
