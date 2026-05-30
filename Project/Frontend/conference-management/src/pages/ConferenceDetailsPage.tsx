@@ -215,7 +215,7 @@ export default function ConferenceDetailsPage() {
             }} className="btn-primary">
               📅 Sesije
             </button>
-            {canSeeCapacity && (
+            {(isAdmin || isOwner) && (
               <button onClick={() => {
                 window.history.pushState({}, '', `/conferences/${id}/report`);
                 window.dispatchEvent(new PopStateEvent('popstate'));
