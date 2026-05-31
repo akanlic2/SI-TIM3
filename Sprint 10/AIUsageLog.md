@@ -888,3 +888,47 @@ Konsultacije i pomoć oko implementacije backend i frontend taskova S49 — izvj
 - QuestPDF je instaliran na pogrešnom projektu (`docker-compose.dcproj`) — trebalo ga je instalirati na `ConferenceManagement.Application.csproj`
 - Ambiguous reference između `QuestPDF.Fluent.Document` i `System.Reflection.Metadata.Document` — riješeno dodavanjem eksplicitnog aliasa
 - `Organizers` lista na konferenciji bila prazna za testnog korisnika, što je uzrokovalo da organizator nije mogao pristupiti report endpointu — problem sa test podacima, ne sa kodom
+
+
+## Unos #23
+| Polje | Detalji |
+|---|---|
+| **Datum** | 31.05.2026. |
+| **Sprint broj** | Sprint 10 |
+| **Alat** | GitHub Copilot |
+| **Ko je koristio alat** | Ajdin Kanlić |
+ 
+### Svrha korištenja
+Implementacija i ubrzanje razvoja frontend komponenti za upravljanje logističkim aktivnostima na stranici konferencije (User Stories S46.1 — S46.4).
+ 
+### Kratak opis zadatka ili upita
+> *"Korišten GitHub Copilot kao AI asistent za kompletnu frontend implementaciju funkcionalnosti vezanih za logističke aktivnosti unutar aplikacije. Implementacija obuhvata prikaz liste sa filtriranjem po tipu i detaljnim pregledom (S46.1), formu za kreiranje sa predefinisanim dropdown-om (S46.2), formu za izmjenu postojećih polja (S46.3), te reaktivno brisanje stavki uz potvrdu kroz modalni dijalog (S46.4), osiguravajući da su sve promjene odmah vidljive u UI-ju."*
+ 
+### Šta je AI predložio ili generisao
+**Frontend:**
+- `LogisticActivitiesList.tsx` — Komponenta za prikaz liste logističkih aktivnosti sa ugrađenom logikom za filtriranje po tipu i uslovnim renderovanjem poruke kada nema unesenih aktivnosti.
+- `LogisticActivityDetails.tsx` — Prošireni prikaz detalja pojedinačne logističke aktivnosti koji se aktivira na klik korisnika.
+- `CreateLogisticActivityForm.tsx` — Forma za kreiranje nove aktivnosti sa predefinisanim dropdown menijem za odabir tipa i logikom za slanje podataka na backend.
+- `EditLogisticActivityForm.tsx` — Forma za izmjenu logističke aktivnosti sa predistovremenim popunjavanjem polja trenutnim vrijednostima (re-populating state).
+- `DeleteActivityModal.tsx` — Modalni dijalog za potvrdu brisanja aktivnosti prije slanja destruktivnog API zahtjeva.
+- Logika za upravljanje lokalnim stanjem (state management) kako bi se osiguralo da se kreirane, izmijenjene ili obrisane aktivnosti odmah reaktivno ažuriraju u listi bez osvežavanja stranice.
+
+### Šta je tim prihvatio
+- Kompletnu TSX strukturu komponenti, formi i modalnih dijaloga.
+- Logiku za klijentsko filtriranje liste na osnovu izabranog tipa aktivnosti.
+- Reaktivni pattern ažuriranja stanja (state update) nakon uspješnih API poziva (POST, PUT, DELETE), čime je postignuto da su promjene odmah vidljive.
+- Konzistentan UX pristup sa modalnim dijalogom za brisanje i jasnim notifikacijama o uspjehu.
+
+### Šta je tim izmijenio
+- Prilagođene su CSS klase i Tailwind stilovi kako bi se komponente vizuelno potpuno uskladile sa postojećim dizajnom stranice pojedinačne konferencije.
+- TypeScript interfejsi (tipizacija) za logističke aktivnosti su izmješteni iz lokalnih fajlova u zajednički `types.ts` modul radi ponovne iskoristivosti.
+- Dropdown za odabir tipa aktivnosti je povezan sa ENUM vrijednostima koje dolaze direktno sa backend API-ja, umjesto hardkodovanih stringova koje je Copilot inicijalno predložio.
+
+### Šta je tim odbacio
+- Inicijalni prijedlog za brisanje aktivnosti koji je koristio nativni `window.confirm()` pretraživača — odbačen je u korist custom napisanog modalnog dijaloga radi boljeg korisničkog iskustva (UX).
+- Predloženu inline validaciju formi koja nije pratila validacioni pattern (React Hook Form / Yup) usvojen na ostatku projekta.
+
+### Rizici, problemi ili greške koje su uočene
+- Copilot je u formi za izmjenu (`EditLogisticActivityForm.tsx`) greškom propustio proslijediti ID aktivnosti kroz parametre API poziva, što je uzrokovalo `400 Bad Request` na backendu dok greška nije ručno ispravljena.
+- Inicijalno generisana forma za kreiranje nije resetovala svoja polja nakon uspješnog slanja podataka, pa su stari unosi ostajali vidljivi u formi.
+- Prilikom asinhronog učitavanja podataka, poruka "Nema aktivnosti" bi se nakratko prikazala prije nego što se podaci zapravo povuku s mreže — riješeno uvođenjem eksplicitnog `isLoading` stanja.
