@@ -111,6 +111,7 @@ builder.Services.AddAuthorizationBuilder()
 builder.Services.AddScoped<IConferenceCapacityService, ConferenceCapacityService>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IConferenceReportService, ConferenceReportService>();
 
 var app = builder.Build();
 

@@ -71,4 +71,15 @@ public class SessionRepository : ISessionRepository
             .OrderBy(s => s.StartTime)
             .ToListAsync(cancellationToken);
     }
+    public async Task<List<Session>> GetSessionsByConferenceIdWithDetailsAsync(
+    Guid conferenceId, CancellationToken cancellationToken = default)
+    {
+        return await _context.Sessions
+            .Where(s => s.ConferenceId == conferenceId)
+            .Include(s => s.Room)
+            .Include(s => s.SessionRegistrations)
+            .Include(s => s.Materials)
+            .OrderBy(s => s.StartTime)
+            .ToListAsync(cancellationToken);
+    }
 }
