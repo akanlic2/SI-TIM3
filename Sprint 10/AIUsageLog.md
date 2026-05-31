@@ -839,3 +839,52 @@ ChatGPT je korišten kao podrška pri pisanju unit testova za backend servise i 
 - Uočeni su problemi sa nedostajućim frontend dependency paketima (`react-datepicker`) koji su naknadno instalirani
 - Backend testovi su dodatno prilagođeni nakon uvođenja novih zavisnosti (`INotificationService`) u postojeće servise
 *Dokument se ažurira tokom trajanja projekta. Svaki novi slučaj korištenja AI dodaje se kao novi unos.*
+
+
+## Unos #22
+| Polje | Detalji |
+|---|---|
+| **Datum** | 30.05.2026. |
+| **Sprint broj** | Sprint 10 |
+| **Alat** | Claude AI |
+| **Ko je koristio alat** | Emira Kurtović |
+ 
+### Svrha korištenja
+Konsultacije i pomoć oko implementacije backend i frontend taskova S49 — izvještaji za organizatora konferencije.
+ 
+### Kratak opis zadatka ili upita
+> *"Korišten AI alat za kompletnu implementaciju S49 story-a — generisanje izvještaja za organizatora konferencije (statistike prijava, popunjenost sesija, broj predavača i materijala) sa mogućnošću preuzimanja u PDF formatu. Implementacija uključuje backend (DTOs, interfejs, servis, controller) i frontend (API service, stranica izvještaja, routing, dugme na details stranici)."*
+ 
+### Šta je AI predložio ili generisao
+**Backend:**
+- `ReportDto.cs` — novi DTO-ovi (`ConferenceReportDto`, `RegistrationStatsDto`, `SessionReportDto`)
+- `IConferenceReportService.cs` — novi interfejs sa `GetReportAsync` i `GenerateReportPdfAsync`
+- `ConferenceReportService.cs` — implementacija servisa sa logikom za agregaciju podataka i generisanje PDF-a putem QuestPDF biblioteke
+- `ConferenceReportController.cs` — novi controller sa endpointima `GET /conferences/:id/report` i `GET /conferences/:id/report/download`
+- Dodavanje `GetSessionsByConferenceIdWithDetailsAsync` metode u `ISessionRepository` i `SessionRepository` (eager loading `Room`, `SessionRegistrations`, `Materials`)
+- Registracija servisa u `Program.cs`
+**Frontend:**
+- `reportApi.ts` — API service sa `fetchConferenceReport` i `downloadConferenceReport` funkcijama
+- `ConferenceReportPage.tsx` — stranica izvještaja sa prikazom statistika prijava, sesija, predavača i materijala
+- `src/pages/ConferenceReportPage.tsx` — wrapper stranica
+- Dodavanje rute `/conferences/:id/report` u `router.tsx`
+- Dodavanje dugmeta "Izvještaj" na `ConferenceDetailsPage.tsx`
+### Šta je tim prihvatio
+- Kompletnu strukturu DTO-ova, interfejsa i servisa
+- Pattern konzistentan sa ostatkom projekta (Policy-based autorizacija, `AdminOrOrganizerPolicy`, `CancellationToken`, `KeyNotFoundException` handling)
+- QuestPDF kao biblioteku za generisanje PDF-a
+- Frontend pattern konzistentan sa postojećim stranicama (isti CSS klase, isti fetch pattern sa Bearer tokenom)
+- Provjeru vlasništva nad konferencijom za organizatora (isti pattern kao u `ConferenceCapacityController`)
+### Šta je tim izmijenio
+- Prilagođeno korištenju postojećih metoda repozitorija (`GetRegistrationsByConferenceAsync` umjesto nepostojeće metode)
+- Uklonjena ovisnost o `IMaterialRepository` u servisu — materijali se dohvataju kroz `Session.Materials` navigation property
+- Ispravka parsiranja `Room.Capacity` — polje je `int`, ne `string`, pa je `TryParse` zamijenjen direktnim pristupom
+- Dugme "Izvještaj" ograničeno na `isAdmin || isOwner` umjesto `canSeeCapacity` — da se ne prikazuje organizatorima tuđih konferencija
+### Šta je tim odbacio
+- Inicijalni prijedlog servisa koji je koristio `IMaterialRepository.GetByConferenceIdAsync` — metoda ne postoji, zamijenjeno eager loadingom kroz sesije
+- Inicijalni prijedlog koji je pozivao nepostojeće metode repozitorija (`GetByConferenceIdAsync` na session i material repozitorijima)
+### Rizici, problemi ili greške koje su uočene
+- `ConferenceReportController.cs` je inicijalno kreiran kao prazan fajl — kod nije bio kopiran, što je uzrokovalo da controller nije bio registrovan i endpoint je vraćao 404
+- QuestPDF je instaliran na pogrešnom projektu (`docker-compose.dcproj`) — trebalo ga je instalirati na `ConferenceManagement.Application.csproj`
+- Ambiguous reference između `QuestPDF.Fluent.Document` i `System.Reflection.Metadata.Document` — riješeno dodavanjem eksplicitnog aliasa
+- `Organizers` lista na konferenciji bila prazna za testnog korisnika, što je uzrokovalo da organizator nije mogao pristupiti report endpointu — problem sa test podacima, ne sa kodom
