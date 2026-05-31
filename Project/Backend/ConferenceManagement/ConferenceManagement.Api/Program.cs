@@ -95,6 +95,8 @@ builder.Services.AddScoped<IAgendaItemRepository, AgendaItemRepository>();
 builder.Services.AddScoped<IAgendaItemService, AgendaItemService>();
 builder.Services.AddScoped<IMaterialService, MaterialService>();
 builder.Services.AddScoped<IMaterialRepository, MaterialRepository>();
+builder.Services.AddScoped<ConferenceManagement.Domain.Abstractions.Repositories.ILogisticsRepository, ConferenceManagement.Dal.Repositories.LogisticsRepository>();
+builder.Services.AddScoped<ConferenceManagement.Application.Interfaces.ILogisticsService, ConferenceManagement.Application.Services.LogisticsService>();
 
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("AdminPolicy", policy => policy.RequireRole("admin-sistema"))

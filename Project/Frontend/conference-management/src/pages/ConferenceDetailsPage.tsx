@@ -215,6 +215,14 @@ export default function ConferenceDetailsPage() {
             }} className="btn-primary">
               📅 Sesije
             </button>
+            {(isAdmin || (isOrganizer && isOwner)) && (
+              <button onClick={() => {
+                window.history.pushState({}, '', `/conferences/${id}/logistics`);
+                window.dispatchEvent(new PopStateEvent('popstate'));
+              }} className="btn-primary" style={{ backgroundColor: '#0891b2' }}>
+                📦 Aktivnosti
+              </button>
+            )}
             {(isAdmin || isOwner) && (
               <button onClick={() => {
                 window.history.pushState({}, '', `/conferences/${id}/report`);
