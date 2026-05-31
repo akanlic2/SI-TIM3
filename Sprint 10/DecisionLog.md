@@ -298,3 +298,38 @@
 **Status:** Aktivna
 
 ---
+
+### DL-014 – QuestPDF kao biblioteka za generisanje PDF izvještaja
+**Datum:** 31.05.2026
+**Opis problema:** Za implementaciju S49 story-a potrebno je generisanje PDF izvještaja na backendu. Trebalo je odabrati biblioteku koja je kompatibilna sa .NET 10 i ASP.NET Core projektom.
+**Razmatrane opcije:**
+1. QuestPDF
+2. iTextSharp
+3. wkhtmltopdf (putem wrappera)
+**Odabrana opcija:** QuestPDF
+**Razlog izbora:** QuestPDF nudi jednostavnu fluent API integraciju direktno u .NET projektu, besplatna je za open-source korištenje (Community licenca), ne zahtijeva vanjske alate ni binarne ovisnosti, te je kompatibilna sa .NET 10.
+**Posljedice odluke:** QuestPDF dodan kao NuGet zavisnost u `ConferenceManagement.Application` projektu. PDF se generišeserver-side i vraća kao byte array kroz `File()` response.
+**Status:** Aktivna
+ 
+---
+### DL-015 – Eager loading sesija umjesto N+1 upita za izvještaj
+**Datum:** 31.05.2026
+**Opis problema:** Pri generisanju izvještaja potrebni su podaci o sesijama zajedno sa sobama, registracijama i materijalima. Inicijalni pristup je pozivao `IMaterialRepository.GetByConferenceIdAsync` koja ne postoji, a alternativa je bila loopati po sesijama i pozivati `GetBySessionIdAsync` za svaku — što uzrokuje N+1 problem.
+**Razmatrane opcije:**
+1. N+1 pristup — pozivati `GetBySessionIdAsync` za svaku sesiju posebno
+2. Dodati novu metodu `GetSessionsByConferenceIdWithDetailsAsync` u `ISessionRepository` koja eager-loada `Room`, `SessionRegistrations` i `Materials` u jednom upitu
+**Odabrana opcija:** Nova metoda sa eager loadingom
+**Razlog izbora:** Jedan DB upit umjesto N+1, konzistentno sa postojećim pattern-om u `SessionRepository`, te eliminira potrebu za `IMaterialRepository` ovisnošću u servisu.
+**Posljedice odluke:** Dodata metoda `GetSessionsByConferenceIdWithDetailsAsync` u `ISessionRepository` interfejs i `SessionRepository` implementaciju.
+**Status:** Aktivna
+---
+### DL-016 – Vidljivost dugmeta "Izvještaj" ograničena na vlasnika i admina
+**Datum:** 31.05.2026
+**Opis problema:** Dugme "Izvještaj" na `ConferenceDetailsPage` inicijalno je prikazivano svim organizatorima (`canSeeCapacity`), uključujući i one koji nisu vlasnici konferencije. Organizatori tuđih konferencija ne bi trebali vidjeti dugme jer nemaju pristup tom endpointu.
+**Razmatrane opcije:**
+1. Prikazivati dugme svim organizatorima i adminima (`canSeeCapacity`)
+2. Prikazivati dugme samo adminu i vlasniku konferencije (`isAdmin || isOwner`)
+**Odabrana opcija:** Prikazivati samo adminu i vlasniku (`isAdmin || isOwner`)
+**Razlog izbora:** Konzistentno sa ponašanjem capacity widgeta koji se takođe prikazuje samo vlasniku. Izbjegava se prikazivanje dugmeta koje vodi na 403 grešku.
+**Posljedice odluke:** Dugme "Izvještaj" koristi isti `isOwner` state koji se postavlja nakon uspješnog dohvatanja capacity podataka.
+**Status:** Aktivna
