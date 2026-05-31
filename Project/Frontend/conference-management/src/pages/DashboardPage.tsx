@@ -214,7 +214,10 @@ export default function DashboardPage() {
           {[
             { id: 'dashboard', icon: '⬡', label: 'Dashboard', path: '/dashboard' },
             { id: 'conferences', icon: '🗓', label: 'Konferencije', path: '/conferences' },
-            ...(isAdminOrOrganizer ? [{ id: 'rooms', icon: '🏟', label: 'Dvorane', path: '/rooms' }] : []),
+            ...(isAdminOrOrganizer ? [
+              { id: 'rooms', icon: '🏟', label: 'Dvorane', path: '/rooms' },
+              { id: 'equipment', icon: '🛠', label: 'Oprema', path: '/equipment' }
+            ] : []),
             { id: 'speakers', icon: '🎙', label: 'Govornici' },
             { id: 'reports', icon: '📊', label: 'Izvještaji' },
             { id: 'settings', icon: '⚙', label: 'Postavke' },
