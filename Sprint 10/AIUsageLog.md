@@ -932,3 +932,41 @@ Implementacija i ubrzanje razvoja frontend komponenti za upravljanje logistički
 - Copilot je u formi za izmjenu (`EditLogisticActivityForm.tsx`) greškom propustio proslijediti ID aktivnosti kroz parametre API poziva, što je uzrokovalo `400 Bad Request` na backendu dok greška nije ručno ispravljena.
 - Inicijalno generisana forma za kreiranje nije resetovala svoja polja nakon uspješnog slanja podataka, pa su stari unosi ostajali vidljivi u formi.
 - Prilikom asinhronog učitavanja podataka, poruka "Nema aktivnosti" bi se nakratko prikazala prije nego što se podaci zapravo povuku s mreže — riješeno uvođenjem eksplicitnog `isLoading` stanja.
+
+## Unos #24
+
+| Polje | Detalji |
+| --- | --- |
+| **Datum** | 30.05.2026. |
+| **Sprint broj** | Sprint 10 |
+| **Alat** | Claude |
+| **Ko je koristio alat** | Enela Pirija |
+
+### Svrha korištenja
+Pomoć pri implementaciji i testiranju backend CRUD modula za upravljanje logističkim aktivnostima konferencije (S46.1 do S46.4).
+
+### Kratak opis zadatka ili upita
+AI je korišten kao podrška pri razvoju endpoint-a za logističke zadatke. To je uključivalo kreiranje, uređivanje, brisanje i vraćanje svih logističkih zadataka 
+za određenu konferenciju., kao i njihovo filtritanje.
+
+### Šta je AI predložio ili generisao
+- **Domenski i DAL sloj:** `ILogisticsRepository` i njegovu EF Core implementaciju `LogisticsRepository` sa sirovim SQL upitom za provjeru organizatora konferencije.
+- **Aplikacijski sloj:** `ILogisticsService` i `LogisticsService` koji upravljaju biznis logikom i mapiranjem podataka u DTO-ove.
+- **API sloj:** `LogisticsController` sa 4 osnovne CRUD rute zaštićene putem `[Authorize(Policy = "AdminOrOrganizerPolicy")]`.
+- **Arhitektonsko rješenje:** Premještanje hvatanja `DbUpdateConcurrencyException` iz aplikacijskog u DAL sloj radi očuvanja čistih zavisnosti.
+
+### Šta je tim prihvatio
+- Cjelokupnu strukturu i organizaciju CRUD operacija kroz sve arhitektonske slojeve.
+- Arhitektonski pristup rješavanju EF Core greške izmještanjem concurrency logike unutar repozitorija.
+- JSON format povratnih poruka (HTTP 200) prilikom uspješnog brisanja aktivnosti.
+
+### Šta je tim izmijenio
+- **Prelazak na LINQ:** Sirovi SQL upit za provjeru organizatora unutar `IsUserOrganizerOfConferenceAsync` zamijenjen je čistim LINQ upitom koristeći navigacijsku kolekciju `Organizers` nakon analize strukture entiteta `Conference` i `User`.
+- **Ispravka grešaka u kucanju:** Ručno je korigovan nepostojeći status kod `StatusCodes.Status211Created` u ispravni `StatusCodes.Status201Created` unutar POST metode kontrolera.
+
+### Šta je tim odbacio
+- Prijedlog o opcionalnoj instalaciji `Microsoft.EntityFrameworkCore` paketa direktno u aplikacijski sloj aplikacije, kako se ne bi prekršila pravila strogo razdvojenih slojeva (Clean Architecture).
+
+### Rizici, problemi ili greške koje su uočene
+- **Presretanje izuzetaka u Debuggeru:** Prilikom testiranja brisanja već obrisanih stavki, Visual Studio debugger je prekidao izvršavanje hvatajući `KeyNotFoundException` prije nego što bi ga middleware obradio. Problem je riješen puštanjem aplikacije u rad čime je potvrđen ispravan `404 Not Found` odgovor na frontendu.
+
