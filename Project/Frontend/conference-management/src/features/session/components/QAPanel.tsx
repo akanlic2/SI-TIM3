@@ -14,7 +14,7 @@ interface QAPanelProps {
 const POLL_INTERVAL_MS = 10_000;
 const COOLDOWN_SECONDS = 30;
 
-export default function QAPanel({ sessionId, sessionStartTime, sessionEndTime, role, canAnswer, canAsk }: QAPanelProps) {
+export default function QAPanel({ sessionId, sessionStartTime, sessionEndTime, canAnswer, canAsk }: QAPanelProps) {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [content, setContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);

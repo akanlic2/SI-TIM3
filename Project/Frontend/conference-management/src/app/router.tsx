@@ -11,6 +11,7 @@ import LoginPage from '../pages/LoginPage';
 import RegisterPage from '../pages/RegisterPage';
 import SessionDetailsPage from '../pages/SessionDetailsPage';
 import ConferenceReportPage from '../pages/ConferenceReportPage';
+import EquipmentPage from '../pages/EquipmentPage';
 
 
 function AppRoutes() {
@@ -43,6 +44,7 @@ function AppRoutes() {
       pathname === '/conferences' ||
       pathname.startsWith('/conferences/') ||
       pathname === '/rooms' ||
+      pathname === '/equipment' ||
       pathname.startsWith('/sessions/');
 
     if (!isLoggedIn && isProtectedRoute) {
@@ -109,6 +111,16 @@ function AppRoutes() {
 
   if (pathname === '/rooms') {
     if (isLoggedIn) return <RoomsPage />;
+    return (
+      <div className="global-loading">
+        <div className="global-spinner" />
+        <p>Preusmjeravanje na prijavu...</p>
+      </div>
+    );
+  }
+
+  if (pathname === '/equipment') {
+    if (isLoggedIn) return <EquipmentPage />;
     return (
       <div className="global-loading">
         <div className="global-spinner" />

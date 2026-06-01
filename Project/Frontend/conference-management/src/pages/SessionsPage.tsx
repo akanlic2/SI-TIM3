@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { SessionList, SessionForm, useSessions } from '../features/session';
 import { useAuth } from '../auth/AuthProvider';
 import type { Session } from '../features/session/types';
@@ -14,13 +14,38 @@ export default function SessionsPage() {
     refresh,
   } = useSessions(conferenceId);
 
-  const { user, isLoading: isAuthLoading } = useAuth();
+  const { user, token, isLoading: isAuthLoading } = useAuth();
 
   const [showForm, setShowForm] = useState(false);
   const [editingSession, setEditingSession] = useState<Session | null>(null);
 
   const role = user?.role?.toLowerCase() ?? '';
-  const isAdminOrOrganizer = role === 'admin-sistema' || role === 'organizator';
+  const isAdmin = role.includes('admin');
+  const isOrganizer = role.includes('organizator');
+  const isAdminOrOrganizer = isAdmin || isOrganizer;
+  const [isOwner, setIsOwner] = useState(false);
+  const canManageEquipment = isAdmin || isOwner;
+
+  useEffect(() => {
+    if (!token || !isAdminOrOrganizer) return;
+
+    const loadOwnerAccess = async () => {
+      try {
+        const response = await fetch(`/api/conferences/${conferenceId}/capacity`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!response.ok) {
+          setIsOwner(false);
+          return;
+        }
+        setIsOwner(true);
+      } catch {
+        setIsOwner(false);
+      }
+    };
+
+    void loadOwnerAccess();
+  }, [conferenceId, isAdminOrOrganizer, token]);
 
   const resetForm = () => {
     setEditingSession(null);
@@ -129,6 +154,7 @@ export default function SessionsPage() {
               sessions={items}
               conferenceId={conferenceId}
               isAdminOrOrganizer={isAdminOrOrganizer}
+              canManageEquipment={canManageEquipment}
               onDeleteSuccess={refresh}
               onEditClick={handleEditClick}
             />
