@@ -839,3 +839,96 @@ ChatGPT je korišten kao podrška pri pisanju unit testova za backend servise i 
 - Uočeni su problemi sa nedostajućim frontend dependency paketima (`react-datepicker`) koji su naknadno instalirani
 - Backend testovi su dodatno prilagođeni nakon uvođenja novih zavisnosti (`INotificationService`) u postojeće servise
 *Dokument se ažurira tokom trajanja projekta. Svaki novi slučaj korištenja AI dodaje se kao novi unos.*
+
+
+## Unos #22
+| Polje | Detalji |
+|---|---|
+| **Datum** | 30.05.2026. |
+| **Sprint broj** | Sprint 10 |
+| **Alat** | Claude AI |
+| **Ko je koristio alat** | Emira Kurtović |
+ 
+### Svrha korištenja
+Konsultacije i pomoć oko implementacije backend i frontend taskova S49 — izvještaji za organizatora konferencije.
+ 
+### Kratak opis zadatka ili upita
+> *"Korišten AI alat za kompletnu implementaciju S49 story-a — generisanje izvještaja za organizatora konferencije (statistike prijava, popunjenost sesija, broj predavača i materijala) sa mogućnošću preuzimanja u PDF formatu. Implementacija uključuje backend (DTOs, interfejs, servis, controller) i frontend (API service, stranica izvještaja, routing, dugme na details stranici)."*
+ 
+### Šta je AI predložio ili generisao
+**Backend:**
+- `ReportDto.cs` — novi DTO-ovi (`ConferenceReportDto`, `RegistrationStatsDto`, `SessionReportDto`)
+- `IConferenceReportService.cs` — novi interfejs sa `GetReportAsync` i `GenerateReportPdfAsync`
+- `ConferenceReportService.cs` — implementacija servisa sa logikom za agregaciju podataka i generisanje PDF-a putem QuestPDF biblioteke
+- `ConferenceReportController.cs` — novi controller sa endpointima `GET /conferences/:id/report` i `GET /conferences/:id/report/download`
+- Dodavanje `GetSessionsByConferenceIdWithDetailsAsync` metode u `ISessionRepository` i `SessionRepository` (eager loading `Room`, `SessionRegistrations`, `Materials`)
+- Registracija servisa u `Program.cs`
+**Frontend:**
+- `reportApi.ts` — API service sa `fetchConferenceReport` i `downloadConferenceReport` funkcijama
+- `ConferenceReportPage.tsx` — stranica izvještaja sa prikazom statistika prijava, sesija, predavača i materijala
+- `src/pages/ConferenceReportPage.tsx` — wrapper stranica
+- Dodavanje rute `/conferences/:id/report` u `router.tsx`
+- Dodavanje dugmeta "Izvještaj" na `ConferenceDetailsPage.tsx`
+### Šta je tim prihvatio
+- Kompletnu strukturu DTO-ova, interfejsa i servisa
+- Pattern konzistentan sa ostatkom projekta (Policy-based autorizacija, `AdminOrOrganizerPolicy`, `CancellationToken`, `KeyNotFoundException` handling)
+- QuestPDF kao biblioteku za generisanje PDF-a
+- Frontend pattern konzistentan sa postojećim stranicama (isti CSS klase, isti fetch pattern sa Bearer tokenom)
+- Provjeru vlasništva nad konferencijom za organizatora (isti pattern kao u `ConferenceCapacityController`)
+### Šta je tim izmijenio
+- Prilagođeno korištenju postojećih metoda repozitorija (`GetRegistrationsByConferenceAsync` umjesto nepostojeće metode)
+- Uklonjena ovisnost o `IMaterialRepository` u servisu — materijali se dohvataju kroz `Session.Materials` navigation property
+- Ispravka parsiranja `Room.Capacity` — polje je `int`, ne `string`, pa je `TryParse` zamijenjen direktnim pristupom
+- Dugme "Izvještaj" ograničeno na `isAdmin || isOwner` umjesto `canSeeCapacity` — da se ne prikazuje organizatorima tuđih konferencija
+### Šta je tim odbacio
+- Inicijalni prijedlog servisa koji je koristio `IMaterialRepository.GetByConferenceIdAsync` — metoda ne postoji, zamijenjeno eager loadingom kroz sesije
+- Inicijalni prijedlog koji je pozivao nepostojeće metode repozitorija (`GetByConferenceIdAsync` na session i material repozitorijima)
+### Rizici, problemi ili greške koje su uočene
+- `ConferenceReportController.cs` je inicijalno kreiran kao prazan fajl — kod nije bio kopiran, što je uzrokovalo da controller nije bio registrovan i endpoint je vraćao 404
+- QuestPDF je instaliran na pogrešnom projektu (`docker-compose.dcproj`) — trebalo ga je instalirati na `ConferenceManagement.Application.csproj`
+- Ambiguous reference između `QuestPDF.Fluent.Document` i `System.Reflection.Metadata.Document` — riješeno dodavanjem eksplicitnog aliasa
+- `Organizers` lista na konferenciji bila prazna za testnog korisnika, što je uzrokovalo da organizator nije mogao pristupiti report endpointu — problem sa test podacima, ne sa kodom
+
+
+## Unos #23
+| Polje | Detalji |
+|---|---|
+| **Datum** | 31.05.2026. |
+| **Sprint broj** | Sprint 10 |
+| **Alat** | GitHub Copilot |
+| **Ko je koristio alat** | Ajdin Kanlić |
+ 
+### Svrha korištenja
+Implementacija i ubrzanje razvoja frontend komponenti za upravljanje logističkim aktivnostima na stranici konferencije (User Stories S46.1 — S46.4).
+ 
+### Kratak opis zadatka ili upita
+> *"Korišten GitHub Copilot kao AI asistent za kompletnu frontend implementaciju funkcionalnosti vezanih za logističke aktivnosti unutar aplikacije. Implementacija obuhvata prikaz liste sa filtriranjem po tipu i detaljnim pregledom (S46.1), formu za kreiranje sa predefinisanim dropdown-om (S46.2), formu za izmjenu postojećih polja (S46.3), te reaktivno brisanje stavki uz potvrdu kroz modalni dijalog (S46.4), osiguravajući da su sve promjene odmah vidljive u UI-ju."*
+ 
+### Šta je AI predložio ili generisao
+**Frontend:**
+- `LogisticActivitiesList.tsx` — Komponenta za prikaz liste logističkih aktivnosti sa ugrađenom logikom za filtriranje po tipu i uslovnim renderovanjem poruke kada nema unesenih aktivnosti.
+- `LogisticActivityDetails.tsx` — Prošireni prikaz detalja pojedinačne logističke aktivnosti koji se aktivira na klik korisnika.
+- `CreateLogisticActivityForm.tsx` — Forma za kreiranje nove aktivnosti sa predefinisanim dropdown menijem za odabir tipa i logikom za slanje podataka na backend.
+- `EditLogisticActivityForm.tsx` — Forma za izmjenu logističke aktivnosti sa predistovremenim popunjavanjem polja trenutnim vrijednostima (re-populating state).
+- `DeleteActivityModal.tsx` — Modalni dijalog za potvrdu brisanja aktivnosti prije slanja destruktivnog API zahtjeva.
+- Logika za upravljanje lokalnim stanjem (state management) kako bi se osiguralo da se kreirane, izmijenjene ili obrisane aktivnosti odmah reaktivno ažuriraju u listi bez osvežavanja stranice.
+
+### Šta je tim prihvatio
+- Kompletnu TSX strukturu komponenti, formi i modalnih dijaloga.
+- Logiku za klijentsko filtriranje liste na osnovu izabranog tipa aktivnosti.
+- Reaktivni pattern ažuriranja stanja (state update) nakon uspješnih API poziva (POST, PUT, DELETE), čime je postignuto da su promjene odmah vidljive.
+- Konzistentan UX pristup sa modalnim dijalogom za brisanje i jasnim notifikacijama o uspjehu.
+
+### Šta je tim izmijenio
+- Prilagođene su CSS klase i Tailwind stilovi kako bi se komponente vizuelno potpuno uskladile sa postojećim dizajnom stranice pojedinačne konferencije.
+- TypeScript interfejsi (tipizacija) za logističke aktivnosti su izmješteni iz lokalnih fajlova u zajednički `types.ts` modul radi ponovne iskoristivosti.
+- Dropdown za odabir tipa aktivnosti je povezan sa ENUM vrijednostima koje dolaze direktno sa backend API-ja, umjesto hardkodovanih stringova koje je Copilot inicijalno predložio.
+
+### Šta je tim odbacio
+- Inicijalni prijedlog za brisanje aktivnosti koji je koristio nativni `window.confirm()` pretraživača — odbačen je u korist custom napisanog modalnog dijaloga radi boljeg korisničkog iskustva (UX).
+- Predloženu inline validaciju formi koja nije pratila validacioni pattern (React Hook Form / Yup) usvojen na ostatku projekta.
+
+### Rizici, problemi ili greške koje su uočene
+- Copilot je u formi za izmjenu (`EditLogisticActivityForm.tsx`) greškom propustio proslijediti ID aktivnosti kroz parametre API poziva, što je uzrokovalo `400 Bad Request` na backendu dok greška nije ručno ispravljena.
+- Inicijalno generisana forma za kreiranje nije resetovala svoja polja nakon uspješnog slanja podataka, pa su stari unosi ostajali vidljivi u formi.
+- Prilikom asinhronog učitavanja podataka, poruka "Nema aktivnosti" bi se nakratko prikazala prije nego što se podaci zapravo povuku s mreže — riješeno uvođenjem eksplicitnog `isLoading` stanja.

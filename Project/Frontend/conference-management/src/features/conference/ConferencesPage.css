@@ -741,6 +741,14 @@ input[type="datetime-local"].form-input:not([value=""])::-webkit-datetime-edit-f
   color: var(--text-primary);
 }
 
+/* ─── Date input: bijela ikona kalendara ─────────────────────────────────────── */
+
+input[type="date"].form-input::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(2);
+  opacity: 0.8;
+  cursor: pointer;
+}
+
 /* ─── Session Styles ─────────────────────────────────────────────────────────── */
 
 .session-grid {

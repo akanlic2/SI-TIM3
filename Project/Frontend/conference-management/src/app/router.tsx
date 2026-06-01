@@ -6,6 +6,7 @@ import ConferenceDetailsPage from '../pages/ConferenceDetailsPage';
 import RoomsPage from '../pages/RoomsPage';
 import SessionsPage from '../pages/SessionsPage';
 import AgendaPage from '../pages/AgendaPage';
+import LogisticsPage from '../pages/LogisticsPage';
 import LoginPage from '../pages/LoginPage';
 import RegisterPage from '../pages/RegisterPage';
 import SessionDetailsPage from '../pages/SessionDetailsPage';
@@ -140,6 +141,16 @@ function AppRoutes() {
 
   if (pathname.startsWith('/conferences/') && pathname.endsWith('/agenda')) {
     if (isLoggedIn) return <AgendaPage />;
+    return (
+      <div className="global-loading">
+        <div className="global-spinner" />
+        <p>Preusmjeravanje na prijavu...</p>
+      </div>
+    );
+  }
+
+  if (pathname.startsWith('/conferences/') && pathname.endsWith('/logistics')) {
+    if (isLoggedIn) return <LogisticsPage />;
     return (
       <div className="global-loading">
         <div className="global-spinner" />
