@@ -192,25 +192,40 @@ namespace ConferenceManagement.Dal.Migrations
 
                     b.Property<string>("AvailabilityStatus")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
                         .HasColumnName("availability_status");
+
+                    b.Property<int>("AvailableQuantity")
+                        .HasColumnType("integer")
+                        .HasColumnName("available_quantity");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<bool>("IsAvailable")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_available");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
                         .HasColumnName("name");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("integer")
                         .HasColumnName("quantity");
 
-                    b.Property<Guid>("SessionId")
+                    b.Property<Guid?>("SessionId")
                         .HasColumnType("uuid")
                         .HasColumnName("session_id");
 
                     b.Property<string>("Type")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("type");
 
                     b.HasKey("EquipmentId")
@@ -279,7 +294,8 @@ namespace ConferenceManagement.Dal.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
                         .HasColumnName("description");
 
                     b.Property<string>("FileUrl")
@@ -289,7 +305,8 @@ namespace ConferenceManagement.Dal.Migrations
 
                     b.Property<string>("MaterialType")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("material_type");
 
                     b.Property<Guid?>("SessionId")
@@ -298,7 +315,8 @@ namespace ConferenceManagement.Dal.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
                         .HasColumnName("title");
 
                     b.Property<DateTime>("UploadDate")
@@ -710,8 +728,7 @@ namespace ConferenceManagement.Dal.Migrations
                     b.HasOne("ConferenceManagement.Domain.Entities.Session", "Session")
                         .WithMany("Equipments")
                         .HasForeignKey("SessionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
+                        .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("fk_equipments_sessions_session_id");
 
                     b.Navigation("Session");
@@ -739,6 +756,7 @@ namespace ConferenceManagement.Dal.Migrations
                     b.HasOne("ConferenceManagement.Domain.Entities.Session", "Session")
                         .WithMany("Materials")
                         .HasForeignKey("SessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .HasConstraintName("fk_materials_sessions_session_id");
 
                     b.Navigation("Conference");

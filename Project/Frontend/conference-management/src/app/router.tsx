@@ -6,8 +6,13 @@ import ConferenceDetailsPage from '../pages/ConferenceDetailsPage';
 import RoomsPage from '../pages/RoomsPage';
 import SessionsPage from '../pages/SessionsPage';
 import AgendaPage from '../pages/AgendaPage';
+import LogisticsPage from '../pages/LogisticsPage';
 import LoginPage from '../pages/LoginPage';
 import RegisterPage from '../pages/RegisterPage';
+import SessionDetailsPage from '../pages/SessionDetailsPage';
+import ConferenceReportPage from '../pages/ConferenceReportPage';
+import EquipmentPage from '../pages/EquipmentPage';
+
 
 function AppRoutes() {
   const [pathname, setPathname] = useState(window.location.pathname);
@@ -38,7 +43,9 @@ function AppRoutes() {
       pathname === '/dashboard' ||
       pathname === '/conferences' ||
       pathname.startsWith('/conferences/') ||
-      pathname === '/rooms';
+      pathname === '/rooms' ||
+      pathname === '/equipment' ||
+      pathname.startsWith('/sessions/');
 
     if (!isLoggedIn && isProtectedRoute) {
       window.history.replaceState({}, '', '/login');
@@ -74,6 +81,24 @@ function AppRoutes() {
     );
   }
 
+  if (pathname.startsWith('/sessions/')) {
+    if (isLoggedIn) return <SessionDetailsPage />;
+    return (
+      <div className="global-loading">
+        <div className="global-spinner" />
+        <p>Preusmjeravanje na prijavu...</p>
+      </div>
+    );
+  }
+  if (pathname.startsWith('/conferences/') && pathname.endsWith('/report')) {
+  if (isLoggedIn) return <ConferenceReportPage />;
+  return (
+    <div className="global-loading">
+      <div className="global-spinner" />
+      <p>Preusmjeravanje na prijavu...</p>
+    </div>
+  );
+}
   if (pathname === '/conferences') {
     if (isLoggedIn) return <ConferencesPage />;
     return (
@@ -94,6 +119,16 @@ function AppRoutes() {
     );
   }
 
+  if (pathname === '/equipment') {
+    if (isLoggedIn) return <EquipmentPage />;
+    return (
+      <div className="global-loading">
+        <div className="global-spinner" />
+        <p>Preusmjeravanje na prijavu...</p>
+      </div>
+    );
+  }
+
   if (pathname.startsWith('/conferences/') && pathname.endsWith('/sessions')) {
     if (isLoggedIn) return <SessionsPage />;
     return (
@@ -106,6 +141,16 @@ function AppRoutes() {
 
   if (pathname.startsWith('/conferences/') && pathname.endsWith('/agenda')) {
     if (isLoggedIn) return <AgendaPage />;
+    return (
+      <div className="global-loading">
+        <div className="global-spinner" />
+        <p>Preusmjeravanje na prijavu...</p>
+      </div>
+    );
+  }
+
+  if (pathname.startsWith('/conferences/') && pathname.endsWith('/logistics')) {
+    if (isLoggedIn) return <LogisticsPage />;
     return (
       <div className="global-loading">
         <div className="global-spinner" />

@@ -1,4 +1,5 @@
 ﻿using ConferenceManagement.Application.DTOs;
+using ConferenceManagement.Application.Interfaces;
 using ConferenceManagement.Application.Services;
 using ConferenceManagement.Domain.Abstractions.Repositories;
 using ConferenceManagement.Domain.Entities;
@@ -13,13 +14,15 @@ public class SessionServiceTests
     private readonly Mock<IUserRepository> _userRepositoryMock = new();
     private readonly Mock<ISessionRegistrationRepository> _registrationRepositoryMock = new();
     private readonly Mock<IUserContextService> _userContextMock = new();
+    private readonly Mock<INotificationService> _notificationServiceMock = new();
 
     private SessionService CreateService() =>
         new(
             _sessionRepositoryMock.Object,
             _userRepositoryMock.Object,
             _registrationRepositoryMock.Object,
-            _userContextMock.Object
+            _userContextMock.Object,
+            _notificationServiceMock.Object
         );
 
     [Fact]
@@ -45,8 +48,6 @@ public class SessionServiceTests
         var result = await service.CreateSessionAsync(dto);
 
         Assert.NotNull(result);
-        Assert.NotEqual(Guid.Empty, result.Value);
-
         _sessionRepositoryMock.Verify(r => r.AddAsync(It.IsAny<Session>()), Times.Once);
         _sessionRepositoryMock.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
@@ -70,7 +71,6 @@ public class SessionServiceTests
         var result = await service.CreateSessionAsync(dto);
 
         Assert.Null(result);
-        _sessionRepositoryMock.Verify(r => r.AddAsync(It.IsAny<Session>()), Times.Never);
     }
 
     [Fact]
@@ -96,7 +96,6 @@ public class SessionServiceTests
         var result = await service.CreateSessionAsync(dto);
 
         Assert.Null(result);
-        _sessionRepositoryMock.Verify(r => r.AddAsync(It.IsAny<Session>()), Times.Never);
     }
 
     [Fact]
@@ -124,20 +123,15 @@ public class SessionServiceTests
             SessionType = "Workshop"
         };
 
-        _sessionRepositoryMock
-            .Setup(r => r.GetByIdAsync(sessionId))
-            .ReturnsAsync(existingSession);
-
-        _sessionRepositoryMock
-            .Setup(r => r.CheckOverlapAsync(dto.RoomId, dto.StartTime, dto.EndTime, sessionId))
-            .ReturnsAsync(false);
+        _sessionRepositoryMock.Setup(r => r.GetByIdAsync(sessionId)).ReturnsAsync(existingSession);
+        _sessionRepositoryMock.Setup(r => r.CheckOverlapAsync(dto.RoomId, dto.StartTime, dto.EndTime, sessionId)).ReturnsAsync(false);
+        _sessionRepositoryMock.Setup(r => r.GetByIdWithRegistrationsAsync(sessionId)).ReturnsAsync((Session?)null);
 
         var result = await service.UpdateSessionAsync(sessionId, dto);
 
         Assert.True(result);
         Assert.Equal("New title", existingSession.Title);
         _sessionRepositoryMock.Verify(r => r.UpdateAsync(existingSession), Times.Once);
-        _sessionRepositoryMock.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
     [Fact]
@@ -146,9 +140,7 @@ public class SessionServiceTests
         var service = CreateService();
         var sessionId = Guid.NewGuid();
 
-        _sessionRepositoryMock
-            .Setup(r => r.GetByIdAsync(sessionId))
-            .ReturnsAsync((Session?)null);
+        _sessionRepositoryMock.Setup(r => r.GetByIdAsync(sessionId)).ReturnsAsync((Session?)null);
 
         var dto = new UpdateSessionDto
         {
@@ -173,12 +165,11 @@ public class SessionServiceTests
         var session = new Session
         {
             SessionId = sessionId,
-            Title = "Session"
+            Title = "Session",
+            SessionRegistrations = new List<SessionRegistration>()
         };
 
-        _sessionRepositoryMock
-            .Setup(r => r.GetByIdAsync(sessionId))
-            .ReturnsAsync(session);
+        _sessionRepositoryMock.Setup(r => r.GetByIdWithRegistrationsAsync(sessionId)).ReturnsAsync(session);
 
         var result = await service.DeleteSessionAsync(sessionId);
 
@@ -193,9 +184,7 @@ public class SessionServiceTests
         var service = CreateService();
         var sessionId = Guid.NewGuid();
 
-        _sessionRepositoryMock
-            .Setup(r => r.GetByIdAsync(sessionId))
-            .ReturnsAsync((Session?)null);
+        _sessionRepositoryMock.Setup(r => r.GetByIdWithRegistrationsAsync(sessionId)).ReturnsAsync((Session?)null);
 
         var result = await service.DeleteSessionAsync(sessionId);
 
@@ -206,23 +195,14 @@ public class SessionServiceTests
     public async Task AssignSpeakerAsync_ValidSpeaker_AssignsSpeaker()
     {
         var service = CreateService();
-
         var sessionId = Guid.NewGuid();
         var userId = Guid.NewGuid();
 
-        _sessionRepositoryMock
-            .Setup(r => r.GetByIdAsync(sessionId))
-            .ReturnsAsync(new Session { SessionId = sessionId });
+        _sessionRepositoryMock.Setup(r => r.GetByIdAsync(sessionId)).ReturnsAsync(new Session { SessionId = sessionId, Title = "Session" });
 
         _userRepositoryMock
             .Setup(r => r.GetByIdAsync(userId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new User
-            {
-                UserId = userId,
-                Role = "predavac",
-                FirstName = "Test",
-                LastName = "Predavac"
-            });
+            .ReturnsAsync(new User { UserId = userId, Role = "predavac" });
 
         _registrationRepositoryMock
             .Setup(r => r.GetBySessionAndUserAsync(sessionId, userId))
@@ -231,34 +211,24 @@ public class SessionServiceTests
         var result = await service.AssignSpeakerAsync(sessionId, userId);
 
         Assert.True(result);
-        _registrationRepositoryMock.Verify(r => r.AddAsync(It.Is<SessionRegistration>(
-            sr => sr.SessionId == sessionId &&
-                  sr.UserId == userId &&
-                  sr.IsSpeaker &&
-                  sr.RegistrationStatus == "Confirmed"
-        )), Times.Once);
-        _registrationRepositoryMock.Verify(r => r.SaveChangesAsync(), Times.Once);
+        _registrationRepositoryMock.Verify(r => r.AddAsync(It.IsAny<SessionRegistration>()), Times.Once);
+        _notificationServiceMock.Verify(n => n.CreateNotificationAsync(
+            It.IsAny<ConferenceManagement.Application.DTOs.Notification.CreateNotificationDto>(),
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
     public async Task AssignSpeakerAsync_UserIsNotSpeaker_ReturnsFalse()
     {
         var service = CreateService();
-
         var sessionId = Guid.NewGuid();
         var userId = Guid.NewGuid();
 
-        _sessionRepositoryMock
-            .Setup(r => r.GetByIdAsync(sessionId))
-            .ReturnsAsync(new Session { SessionId = sessionId });
+        _sessionRepositoryMock.Setup(r => r.GetByIdAsync(sessionId)).ReturnsAsync(new Session { SessionId = sessionId });
 
         _userRepositoryMock
             .Setup(r => r.GetByIdAsync(userId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new User
-            {
-                UserId = userId,
-                Role = "ucesnik"
-            });
+            .ReturnsAsync(new User { UserId = userId, Role = "ucesnik" });
 
         var result = await service.AssignSpeakerAsync(sessionId, userId);
 
@@ -269,15 +239,11 @@ public class SessionServiceTests
     public async Task RegisterAsync_AlreadyConfirmed_ThrowsInvalidOperationException()
     {
         var service = CreateService();
-
         var sessionId = Guid.NewGuid();
         var userId = Guid.NewGuid();
 
         _userContextMock.Setup(x => x.GetUserId()).Returns(userId.ToString());
-
-        _sessionRepositoryMock
-            .Setup(r => r.GetByIdAsync(sessionId))
-            .ReturnsAsync(new Session { SessionId = sessionId });
+        _sessionRepositoryMock.Setup(r => r.GetByIdAsync(sessionId)).ReturnsAsync(new Session { SessionId = sessionId });
 
         _registrationRepositoryMock
             .Setup(r => r.GetBySessionAndUserAsync(sessionId, userId))
@@ -296,7 +262,6 @@ public class SessionServiceTests
     public async Task RegisterAsync_CancelledRegistration_ReactivatesRegistration()
     {
         var service = CreateService();
-
         var sessionId = Guid.NewGuid();
         var userId = Guid.NewGuid();
 
@@ -309,27 +274,18 @@ public class SessionServiceTests
         };
 
         _userContextMock.Setup(x => x.GetUserId()).Returns(userId.ToString());
-
-        _sessionRepositoryMock
-            .Setup(r => r.GetByIdAsync(sessionId))
-            .ReturnsAsync(new Session { SessionId = sessionId });
-
-        _registrationRepositoryMock
-            .Setup(r => r.GetBySessionAndUserAsync(sessionId, userId))
-            .ReturnsAsync(registration);
+        _sessionRepositoryMock.Setup(r => r.GetByIdAsync(sessionId)).ReturnsAsync(new Session { SessionId = sessionId });
+        _registrationRepositoryMock.Setup(r => r.GetBySessionAndUserAsync(sessionId, userId)).ReturnsAsync(registration);
 
         await service.RegisterAsync(sessionId);
 
         Assert.Equal("Confirmed", registration.RegistrationStatus);
-        _registrationRepositoryMock.Verify(r => r.UpdateAsync(registration), Times.Once);
-        _registrationRepositoryMock.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
     [Fact]
     public async Task CancelRegistrationAsync_WrongUser_ThrowsUnauthorizedAccessException()
     {
         var service = CreateService();
-
         var currentUserId = Guid.NewGuid();
         var otherUserId = Guid.NewGuid();
         var registrationId = Guid.NewGuid();

@@ -571,6 +571,10 @@
   flex-direction: column;
 }
 
+.speaker-sessions-list {
+  gap: 12px;
+}
+
 .conference-row {
   display: flex;
   align-items: center;
@@ -578,6 +582,47 @@
   padding: 16px 24px;
   border-bottom: 1px solid var(--border);
   transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+}
+
+.speaker-session-card {
+  align-items: center;
+  padding: 16px 24px;
+}
+
+.speaker-card-left {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+.speaker-card-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.session-card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.session-card-subtitle {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+.session-card-meta {
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+}
+
+.session-card-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .conference-row:last-child {
@@ -694,6 +739,15 @@
 }
 
 /* ─── User Info Grid ─────────────────────────────────────────────────────────── */
+
+.error-message {
+  padding: 18px 24px;
+  color: #fca5a5;
+  background: rgba(248, 113, 113, 0.08);
+  border: 1px solid rgba(248, 113, 113, 0.18);
+  border-radius: var(--radius-md);
+  margin: 20px 24px;
+}
 
 .user-info-grid {
   display: grid;

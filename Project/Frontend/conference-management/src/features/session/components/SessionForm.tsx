@@ -160,12 +160,14 @@ export function SessionForm({ conferenceId, editingSession, onSuccess, onCancel 
       } else {
         // Create new session
         const createdSession = await createSession(formData);
+        
         if (!createdSession) {
           throw new Error('Neuspjelo kreiranje sesije');
         }
-        savedSessionId = createdSession.sessionId;
+        savedSessionId = typeof createdSession === 'string' 
+          ? createdSession 
+          : createdSession.sessionId;
         
-        // Assign room to new session
         if (savedSessionId) {
           await assignRoomToSession(savedSessionId, formData.roomId);
         }

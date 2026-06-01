@@ -2,6 +2,8 @@ import { useEffect, useState, type CSSProperties } from 'react';
 import { useAuth } from '../auth/AuthProvider';
 import SettingsPage from './SettingsPage';
 import { AdminUsersPanel } from '../features/user';
+import { useSpeakerSessions } from '../features/session/hooks/useSpeakerSessions';
+import { NotificationBell } from '../features/notification';
 import './DashboardPage.css';
 
 // ─── Tip za konferenciju ───────────────────────────────────────────────────────
@@ -77,6 +79,13 @@ export default function DashboardPage() {
     (role) => role.toLowerCase() === 'organizator' || role.toLowerCase().includes('admin')
   );
   const isParticipant = roles.some((role) => role.toLowerCase().includes('ucesnik'));
+  const isSpeaker = user?.role?.toLowerCase() === 'predavac';
+
+  const {
+    items: speakerSessions,
+    isLoading: isLoadingSpeakerSessions,
+    error: speakerSessionsError,
+  } = useSpeakerSessions(token ?? undefined, isSpeaker);
 
   // ─── Dohvat konferencija ───────────────────────────────────────────────────
   useEffect(() => {
@@ -125,6 +134,25 @@ export default function DashboardPage() {
         month: 'short',
         year: 'numeric',
       }).format(new Date(iso));
+    } catch {
+      return iso;
+    }
+  };
+
+  const formatDateTime = (iso: string) => {
+    if (!iso) return 'N/A';
+    try {
+      const date = new Date(iso);
+      const formattedDate = new Intl.DateTimeFormat('bs-BA', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      }).format(date);
+      const formattedTime = new Intl.DateTimeFormat('bs-BA', {
+        hour: '2-digit',
+        minute: '2-digit',
+      }).format(date);
+      return `${formattedDate} u ${formattedTime}`;
     } catch {
       return iso;
     }
@@ -186,7 +214,10 @@ export default function DashboardPage() {
           {[
             { id: 'dashboard', icon: '⬡', label: 'Dashboard', path: '/dashboard' },
             { id: 'conferences', icon: '🗓', label: 'Konferencije', path: '/conferences' },
-            ...(isAdminOrOrganizer ? [{ id: 'rooms', icon: '🏟', label: 'Dvorane', path: '/rooms' }] : []),
+            ...(isAdminOrOrganizer ? [
+              { id: 'rooms', icon: '🏟', label: 'Dvorane', path: '/rooms' },
+              { id: 'equipment', icon: '🛠', label: 'Oprema', path: '/equipment' }
+            ] : []),
             { id: 'speakers', icon: '🎙', label: 'Govornici' },
             { id: 'reports', icon: '📊', label: 'Izvještaji' },
             { id: 'settings', icon: '⚙', label: 'Postavke' },
@@ -249,6 +280,7 @@ export default function DashboardPage() {
             <span className="dash-subtitle">Dobrodošli nazad, {displayName.split(' ')[0]}! 👋</span>
           </div>
           <div className="dash-header-right">
+            <NotificationBell />
             <div className="header-roles">
               {roles.map((r) => <RoleBadge key={r} role={r} />)}
             </div>
@@ -259,192 +291,304 @@ export default function DashboardPage() {
         {/* ── Dashboard sadržaj ────────────────────────────────────── */}
         {activeNav === 'dashboard' && (
           <div className="dash-content">
-            {/* Stat kartice */}
-            <section className="stats-grid">
-              <StatCard
-                icon="🗓"
-                label="Ukupno konferencija"
-                value={isLoadingConferences ? '—' : conferences.length}
-                trend={conferences.length > 0 ? `+${conferences.length} aktivnih` : 'Nema podataka'}
-                color="63, 131, 248"
-              />
-              <StatCard
-                icon="🎙"
-                label="Govornici"
-                value="—"
-                trend="Uskoro dostupno"
-                color="139, 92, 246"
-              />
-              <StatCard
-                icon="👥"
-                label="Učesnici"
-                value="—"
-                trend="Uskoro dostupno"
-                color="16, 185, 129"
-              />
-              <StatCard
-                icon="📍"
-                label="Lokacije"
-                value={
-                  isLoadingConferences
-                    ? '—'
-                    : new Set(conferences.map((c) => c.location)).size
-                }
-                trend="Globalno"
-                color="245, 158, 11"
-              />
-            </section>
+            {isSpeaker ? (
+              <>
+                <section className="stats-grid">
+                  <StatCard
+                    icon="📽"
+                    label="Moje Sesije (Ukupno)"
+                    value={isLoadingSpeakerSessions ? '—' : speakerSessions.length}
+                    trend="Dodijeljena predavanja"
+                    color="63, 131, 248"
+                  />
+                  <StatCard
+                    icon="🗓"
+                    label="Aktivne Konferencije"
+                    value={isLoadingSpeakerSessions ? '—' : new Set(
+                      speakerSessions.map((session) => session.conferenceName ?? session.conferenceId ?? session.sessionId)
+                    ).size}
+                    trend="Predstojeća učešća"
+                    color="139, 92, 246"
+                  />
+                </section>
 
-            {isAdmin && <AdminUsersPanel />}
-
-            {/* Registrovane konferencije */}
-            {isParticipant && (
-              <section className="section-block">
-                <div className="section-header">
-                  <h2 className="section-title">Moje prijave</h2>
-                </div>
-
-                {isLoadingRegistered ? (
-                  <div className="loading-row">
-                    {[1, 2, 3].map((i) => (
-                      <div key={i} className="skeleton-card" />
-                    ))}
+                <section className="section-block">
+                  <div className="section-header">
+                    <h2 className="section-title">Moja predavanja i sesije</h2>
                   </div>
-                ) : registeredConferences.length === 0 ? (
-                  <div className="empty-state">
-                    <div className="empty-icon">✅</div>
-                    <p>Nema aktivnih prijava</p>
-                    <span>Prijavljene konferencije će se pojaviti ovdje</span>
-                  </div>
-                ) : (
-                  <div className="conference-list">
-                    {registeredConferences.map((conf) => (
-                      <div
-                        key={conf.conferenceId}
-                        className="conference-row"
-                        onClick={() => {
-                          window.history.pushState({}, '', `/conferences/${conf.conferenceId}`);
-                          window.dispatchEvent(new PopStateEvent('popstate'));
-                        }}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        <div className="conf-left">
-                          <div className="conf-dot" />
-                          <div>
-                            <span className="conf-title">{conf.title}</span>
-                            <span className="conf-location">📍 {conf.location}</span>
+
+                  {isLoadingSpeakerSessions ? (
+                    <div className="loading-row">
+                      {[1, 2, 3].map((i) => (
+                        <div key={i} className="skeleton-card" />
+                      ))}
+                    </div>
+                  ) : speakerSessionsError ? (
+                    <div className="error-message">Greška: {speakerSessionsError}</div>
+                  ) : speakerSessions.length === 0 ? (
+                    <div className="empty-state">
+                      <div className="empty-icon">🗓</div>
+                      <p>Nemate dodijeljenih sesija</p>
+                    </div>
+                  ) : (
+                    <div className="conference-list speaker-sessions-list">
+                      {speakerSessions.map((session) => (
+                        <div key={session.sessionId} className="conference-row speaker-session-card">
+                          <div className="speaker-card-left">
+                            <div className="speaker-card-row">
+                              <span className="session-card-title">{session.title}</span>
+                            </div>
+                            <div className="speaker-card-row">
+                              <span className="session-card-subtitle">
+                                Konferencija: {session.conferenceName ?? 'N/A'}
+                              </span>
+                            </div>
+                            <div className="speaker-card-row">
+                              <span className="session-card-meta">
+                                🕐 {formatDateTime(session.startTime)}{session.roomName ? ` | 📍 ${session.roomName}` : ''}
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                        <div
-                          className="conf-right"
-                          style={{ display: 'flex', alignItems: 'center', gap: '12px' }}
-                        >
-                          <span className="conf-date">{formatDate(conf.startDate)}</span>
-                          <span className="conf-badge">{conf.status || 'Aktivan'}</span>
                           <button
-                            className="logout-btn logout-btn-inline"
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              handleCancelRegistration(conf);
+                            type="button"
+                            className="btn-secondary"
+                            onClick={() => {
+                              window.history.pushState({}, '', `/sessions/${session.sessionId}`);
+                              window.dispatchEvent(new PopStateEvent('popstate'));
                             }}
-                            disabled={cancellingRegistrationId === (conf.conferenceRegistrationId ?? conf.conferenceId)}
-                            title="Odjavi"
-                            style={{ marginLeft: 'auto' }}
                           >
-                            Odjavi
+                            Vidi Detalje
                           </button>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </section>
-            )}
-
-            {/* Nadolazeće konferencije */}
-            <section className="section-block">
-              <div className="section-header">
-                <h2 className="section-title">Nadolazeće konferencije</h2>
-                <button
-                  className="btn-secondary"
-                  onClick={() => window.history.pushState({}, '', '/conferences')}
-                  id="view-all-conferences"
-                >
-                  Vidi sve →
-                </button>
-              </div>
-
-              {isLoadingConferences ? (
-                <div className="loading-row">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="skeleton-card" />
-                  ))}
-                </div>
-              ) : conferences.length === 0 ? (
-                <div className="empty-state">
-                  <div className="empty-icon">🗓</div>
-                  <p>Nema pronađenih konferencija</p>
-                  <span>Konferencije će se pojaviti ovdje čim budu dodane</span>
-                </div>
-              ) : (
-                <div className="conference-list">
-                  {conferences
-                    .filter(c => new Date(c.startDate) >= new Date())
-                    .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
-                    .slice(0, 5)
-                    .map((conf) => (
-                    <div key={conf.conferenceId} className="conference-row" id={`conf-${conf.conferenceId}`}>
-                      <div className="conf-left">
-                        <div className="conf-dot" />
-                        <div>
-                          <span className="conf-title">{conf.title}</span>
-                          <span className="conf-location">📍 {conf.location}</span>
-                        </div>
-                      </div>
-                      <div className="conf-right">
-                        <span className="conf-date">{formatDate(conf.startDate)}</span>
-                        <span className="conf-badge">{conf.status || 'Aktivan'}</span>
-                      </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              )}
-            </section>
+                  )}
+                </section>
 
-            {/* User info kartica */}
-            <section className="section-block user-info-section">
-              <div className="section-header">
-                <h2 className="section-title">Informacije o nalogu</h2>
-              </div>
-              <div className="user-info-grid">
-                <div className="info-item">
-                  <span className="info-label">Korisničko ime</span>
-                  <span className="info-value">{user?.username ?? '—'}</span>
-                </div>
-                <div className="info-item">
-                  <span className="info-label">Email</span>
-                  <span className="info-value">{user?.email ?? '—'}</span>
-                </div>
-                <div className="info-item">
-                  <span className="info-label">Ime</span>
-                  <span className="info-value">{user?.firstName ?? '—'}</span>
-                </div>
-                <div className="info-item">
-                  <span className="info-label">Prezime</span>
-                  <span className="info-value">{user?.lastName ?? '—'}</span>
-                </div>
-                <div className="info-item">
-                  <span className="info-label">User ID</span>
-                  <span className="info-value mono">{user?.userId?.slice(0, 16) ?? '—'}…</span>
-                </div>
-                <div className="info-item">
-                  <span className="info-label">Uloge</span>
-                  <span className="info-value">
-                    {roles.length > 0 ? roles.join(', ') : 'Nema posebnih uloga'}
-                  </span>
-                </div>
-              </div>
-            </section>
+                <section className="section-block user-info-section">
+                  <div className="section-header">
+                    <h2 className="section-title">Informacije o nalogu</h2>
+                  </div>
+                  <div className="user-info-grid">
+                    <div className="info-item">
+                      <span className="info-label">Korisničko ime</span>
+                      <span className="info-value">{user?.username ?? '—'}</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="info-label">Email</span>
+                      <span className="info-value">{user?.email ?? '—'}</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="info-label">Ime</span>
+                      <span className="info-value">{user?.firstName ?? '—'}</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="info-label">Prezime</span>
+                      <span className="info-value">{user?.lastName ?? '—'}</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="info-label">User ID</span>
+                      <span className="info-value mono">{user?.userId?.slice(0, 16) ?? '—'}…</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="info-label">Uloge</span>
+                      <span className="info-value">
+                        {roles.length > 0 ? roles.join(', ') : 'Nema posebnih uloga'}
+                      </span>
+                    </div>
+                  </div>
+                </section>
+              </>
+            ) : (
+              <>
+                {/* Stat kartice */}
+                <section className="stats-grid">
+                  <StatCard
+                    icon="🗓"
+                    label="Ukupno konferencija"
+                    value={isLoadingConferences ? '—' : conferences.length}
+                    trend={conferences.length > 0 ? `+${conferences.length} aktivnih` : 'Nema podataka'}
+                    color="63, 131, 248"
+                  />
+                  <StatCard
+                    icon="🎙"
+                    label="Govornici"
+                    value="—"
+                    trend="Uskoro dostupno"
+                    color="139, 92, 246"
+                  />
+                  <StatCard
+                    icon="👥"
+                    label="Učesnici"
+                    value="—"
+                    trend="Uskoro dostupno"
+                    color="16, 185, 129"
+                  />
+                  <StatCard
+                    icon="📍"
+                    label="Lokacije"
+                    value={
+                      isLoadingConferences
+                        ? '—'
+                        : new Set(conferences.map((c) => c.location)).size
+                    }
+                    trend="Globalno"
+                    color="245, 158, 11"
+                  />
+                </section>
+
+                {isAdmin && <AdminUsersPanel />}
+
+                {/* Registrovane konferencije */}
+                {isParticipant && (
+                  <section className="section-block">
+                    <div className="section-header">
+                      <h2 className="section-title">Moje prijave</h2>
+                    </div>
+
+                    {isLoadingRegistered ? (
+                      <div className="loading-row">
+                        {[1, 2, 3].map((i) => (
+                          <div key={i} className="skeleton-card" />
+                        ))}
+                      </div>
+                    ) : registeredConferences.length === 0 ? (
+                      <div className="empty-state">
+                        <div className="empty-icon">✅</div>
+                        <p>Nema aktivnih prijava</p>
+                        <span>Prijavljene konferencije će se pojaviti ovdje</span>
+                      </div>
+                    ) : (
+                      <div className="conference-list">
+                        {registeredConferences.map((conf) => (
+                          <div
+                            key={conf.conferenceId}
+                            className="conference-row"
+                            onClick={() => {
+                              window.history.pushState({}, '', `/conferences/${conf.conferenceId}`);
+                              window.dispatchEvent(new PopStateEvent('popstate'));
+                            }}
+                            style={{ cursor: 'pointer' }}
+                          >
+                            <div className="conf-left">
+                              <div className="conf-dot" />
+                              <div>
+                                <span className="conf-title">{conf.title}</span>
+                                <span className="conf-location">📍 {conf.location}</span>
+                              </div>
+                            </div>
+                            <div
+                              className="conf-right"
+                              style={{ display: 'flex', alignItems: 'center', gap: '12px' }}
+                            >
+                              <span className="conf-date">{formatDate(conf.startDate)}</span>
+                              <span className="conf-badge">{conf.status || 'Aktivan'}</span>
+                              <button
+                                className="logout-btn logout-btn-inline"
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  handleCancelRegistration(conf);
+                                }}
+                                disabled={cancellingRegistrationId === (conf.conferenceRegistrationId ?? conf.conferenceId)}
+                                title="Odjavi"
+                                style={{ marginLeft: 'auto' }}
+                              >
+                                Odjavi
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </section>
+                )}
+
+                {/* Nadolazeće konferencije */}
+                <section className="section-block">
+                  <div className="section-header">
+                    <h2 className="section-title">Nadolazeće konferencije</h2>
+                    <button
+                      className="btn-secondary"
+                      onClick={() => window.history.pushState({}, '', '/conferences')}
+                      id="view-all-conferences"
+                    >
+                      Vidi sve →
+                    </button>
+                  </div>
+
+                  {isLoadingConferences ? (
+                    <div className="loading-row">
+                      {[1, 2, 3].map((i) => (
+                        <div key={i} className="skeleton-card" />
+                      ))}
+                    </div>
+                  ) : conferences.length === 0 ? (
+                    <div className="empty-state">
+                      <div className="empty-icon">🗓</div>
+                      <p>Nema pronađenih konferencija</p>
+                      <span>Konferencije će se pojaviti ovdje čim budu dodane</span>
+                    </div>
+                  ) : (
+                    <div className="conference-list">
+                      {conferences
+                        .filter(c => new Date(c.startDate) >= new Date())
+                        .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
+                        .slice(0, 5)
+                        .map((conf) => (
+                        <div key={conf.conferenceId} className="conference-row" id={`conf-${conf.conferenceId}`}>
+                          <div className="conf-left">
+                            <div className="conf-dot" />
+                            <div>
+                              <span className="conf-title">{conf.title}</span>
+                              <span className="conf-location">📍 {conf.location}</span>
+                            </div>
+                          </div>
+                          <div className="conf-right">
+                            <span className="conf-date">{formatDate(conf.startDate)}</span>
+                            <span className="conf-badge">{conf.status || 'Aktivan'}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </section>
+
+                {/* User info kartica */}
+                <section className="section-block user-info-section">
+                  <div className="section-header">
+                    <h2 className="section-title">Informacije o nalogu</h2>
+                  </div>
+                  <div className="user-info-grid">
+                    <div className="info-item">
+                      <span className="info-label">Korisničko ime</span>
+                      <span className="info-value">{user?.username ?? '—'}</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="info-label">Email</span>
+                      <span className="info-value">{user?.email ?? '—'}</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="info-label">Ime</span>
+                      <span className="info-value">{user?.firstName ?? '—'}</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="info-label">Prezime</span>
+                      <span className="info-value">{user?.lastName ?? '—'}</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="info-label">User ID</span>
+                      <span className="info-value mono">{user?.userId?.slice(0, 16) ?? '—'}…</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="info-label">Uloge</span>
+                      <span className="info-value">
+                        {roles.length > 0 ? roles.join(', ') : 'Nema posebnih uloga'}
+                      </span>
+                    </div>
+                  </div>
+                </section>
+              </>
+            )}
           </div>
         )}
 

@@ -1,16 +1,15 @@
-# Sprint Retrospective Summary - Sprint 7
+# Sprint Retrospective Summary - Sprint 8
 
 ## Šta je išlo dobro
-* **Dosljednost u izvršavanju zadataka:** Svi planirani taskovi su završeni u potpunosti i prema prvobitnom dogovoru, čime je održan kontinuitet rada.
-* **Visoka predvidljivost tima:** Tim je pokazao zrelost u procjeni vremena potrebnog za taskove, što je rezultiralo završetkom sprinta bez potrebe za prekovremenim radom ili pomjeranjem rokova.
-* **Tehnička stabilnost:** Tokom implementacije nije bilo nepredviđenih bugova ili tehničkih poteškoća, što ukazuje na kvalitetno postavljen temelj u prethodnim fazama.
-* **Međusobno povjerenje:** Zahvaljujući uspjehu iz prethodnog sprinta, atmosfera u timu je ostala motivirajuća i fokusirana na cilj.
+* **Sveukupno zadovoljstvo i napredak:** Cjelokupan sprint je protekao izuzetno uspješno. Svi članovi tima su prezadovoljni ostvarenim rezultatima i atmosferom tokom rada.
+* **Kontinuitet i realizacija:** Svi planirani zadaci su izvršeni uspješno i na vrijeme, bez ikakvih tehničkih ili operativnih prepreka.
+* **Stabilnost i kvalitet:** Tim je zadržao visok nivo produktivnosti i stabilnosti u radu, prateći dobre prakse uspostavljene u prethodnim sprintovima.
 
 ## Šta nije išlo dobro
-* S obzirom na to da je sve prošlo u najboljem redu, nisu zabilježeni konkretni negativni događaji. Jedini izazov ostaje održavanje ovakvog visokog tempa produktivnosti kako projekt postaje kompleksniji.
+* **Kratak rok za realizaciju:** Zbog specifičnosti i dinamike ovog sprinta, suočili smo se sa nešto kraćim vremenskim rokom za rad, što je stvorilo blagi pritisak u završnoj fazi.
 
 ## Šta treba promijeniti
-* **Optimizacija procesa pregleda koda (Code Review):** Iako sve ide po planu, uvođenje još detaljnijih pregleda koda može dodatno osigurati dugoročnu održivost projekta.
+* **Ranija podjela zadataka:** Kako bismo amortizovali kraće rokove u budućnosti, potrebno je odmah na samom početku sprinta (ili čak tokom planiranja) izvršiti detaljnu podjelu taskova, čime bi se izbjegao pritisak pred kraj sprinta.
 
 ## Koje konkretne akcije tim uvodi u narednom sprintu
-* **Priprema za finalnu integraciju:** Počinjemo sa planiranjem spajanja svih modula kako bismo izbjegli potencijalne konflikte u završnim fazama projekta.
+* **Efikasnije planiranje i delegiranje:** U sljedecem sprintu fokus će biti na instant podjeli zadataka odmah nakon retrospektive i planiranja, kako bi se maksimalno iskoristio svaki radni dan.

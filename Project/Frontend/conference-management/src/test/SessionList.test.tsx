@@ -20,6 +20,7 @@ vi.mock('../features/session/api/sessionApi', () => ({
   fetchRegisteredSessions: vi.fn(),
   registerForSession: vi.fn(),
   cancelSessionRegistration: vi.fn(),
+  fetchSessionMaterials: vi.fn(),
 }))
 
 const sessions = [
@@ -39,15 +40,21 @@ const sessions = [
 describe('SessionList', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.stubGlobal('fetch', vi.fn(() =>
-      Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve([{ conferenceId: 'conf-1' }]),
-      })
-    ))
+
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() =>
+        Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve([{ conferenceId: 'conf-1' }]),
+        })
+      )
+    )
 
     vi.spyOn(window, 'alert').mockImplementation(() => {})
+
     vi.mocked(sessionApi.fetchRegisteredSessions).mockResolvedValue([])
+    vi.mocked(sessionApi.fetchSessionMaterials).mockResolvedValue([])
   })
 
   it('renders session card', async () => {
@@ -62,8 +69,8 @@ describe('SessionList', () => {
     )
 
     expect(screen.getByText('React radionica')).toBeInTheDocument()
-    expect(screen.getByText('Workshop')).toBeInTheDocument()
-    expect(screen.getByText('Amfiteatar 1')).toBeInTheDocument()
+    expect(screen.getByText(/Workshop/)).toBeInTheDocument()
+    expect(screen.getByText(/Amfiteatar 1/)).toBeInTheDocument()
   })
 
   it('shows register button for participant', async () => {
@@ -111,8 +118,8 @@ describe('SessionList', () => {
       />
     )
 
-    expect(screen.getByText('Uredi')).toBeInTheDocument()
-    expect(screen.getByText('Obriši')).toBeInTheDocument()
+    expect(screen.getAllByText('Uredi').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Obriši').length).toBeGreaterThan(0)
   })
 
   it('opens delete confirmation modal', async () => {
@@ -126,9 +133,10 @@ describe('SessionList', () => {
       />
     )
 
-    await userEvent.click(screen.getByText('Obriši'))
+    await userEvent.click(screen.getAllByText('Obriši')[0])
 
-    expect(screen.getByText('Potvrda brisanja')).toBeInTheDocument()
-    expect(screen.getByText('Jeste li sigurni da želite obrisati ovu sesiju?')).toBeInTheDocument()
+   expect(screen.getByText('Potvrda')).toBeInTheDocument()
+expect(screen.getByText('Da')).toBeInTheDocument()
+expect(screen.getByText('Ne')).toBeInTheDocument()
   })
 })

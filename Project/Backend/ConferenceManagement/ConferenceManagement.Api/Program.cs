@@ -16,6 +16,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
+builder.Services.AddMemoryCache();
+builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
+builder.Services.AddScoped<IQuestionService, QuestionService>();
 
 builder.Services.AddCors(options =>
 {
@@ -90,6 +93,12 @@ builder.Services.AddScoped<ISessionService, SessionService>();
 builder.Services.AddScoped<ISessionRegistrationRepository, SessionRegistrationRepository>();
 builder.Services.AddScoped<IAgendaItemRepository, AgendaItemRepository>();
 builder.Services.AddScoped<IAgendaItemService, AgendaItemService>();
+builder.Services.AddScoped<IMaterialService, MaterialService>();
+builder.Services.AddScoped<IMaterialRepository, MaterialRepository>();
+builder.Services.AddScoped<ConferenceManagement.Domain.Abstractions.Repositories.ILogisticsRepository, ConferenceManagement.Dal.Repositories.LogisticsRepository>();
+builder.Services.AddScoped<ConferenceManagement.Application.Interfaces.ILogisticsService, ConferenceManagement.Application.Services.LogisticsService>();
+builder.Services.AddScoped<IEquipmentService, EquipmentService>();
+builder.Services.AddScoped<IEquipmentRepository, EquipmentRepository>();
 
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("AdminPolicy", policy => policy.RequireRole("admin-sistema"))
@@ -97,10 +106,14 @@ builder.Services.AddAuthorizationBuilder()
     .AddPolicy("AdminOrOrganizerPolicy", policy => policy.RequireRole("admin-sistema", "organizator"))
     .AddPolicy("SpeakerPolicy", policy => policy.RequireRole("predavac"))
     .AddPolicy("AttendeePolicy", policy => policy.RequireRole("ucesnik"))
+    .AddPolicy("AdminOrSpeakerPolicy", policy => policy.RequireRole("admin-sistema", "predavac"))
     .AddPolicy("ParticipantPolicy", policy =>
         policy.RequireAuthenticatedUser());
 
 builder.Services.AddScoped<IConferenceCapacityService, ConferenceCapacityService>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IConferenceReportService, ConferenceReportService>();
 
 var app = builder.Build();
 
@@ -110,7 +123,7 @@ if (runMigrationsOnly)
 {
     await app.Services.WaitForDatabaseAndApplyMigrationsAsync(app.Logger);
     app.Logger.LogInformation("Migrations finished successfully. Exiting migrator container.");
-    return;
+    Environment.Exit(0);
 }
 
 // Velika izmjena: osigurava da API pri standardnom startup-u automatski primijeni
@@ -152,6 +165,16 @@ app.UseExceptionHandler(errorApp =>
 });
 
 app.UseCors("FrontendDev");
+
+var uploadsPath = Path.Combine(builder.Environment.ContentRootPath, "uploads", "materials");
+Directory.CreateDirectory(uploadsPath);
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(
+        Path.Combine(builder.Environment.ContentRootPath, "uploads")),
+    RequestPath = "/uploads"
+});
 app.UseAuthentication();
 app.UseAuthorization();
 
