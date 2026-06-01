@@ -3,7 +3,7 @@ import { useAuth } from '../auth/AuthProvider';
 import { useEquipment } from '../features/equipment/hooks/useEquipment';
 import { EquipmentList } from '../features/equipment/components/EquipmentList';
 import { CreateEquipmentModal } from '../features/equipment/components/CreateEquipmentModal';
-import { deleteEquipment } from '../features/equipment/api/equipmentApi';
+import { decrementEquipmentQuantity, deleteEquipment } from '../features/equipment/api/equipmentApi';
 import type { Equipment } from '../features/equipment/types';
 import '../features/conference/ConferencesPage.css';
 import './RoomsPage.css'; // Ponovno koristimo prelijepe stilove za raspored
@@ -19,6 +19,8 @@ export default function EquipmentPage() {
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteModalStep, setDeleteModalStep] = useState<'confirm' | 'error'>('confirm');
+  const [reducingEquipmentId, setReducingEquipmentId] = useState<string | null>(null);
+  const [decrementToast, setDecrementToast] = useState<string | null>(null);
 
   // Filtriranje i pretraga
   const [searchQuery, setSearchQuery] = useState('');
@@ -185,6 +187,23 @@ export default function EquipmentPage() {
           </div>
 
           {error && <div className="error-message">{error}</div>}
+          {decrementToast && (
+            <div
+              role="status"
+              style={{
+                marginBottom: '16px',
+                padding: '10px 14px',
+                borderRadius: '10px',
+                border: '1px solid rgba(248, 113, 113, 0.35)',
+                background: 'rgba(248, 113, 113, 0.12)',
+                color: '#fca5a5',
+                fontSize: '0.85rem',
+                fontWeight: 600,
+              }}
+            >
+              {decrementToast}
+            </div>
+          )}
 
           {isDataLoading ? (
             <div className="loading-container">
@@ -195,6 +214,27 @@ export default function EquipmentPage() {
             <EquipmentList
               items={filteredEquipment}
               isAdminOrOrganizer={isAdminOrOrganizer}
+              onReduceTotal={async (item) => {
+                if (item.availableQuantity <= 0 || reducingEquipmentId) return;
+                const shouldReduce = window.confirm(
+                  `Smanjiti ukupnu kolicinu opreme "${item.name}" za 1?`
+                );
+                if (!shouldReduce) return;
+                setReducingEquipmentId(item.equipmentId);
+                try {
+                  await decrementEquipmentQuantity(item.equipmentId);
+                  refresh();
+                } catch (err) {
+                  console.error('Greška pri smanjenju opreme:', err);
+                  setDecrementToast(
+                    err instanceof Error ? err.message : 'Greška pri smanjenju opreme.'
+                  );
+                  window.setTimeout(() => setDecrementToast(null), 3000);
+                } finally {
+                  setReducingEquipmentId(null);
+                }
+              }}
+              reducingEquipmentId={reducingEquipmentId}
               onAction={(item) => {
                 setEquipmentToDelete(item);
                 setDeleteError(null);

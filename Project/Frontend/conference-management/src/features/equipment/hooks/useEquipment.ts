@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { fetchEquipment, fetchSessionEquipment } from '../api/equipmentApi';
 import type { Equipment } from '../types';
 
@@ -7,7 +7,7 @@ export function useEquipment() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const refresh = async () => {
+  const refresh = useCallback(async () => {
     setIsLoading(true);
     setError(null);
 
@@ -21,11 +21,11 @@ export function useEquipment() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     void refresh();
-  }, []);
+  }, [refresh]);
 
   return {
     items,
@@ -40,7 +40,7 @@ export function useSessionEquipment(sessionId: string) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const refresh = async () => {
+  const refresh = useCallback(async () => {
     if (!sessionId) return;
     setIsLoading(true);
     setError(null);
@@ -55,11 +55,11 @@ export function useSessionEquipment(sessionId: string) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [sessionId]);
 
   useEffect(() => {
     void refresh();
-  }, [sessionId]);
+  }, [refresh]);
 
   return {
     items,

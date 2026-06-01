@@ -4,6 +4,8 @@ interface EquipmentListProps {
   items: Equipment[];
   isAdminOrOrganizer: boolean;
   onAction?: (item: Equipment) => void;
+  onReduceTotal?: (item: Equipment) => void;
+  reducingEquipmentId?: string | null;
   actionLabel?: string;
   isSessionView?: boolean;
 }
@@ -12,82 +14,132 @@ export function EquipmentList({
   items,
   isAdminOrOrganizer,
   onAction,
+  onReduceTotal,
+  reducingEquipmentId = null,
   actionLabel = 'Ukloni',
   isSessionView = false,
 }: EquipmentListProps) {
+  const showAction = Boolean(isAdminOrOrganizer && onAction);
+  const gridTemplateColumns = isSessionView
+    ? (showAction ? '2fr 1.4fr 1fr 0.8fr' : '2fr 1.4fr 1fr')
+    : (showAction ? '2fr 1.4fr 0.9fr 0.9fr 1fr 0.8fr' : '2fr 1.4fr 0.9fr 0.9fr 1fr');
+
   if (items.length === 0) {
     return (
-      <div className="p-8 text-center text-slate-400 bg-slate-900/30 rounded-lg border border-slate-800">
-        Trenutno nema registrovane opreme.
+      <div className="section-block">
+        <div className="empty-state">
+          <div className="empty-icon">🧰</div>
+          <p>Trenutno nema registrovane opreme.</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-slate-800 bg-[#0f172a]/80 backdrop-blur-md">
-      <table className="w-full text-left border-collapse">
-        <thead>
-          <tr className="border-b border-slate-800 bg-[#0f172a]">
-            <th className="p-4 text-slate-300 font-semibold text-sm">Naziv opreme</th>
-            <th className="p-4 text-slate-300 font-semibold text-sm">Tip</th>
-            {!isSessionView && <th className="p-4 text-slate-300 font-semibold text-sm text-center">Ukupno</th>}
-            <th className="p-4 text-slate-300 font-semibold text-sm text-center">
-              {isSessionView ? 'Količina na sesiji' : 'Dostupno'}
-            </th>
-            {!isSessionView && <th className="p-4 text-slate-300 font-semibold text-sm">Status</th>}
-            {isAdminOrOrganizer && onAction && (
-              <th className="p-4 text-slate-300 font-semibold text-sm text-right">Akcije</th>
-            )}
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-slate-800/50">
-          {items.map((item) => {
-            const statusClass = item.isAvailable
-              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-              : 'bg-rose-500/10 text-rose-400 border-rose-500/20';
+    <div className="section-block">
+      <div className="conference-table">
+        <div className="table-header" style={{ gridTemplateColumns }}>
+          <span className="btn-secondary" style={{ textAlign: 'center', display: 'inline-block', width: '100%' }}>
+            Naziv opreme
+          </span>
+          <span className="btn-secondary" style={{ textAlign: 'center', display: 'inline-block', width: '100%' }}>
+            Tip
+          </span>
+          {!isSessionView && (
+            <span className="btn-secondary" style={{ textAlign: 'center', display: 'inline-block', width: '100%' }}>
+              Ukupno
+            </span>
+          )}
+          <span className="btn-secondary" style={{ textAlign: 'center', display: 'inline-block', width: '100%' }}>
+            {isSessionView ? 'Količina na sesiji' : 'Dostupno'}
+          </span>
+          {!isSessionView && (
+            <span className="btn-secondary" style={{ textAlign: 'center', display: 'inline-block', width: '100%' }}>
+              Status
+            </span>
+          )}
+          {showAction && (
+            <span className="btn-secondary" style={{ textAlign: 'center', display: 'inline-block', width: '100%' }}>
+              Akcije
+            </span>
+          )}
+        </div>
+        {items.map((item) => {
+          const statusText = item.isAvailable ? 'Dostupno' : 'Nedostupno';
+          const statusStyle = item.isAvailable
+            ? undefined
+            : {
+                background: 'rgba(248, 113, 113, 0.12)',
+                color: '#fca5a5',
+                border: '1px solid rgba(248, 113, 113, 0.25)',
+              };
 
-            const statusText = item.isAvailable ? 'Dostupno' : 'Nedostupno';
-
-            return (
-              <tr
-                key={item.equipmentId}
-                className="hover:bg-slate-900/40 transition-colors"
-                style={{ color: '#e2e8f0' }}
-              >
-                <td className="p-4 font-medium text-white">{item.name}</td>
-                <td className="p-4 text-slate-300">{item.type}</td>
-                {!isSessionView && <td className="p-4 text-center font-mono">{item.quantity}</td>}
-                <td className="p-4 text-center font-mono text-cyan-400 font-semibold">
-                  {isSessionView ? item.quantity : item.availableQuantity}
-                </td>
-                {!isSessionView && (
-                  <td className="p-4">
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusClass}`}
-                    >
-                      {statusText}
-                    </span>
-                  </td>
-                )}
-                {isAdminOrOrganizer && onAction && (
-                  <td className="p-4 text-right">
-                    <button
-                      onClick={() => onAction(item)}
-                      className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
-                        isSessionView
-                          ? 'bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20'
-                          : 'bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20'
-                      }`}
-                    >
-                      {actionLabel}
-                    </button>
-                  </td>
-                )}
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+          return (
+            <div key={item.equipmentId} className="table-row" style={{ gridTemplateColumns, textAlign: 'center' }}>
+              <span className="table-title">{item.name}</span>
+              <span className="table-location">{item.type}</span>
+              {!isSessionView && (
+                <span className="table-date" style={{ textAlign: 'center' }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                    <span>{item.quantity}</span>
+                    {onReduceTotal && (
+                      <button
+                        type="button"
+                        onClick={() => onReduceTotal(item)}
+                        className="btn-secondary"
+                        style={{
+                          padding: '3px 7px',
+                          minWidth: '24px',
+                          lineHeight: 1,
+                        }}
+                        disabled={item.availableQuantity <= 0 || reducingEquipmentId === item.equipmentId}
+                        aria-label={`Smanji ukupnu kolicinu opreme ${item.name}`}
+                        title={item.availableQuantity <= 0 ? 'Nema dostupne opreme' : 'Smanji ukupnu kolicinu'}
+                      >
+                        -
+                      </button>
+                    )}
+                  </span>
+                </span>
+              )}
+              <span className="table-date" style={{ textAlign: 'center', color: 'cyan' }}>
+                {isSessionView ? item.quantity : item.availableQuantity}
+              </span>
+              {!isSessionView && (
+                <span>
+                  <span className="conf-badge" style={statusStyle}>{statusText}</span>
+                </span>
+              )}
+              {showAction && (
+                <span style={{ textAlign: 'center' }}>
+                  <button
+                    type="button"
+                    onClick={() => onAction?.(item)}
+                    onMouseEnter={(event) => {
+                      event.currentTarget.style.backgroundColor = '#DC2626';
+                    }}
+                    onMouseLeave={(event) => {
+                      event.currentTarget.style.backgroundColor = '#EF4444';
+                    }}
+                    className="btn-delete"
+                    style={{
+                      backgroundColor: '#EF4444',
+                      color: '#fff',
+                      borderRadius: 'var(--radius-md)',
+                      padding: '6px 15px',
+                      border: 'none',
+                      cursor: 'pointer',
+                      transition: 'background-color 0.2s ease',
+                    }}
+                  >
+                    {actionLabel}
+                  </button>
+                </span>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

@@ -11,6 +11,8 @@ import QAPanel from './QAPanel'
 import { useMaterials } from '../hooks/useMaterials'
 import { UploadMaterialModal } from './UploadMaterialModal'
 import { AssignEquipmentModal } from '../../equipment/components/AssignEquipmentModal'
+import { useSessionEquipment } from '../../equipment/hooks/useEquipment'
+import { unassignEquipmentFromSession } from '../../equipment/api/equipmentApi'
 
 interface SessionMaterialsSectionProps {
     sessionId: string
@@ -71,10 +73,110 @@ function SessionMaterialsSection({ sessionId, refreshKey }: SessionMaterialsSect
     )
 }
 
+interface SessionEquipmentSectionProps {
+    sessionId: string
+    refreshKey: number
+    canManageEquipment: boolean
+}
+
+function SessionEquipmentSection({ sessionId, refreshKey, canManageEquipment }: SessionEquipmentSectionProps) {
+    const { items, isLoading, error, refresh } = useSessionEquipment(sessionId)
+    const [removingEquipmentId, setRemovingEquipmentId] = useState<string | null>(null)
+    const [toastMessage, setToastMessage] = useState<string | null>(null)
+
+    useEffect(() => {
+        if (refreshKey > 0) {
+            void refresh()
+        }
+    }, [refreshKey, refresh])
+
+    const handleUnassign = async (equipmentId: string, equipmentName: string) => {
+        if (!sessionId || removingEquipmentId) return
+
+        const shouldRemove = window.confirm(`Ukloniti opremu "${equipmentName}" sa sesije?`)
+        if (!shouldRemove) return
+
+        setRemovingEquipmentId(equipmentId)
+        try {
+            await unassignEquipmentFromSession(sessionId, equipmentId)
+            await refresh()
+        } catch (unassignError) {
+            console.error('Greška pri uklanjanju opreme sa sesije:', unassignError)
+            setToastMessage('Uklanjanje opreme nije uspjelo. Pokušajte ponovo.')
+            window.setTimeout(() => setToastMessage(null), 3000)
+        } finally {
+            setRemovingEquipmentId(null)
+        }
+    }
+
+    return (
+        <div className="session-info-row" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <span className="session-info-icon">🧰</span>
+            <div className="session-info-content" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <span className="session-info-label">OPREMA</span>
+
+                {isLoading ? (
+                    <p className="session-info-value">Učitavanje opreme...</p>
+                ) : error ? (
+                    <p className="session-info-value">{error}</p>
+                ) : items.length === 0 ? (
+                    <p className="session-info-value">Nema dodijeljene opreme</p>
+                ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        {items.map((item) => (
+                            <div key={item.equipmentId} style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                <span style={{ fontWeight: 600 }}>{item.name}</span>
+                                <span className="session-info-value" style={{ margin: 0 }}>
+                                    × {item.quantity}
+                                </span>
+                                {canManageEquipment && (
+                                    <button
+                                        type="button"
+                                        onClick={() => handleUnassign(item.equipmentId, item.name)}
+                                        className="btn-secondary"
+                                        style={{
+                                            padding: '4px 8px',
+                                            minWidth: '26px',
+                                            lineHeight: 1,
+                                        }}
+                                        disabled={removingEquipmentId === item.equipmentId}
+                                        aria-label={`Ukloni ${item.name} sa sesije`}
+                                        title="Ukloni opremu"
+                                    >
+                                        −
+                                    </button>
+                                )}
+                            </div>
+                        ))}
+                        {toastMessage && (
+                            <div
+                                role="status"
+                                style={{
+                                    marginTop: '6px',
+                                    padding: '8px 12px',
+                                    borderRadius: '10px',
+                                    border: '1px solid rgba(248, 113, 113, 0.35)',
+                                    background: 'rgba(248, 113, 113, 0.12)',
+                                    color: '#fca5a5',
+                                    fontSize: '0.85rem',
+                                    fontWeight: 600,
+                                }}
+                            >
+                                {toastMessage}
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
+        </div>
+    )
+}
+
 interface SessionListProps {
     sessions: Session[]
     conferenceId: string
     isAdminOrOrganizer: boolean
+    canManageEquipment?: boolean
     onDeleteSuccess: () => void
     onEditClick: (session: Session) => void
 }
@@ -83,6 +185,7 @@ export function SessionList({
     sessions = [],
     conferenceId,
     isAdminOrOrganizer,
+    canManageEquipment,
     onDeleteSuccess,
     onEditClick,
 }: SessionListProps) {
@@ -107,6 +210,9 @@ export function SessionList({
     const [activeUploadSessionId, setActiveUploadSessionId] = useState<string | null>(null)
     const [activeAssignEquipmentSessionId, setActiveAssignEquipmentSessionId] = useState<string | null>(null)
     const [materialsRefreshKey, setMaterialsRefreshKey] = useState(0)
+    const [equipmentRefreshKey, setEquipmentRefreshKey] = useState(0)
+
+    const canManageEquipmentResolved = canManageEquipment ?? isAdminOrOrganizer
 
     const filteredSessions = sessions.filter(() => {
         if (isAdminOrOrganizer) return true
@@ -280,6 +386,14 @@ export function SessionList({
                                     refreshKey={materialsRefreshKey}
                                 />
                             )}
+
+                            {canManageEquipmentResolved && (
+                                <SessionEquipmentSection
+                                    sessionId={session.sessionId}
+                                    refreshKey={equipmentRefreshKey}
+                                    canManageEquipment={canManageEquipmentResolved}
+                                />
+                            )}
                         </div>
 
                         <div className="session-card-actions">
@@ -333,22 +447,23 @@ export function SessionList({
                                             Upload Materijala
                                         </button>
 
-                                        {/* NOVO: Dugme za dodjelu opreme */}
-                                        <button
-                                            onClick={() => setActiveAssignEquipmentSessionId(session.sessionId)}
-                                            className="btn-secondary"
-                                            style={{
-                                                backgroundColor: '#38bdf8',
-                                                color: '#000',
-                                                borderRadius: 'var(--radius-md)',
-                                                padding: '8px 20px',
-                                                border: 'none',
-                                                cursor: 'pointer',
-                                                fontWeight: 'bold',
-                                            }}
-                                        >
-                                            Dodijeli Opremu
-                                        </button>
+                                        {canManageEquipmentResolved && (
+                                            <button
+                                                onClick={() => setActiveAssignEquipmentSessionId(session.sessionId)}
+                                                className="btn-secondary"
+                                                style={{
+                                                    backgroundColor: '#38bdf8',
+                                                    color: '#000',
+                                                    borderRadius: 'var(--radius-md)',
+                                                    padding: '8px 20px',
+                                                    border: 'none',
+                                                    cursor: 'pointer',
+                                                    fontWeight: 'bold',
+                                                }}
+                                            >
+                                                Dodijeli Opremu
+                                            </button>
+                                        )}
 
                                         <button
                                             onClick={() => onEditClick(session)}
@@ -395,13 +510,14 @@ export function SessionList({
                                             >
                                                 Upload Materijala
                                             </button>
-                                            {/* NOVO: Dugme za dodjelu opreme u dropdown meniju */}
-                                            <button
-                                                onClick={() => setActiveAssignEquipmentSessionId(session.sessionId)}
-                                                className="session-admin-menu-item"
-                                            >
-                                                Dodijeli Opremu
-                                            </button>
+                                            {canManageEquipmentResolved && (
+                                                <button
+                                                    onClick={() => setActiveAssignEquipmentSessionId(session.sessionId)}
+                                                    className="session-admin-menu-item"
+                                                >
+                                                    Dodijeli Opremu
+                                                </button>
+                                            )}
                                             <button
                                                 onClick={() => onEditClick(session)}
                                                 className="session-admin-menu-item"
@@ -498,7 +614,10 @@ export function SessionList({
                     <AssignEquipmentModal
                         sessionId={activeAssignEquipmentSessionId}
                         onCancel={() => setActiveAssignEquipmentSessionId(null)}
-                        onSuccess={() => setActiveAssignEquipmentSessionId(null)}
+                        onSuccess={() => {
+                            setActiveAssignEquipmentSessionId(null)
+                            setEquipmentRefreshKey(prev => prev + 1)
+                        }}
                     />
                 </div>
             )}

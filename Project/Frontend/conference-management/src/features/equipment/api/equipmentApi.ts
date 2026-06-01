@@ -46,6 +46,23 @@ export async function deleteEquipment(id: string): Promise<void> {
   }
 }
 
+export async function decrementEquipmentQuantity(id: string): Promise<Equipment> {
+  try {
+    const response = await axios.patch<Equipment>(`${BASE_URL}/api/equipment/${id}/decrement`);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.data) {
+      const responseData = error.response.data as { error?: string } | string;
+      const message =
+        typeof responseData === 'string'
+          ? responseData
+          : responseData.error ?? (responseData as any).message;
+      throw new Error(message ?? `Status ${error.response?.status ?? 'unknown'}`);
+    }
+    throw new Error('Greška pri smanjenju kolicine opreme.');
+  }
+}
+
 export async function fetchSessionEquipment(sessionId: string): Promise<Equipment[]> {
   try {
     const response = await axios.get<Equipment[]>(`${BASE_URL}/api/sessions/${sessionId}/equipment`);

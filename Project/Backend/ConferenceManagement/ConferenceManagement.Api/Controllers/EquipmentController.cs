@@ -75,6 +75,34 @@ public class EquipmentController : ControllerBase
     }
 
     /// <summary>
+    /// Smanjenje ukupne kolicine opreme u globalnom inventaru.
+    /// </summary>
+    [HttpPatch("api/equipment/{id:guid}/decrement")]
+    [Authorize(Policy = "AdminOrOrganizerPolicy")]
+    public async Task<ActionResult<EquipmentDto>> DecrementEquipmentQuantity(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var updated = await _equipmentService.DecrementEquipmentQuantityAsync(id, cancellationToken);
+            return Ok(updated);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+    }
+
+    /// <summary>
     /// S47.3: Lista opreme dodijeljene određenoj sesiji.
     /// </summary>
     [HttpGet("api/sessions/{sessionId:guid}/equipment")]

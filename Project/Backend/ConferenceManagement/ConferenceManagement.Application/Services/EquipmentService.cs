@@ -85,6 +85,49 @@ public class EquipmentService : IEquipmentService
         await _equipmentRepository.SaveChangesAsync(cancellationToken);
     }
 
+    public async Task<EquipmentDto> DecrementEquipmentQuantityAsync(Guid equipmentId, CancellationToken cancellationToken)
+    {
+        if (!_userContextService.HasAnyRole("admin-sistema", "organizator"))
+        {
+            throw new UnauthorizedAccessException("Nemate dozvolu za smanjenje kolicine opreme.");
+        }
+
+        var equipment = await _equipmentRepository.GetByIdAsync(equipmentId, cancellationToken);
+        if (equipment == null)
+        {
+            throw new KeyNotFoundException("Oprema nije pronadjena.");
+        }
+
+        if (equipment.SessionId != null)
+        {
+            throw new InvalidOperationException("Moguce je smanjiti samo globalnu opremu.");
+        }
+
+        if (equipment.AvailableQuantity <= 0)
+        {
+            throw new InvalidOperationException("Nije moguce smanjiti kolicinu jer nema dostupne opreme.");
+        }
+
+        equipment.Quantity -= 1;
+        equipment.AvailableQuantity -= 1;
+
+        if (equipment.AvailableQuantity <= 0)
+        {
+            equipment.IsAvailable = false;
+            equipment.AvailabilityStatus = "Unavailable";
+        }
+        else
+        {
+            equipment.IsAvailable = true;
+            equipment.AvailabilityStatus = "Available";
+        }
+
+        await _equipmentRepository.UpdateAsync(equipment, cancellationToken);
+        await _equipmentRepository.SaveChangesAsync(cancellationToken);
+
+        return MapToDto(equipment);
+    }
+
     public async Task<List<EquipmentDto>> GetEquipmentBySessionIdAsync(Guid sessionId, CancellationToken cancellationToken)
     {
         var session = await _sessionRepository.GetByIdAsync(sessionId);
