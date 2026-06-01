@@ -970,3 +970,96 @@ za određenu konferenciju., kao i njihovo filtritanje.
 ### Rizici, problemi ili greške koje su uočene
 - **Presretanje izuzetaka u Debuggeru:** Prilikom testiranja brisanja već obrisanih stavki, Visual Studio debugger je prekidao izvršavanje hvatajući `KeyNotFoundException` prije nego što bi ga middleware obradio. Problem je riješen puštanjem aplikacije u rad čime je potvrđen ispravan `404 Not Found` odgovor na frontendu.
 
+## Unos #25
+
+| Polje | Detalji |
+|---|---|
+| **Datum** | 01.06.2026. |
+| **Sprint broj** | Sprint 10 |
+| **Alat** | ChatGPT |
+| **Ko je koristio alat** | Nejra Hodžić |
+
+### Svrha korištenja
+
+Pomoć pri planiranju, organizaciji i implementaciji backend i frontend testova za Sprint 10 funkcionalnosti.
+
+### Kratak opis zadatka ili upita
+
+Tražena je pomoć pri analizi implementiranih funkcionalnosti logističkih aktivnosti, tehničke opreme i upravljanja materijalima, kao i pri definisanju testnih scenarija za backend i frontend dio sistema. 
+
+### Šta je AI predložio ili generisao
+
+- Prijedloge backend test scenarija za:
+  - logističke aktivnosti (S46)
+  - tehničku opremu (S47)
+  - upravljanje materijalima (S45.3 i S45.4)
+
+- Prijedloge frontend test scenarija za:
+  - LogisticsPage
+  - EquipmentPage
+  - SessionDetailsPage
+  - MaterialUpdateDelete funkcionalnosti
+
+### Šta je tim prihvatio
+
+- Predložene backend i frontend test scenarije
+- Organizaciju testnih klasa i testnih slučajeva
+
+### Šta je tim izmijenio
+
+- Testovi su prilagođeni postojećoj implementaciji projekta
+
+### Šta je tim odbacio
+
+- Izmjene produkcijskog koda radi lakšeg testiranja
+- Refaktorisanje kontrolera, servisa i repozitorija koje nije bilo dio sprint zadataka
+- Test scenarije koji nisu bili primjenjivi na postojeću implementaciju
+
+### Rizici, problemi ili greške koje su uočene
+
+- Funkcionalnosti izmjene i brisanja materijala nisu implementirane
+
+---
+
+## Unos #26
+
+| Polje | Detalji |
+|---|---|
+| **Datum** | 01.06.2026. |
+| **Sprint broj** | Sprint 10 |
+| **Alat** | ChatGPT |
+| **Ko je koristio alat** | Ajra Kerla |
+
+### Svrha korištenja
+
+Pomoć pri analizi implementiranih funkcionalnosti.
+
+### Kratak opis zadatka ili upita
+
+AI alat je korišten za provjeru implementacije korisničkih priča iz Sprint 10 backlog-a, identifikaciju funkcionalnosti koje nisu implementirane, pripremu testnih scenarija.
+
+### Šta je AI predložio ili generisao
+
+- Analizu implementacije funkcionalnosti Sprinta 10
+- Prijedloge backend i frontend test scenarijai
+
+### Šta je tim prihvatio
+
+- Analizu postojećeg stanja implementacije
+- Predložene testne scenarije
+- Strukturu sprint dokumentacije
+
+### Šta je tim izmijenio
+
+- Opisi funkcionalnosti su usklađeni sa Sprint 10 backlogom
+- Testni slučajevi su prilagođeni postojećoj implementaciji sistema
+
+### Šta je tim odbacio
+
+- Predložene izmjene produkcijskog koda koje nisu bile dio sprint ciljeva
+- Implementaciju dodatnih funkcionalnosti koje nisu planirane za Sprint 10
+
+### Rizici, problemi ili greške koje su uočene
+
+- Ownership validacije nisu bile prisutne za sve slučajeve korištenja
+- Potrebne su dodatne validacije za pojedine tipove podataka i poslovna pravila
