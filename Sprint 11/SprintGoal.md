@@ -1,9 +1,4 @@
-\# Sprint Goal - Sprint 11
-
-
-
-\--
-
+# Sprint Goal - Sprint 11
 
 
 Cilj zadnjeg sprinta je stabilizovati finalnu verziju sistema i pripremiti kompletnu završnu isporuku kroz
