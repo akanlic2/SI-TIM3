@@ -26,7 +26,7 @@ Sistem se pokreće kao skup Docker kontejnera orkestriranih putem Docker Compose
 | Kontejnerizacija | Docker + Docker Compose |
 | Web server / Reverse proxy | Nginx |
 | SSL | Let's Encrypt (nip.io domena) |
-| Image registry | Docker Hub (samo backend image) |
+| Image registry | Docker Hub (nije u aktivnoj upotrebi — sve se builda lokalno na serveru) |
 | CI/CD | GitHub Actions |
  
 ---
@@ -233,7 +233,6 @@ Produkcijski deployment se vrši automatski putem GitHub Actions CI/CD pipeline-
 4. SSL certifikat konfigurisan za `178.128.144.139.nip.io` (Let's Encrypt)
 5. Nginx konfiguracija postavljena u `Project/Backend/ConferenceManagement/nginx/nginx.conf`
 6. GitHub Secrets postavljeni (SSH_HOST, SSH_USER, SSH_PRIVATE_KEY, DOCKERHUB_USERNAME, DOCKERHUB_TOKEN)
-7. Docker Hub repozitorij kreiran: `ekurtovic5/conferencemanagement-api`
 ### Ručni produkcijski deployment (po potrebi)
  
 ```bash
@@ -246,10 +245,10 @@ cd /root/SI-TIM3/Project/Backend/ConferenceManagement
 # Preuzmi najnoviji kod
 git pull origin main
  
-# Preuzmi najnoviji backend image sa Docker Hub
+# Preuzmi najnovije imageove za nginx i postgres
 docker compose -f docker-compose.prod.yml pull
  
-# Pokreni kontejnere (frontend se builda lokalno na serveru)
+# Pokreni kontejnere (sve tri aplikacije se buildaju lokalno na serveru)
 docker compose -f docker-compose.prod.yml up -d --build --remove-orphans
  
 # Očisti stare images
@@ -284,7 +283,7 @@ Vite ugrađuje `VITE_API_URL` direktno u JavaScript kod u build-time kao Docker 
 - `ASPNETCORE_ENVIRONMENT` je `Development` i na produkcijskom serveru
 - JWT signing key i DB kredencijali su vidljivi u `docker-compose.prod.yml`
 - Lozinke u seed podacima nisu hashirane
-- Frontend image se builda direktno na serveru (ne preuzima sa Docker Hub) jer `VITE_API_URL` mora biti ugrađen u build-time sa produkcijskim URL-om
+- Frontend, backend i migrator se buildaju direktno na serveru pri svakom deploymentu jer `VITE_API_URL` mora biti ugrađen u build-time sa produkcijskim URL-om
 ---
  
 ## 13. Najčešći problemi i rješenja
