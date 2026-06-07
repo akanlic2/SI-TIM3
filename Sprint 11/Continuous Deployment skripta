@@ -6,9 +6,9 @@ Continuous Deployment pipeline je implementiran putem **GitHub Actions** i autom
  
 Pipeline se sastoji od tri faze:
 1. **test** — pokreće backend i frontend testove
-2. **build-and-push** — builda Docker images i šalje ih na Docker Hub
-3. **deploy** — server preuzima images sa Docker Hub i pokreće aplikaciju
-> **Napomena:** Build se vrši na GitHub Actions (ne na serveru) jer VPS server nema pristup internetu tokom Docker build procesa, što bi onemogućilo `npm install` i preuzimanje NuGet paketa.
+2. **build-and-push** — builda backend Docker image i šalje ga na Docker Hub
+3. **deploy** — server preuzima backend image sa Docker Hub, builda frontend lokalno i pokreće sve kontejnere
+> **Napomena:** Frontend image se builda direktno na serveru (ne na GitHub Actions) jer `VITE_API_URL` mora biti ugrađen u build-time sa produkcijskim URL-om (`https://178.128.144.139.nip.io`). Backend image se builda na GitHub Actions i preuzima sa Docker Hub.
  
 ---
  
@@ -45,13 +45,12 @@ Može se i ručno pokrenuti:
 - Docker Engine instaliran (`curl -fsSL https://get.docker.com | sh`)
 - Repozitorij kloniran u `/root/SI-TIM3`
 - SSH ključ dodan u `authorized_keys`
-- 2GB swap memorije (server ima 1GB RAM — swap je neophodan za pokretanje svih servisa)
+- 2GB swap memorije (server ima 1GB RAM — swap je neophodan)
 - SSL certifikat konfigurisan za `178.128.144.139.nip.io` (Let's Encrypt)
 - Nginx konfiguracija u `Project/Backend/ConferenceManagement/nginx/nginx.conf`
 ### Na Docker Hub
-Kreirani repozitoriji:
+Kreiran repozitorij:
 - `ekurtovic5/conferencemanagement-api`
-- `ekurtovic5/conferencemanagement-frontend`
 ### Na GitHubu
 Sljedeći GitHub Secrets moraju biti postavljeni u **Settings → Secrets and variables → Actions**:
  
@@ -168,16 +167,16 @@ jobs:
 ### Job 2: `build-and-push` (pokreće se samo ako `test` prođe)
 - Prijavljuje se na Docker Hub
 - **Builda backend Docker image** i šalje na `ekurtovic5/conferencemanagement-api:latest`
-- **Builda frontend Docker image** i šalje na `ekurtovic5/conferencemanagement-frontend:latest`
+- Builda frontend image (bez produkcijskog `VITE_API_URL` — ovaj image se ne koristi na serveru)
 ### Job 3: `deploy` (pokreće se samo ako `build-and-push` prođe)
 - Spaja se SSH-om na VPS server
 - Preuzima najnoviji kod (`git pull`)
-- Preuzima najnovije Docker images sa Docker Hub (`docker compose pull`)
-- Pokreće sve kontejnere (`docker compose up -d`):
+- Preuzima najnoviji backend image sa Docker Hub (`docker compose pull`)
+- Pokreće sve kontejnere (`docker compose -f docker-compose.prod.yml up -d`):
   - `conferencemanagement.db` — PostgreSQL baza
   - `conferencemanagement.migrator` — primjenjuje migracije automatski
-  - `conferencemanagement.api` — ASP.NET Core API (port 8082)
-  - `conferencemanagement.frontend` — React frontend (port 3000)
+  - `conferencemanagement.api` — ASP.NET Core API (port 8082), image sa Docker Hub
+  - `conferencemanagement.frontend` — React frontend (port 3000), **builda se lokalno na serveru** sa `VITE_API_URL=https://178.128.144.139.nip.io`
   - `nginx` — reverse proxy sa SSL (port 80/443)
 - Briše stare Docker images (`docker image prune -af`)
 ---
@@ -191,8 +190,8 @@ jobs:
 | `SSH_PRIVATE_KEY` | GitHub Secret | Autentifikacija putem SSH ključa |
 | `DOCKERHUB_USERNAME` | GitHub Secret | Prijava na Docker Hub |
 | `DOCKERHUB_TOKEN` | GitHub Secret | Autentifikacija na Docker Hub |
-| `VITE_API_URL` | `.env.production` fajl | Ugrađuje se u frontend build u build-time |
-| `Jwt__Key` | `docker-compose.prod.yml` | JWT potpisni ključ za backend |
+| `VITE_API_URL` | Docker build ARG u `docker-compose.prod.yml` | Ugrađuje se u frontend build u build-time na serveru |
+| `Jwt__Key` | `docker-compose.prod.yml` environment | JWT potpisni ključ za backend |
  
 ---
  
@@ -205,11 +204,13 @@ GitHub Actions
     ├── Job 1: test (backend + frontend testovi)
     ├── Job 2: build-and-push → Docker Hub
     │         ekurtovic5/conferencemanagement-api:latest
-    │         ekurtovic5/conferencemanagement-frontend:latest
     └── Job 3: deploy via SSH
                     ↓
         VPS Server (178.128.144.139)
-                    ↓ docker compose pull + up
+        ├── git pull (preuzima novi kod)
+        ├── docker compose pull (preuzima API image sa Docker Hub)
+        └── docker compose up (builda frontend lokalno, pokreće sve)
+                    ↓
 ┌──────────────────────────────────────────────┐
 │  nginx (port 80/443)                         │
 │  SSL: https://178.128.144.139.nip.io         │
@@ -274,7 +275,8 @@ Sljedeći koraci su obavljeni jednom i nisu potrebni pri svakom deploymentu:
  
 ## 11. Poznata ograničenja pipeline-a
  
-- Frontend image se builda bez `VITE_API_URL` build argumenta u pipeline-u — URL se postavlja kroz `.env.production` fajl u repozitoriju
+- Frontend image se builda lokalno na serveru (ne na GitHub Actions) jer `VITE_API_URL` mora biti produkcijski URL ugrađen u build-time
 - `ASPNETCORE_ENVIRONMENT` je `Development` na produkcijskom serveru
 - JWT signing key i DB kredencijali su vidljivi u `docker-compose.prod.yml`
 - Server ima samo 1GB RAM — swap memorija je neophodna za rad
+ 
