@@ -26,7 +26,7 @@ Sistem se pokreće kao skup Docker kontejnera orkestriranih putem Docker Compose
 | Kontejnerizacija | Docker + Docker Compose |
 | Web server / Reverse proxy | Nginx |
 | SSL | Let's Encrypt (nip.io domena) |
-| Image registry | Docker Hub |
+| Image registry | Docker Hub (samo backend image) |
 | CI/CD | GitHub Actions |
  
 ---
@@ -65,13 +65,13 @@ Sistem se pokreće kao skup Docker kontejnera orkestriranih putem Docker Compose
 | `POSTGRES_USER` | `si_tim3` |
 | `POSTGRES_PASSWORD` | `si_tim3_db_pass` |
  
-### Frontend
+### Frontend (Docker build argument)
  
-| Varijabla | Lokalno | Produkcija |
+| Argument | Lokalno | Produkcija |
 |---|---|---|
 | `VITE_API_URL` | `http://localhost:8082` | `https://178.128.144.139.nip.io` |
  
-> **Napomena:** Vite ugrađuje `VITE_API_URL` direktno u JavaScript kod u build-time. Za produkciju se koristi `.env.production` fajl. Zbog toga postoje dva odvojena docker-compose fajla — `docker-compose.yml` za lokalno i `docker-compose.prod.yml` za produkciju.
+> **Napomena:** `VITE_API_URL` se prosljeđuje kao Docker build argument (`ARG`) i ugrađuje se u JavaScript kod u build-time putem Vite. Zbog toga postoje dva odvojena docker-compose fajla — `docker-compose.yml` za lokalno i `docker-compose.prod.yml` za produkciju, svaki sa odgovarajućim `VITE_API_URL`.
  
 ### GitHub Secrets (potrebni za CI/CD)
  
@@ -233,7 +233,7 @@ Produkcijski deployment se vrši automatski putem GitHub Actions CI/CD pipeline-
 4. SSL certifikat konfigurisan za `178.128.144.139.nip.io` (Let's Encrypt)
 5. Nginx konfiguracija postavljena u `Project/Backend/ConferenceManagement/nginx/nginx.conf`
 6. GitHub Secrets postavljeni (SSH_HOST, SSH_USER, SSH_PRIVATE_KEY, DOCKERHUB_USERNAME, DOCKERHUB_TOKEN)
-7. Docker Hub repozitoriji kreirani: `ekurtovic5/conferencemanagement-api` i `ekurtovic5/conferencemanagement-frontend`
+7. Docker Hub repozitorij kreiran: `ekurtovic5/conferencemanagement-api`
 ### Ručni produkcijski deployment (po potrebi)
  
 ```bash
@@ -246,11 +246,11 @@ cd /root/SI-TIM3/Project/Backend/ConferenceManagement
 # Preuzmi najnoviji kod
 git pull origin main
  
-# Preuzmi najnovije Docker images sa Docker Hub
+# Preuzmi najnoviji backend image sa Docker Hub
 docker compose -f docker-compose.prod.yml pull
  
-# Pokreni kontejnere
-docker compose -f docker-compose.prod.yml up -d --remove-orphans
+# Pokreni kontejnere (frontend se builda lokalno na serveru)
+docker compose -f docker-compose.prod.yml up -d --build --remove-orphans
  
 # Očisti stare images
 docker image prune -af
@@ -258,13 +258,12 @@ docker image prune -af
  
 ### Zašto dva docker-compose fajla
  
-Vite ugrađuje `VITE_API_URL` direktno u JavaScript kod u build-time, što znači da je potreban odvojen build za lokalno i produkcijsko okruženje:
+Vite ugrađuje `VITE_API_URL` direktno u JavaScript kod u build-time kao Docker build argument, što znači da je potreban odvojen build za lokalno i produkcijsko okruženje:
  
 | | `docker-compose.yml` | `docker-compose.prod.yml` |
 |---|---|---|
 | Namjena | Lokalni development | Produkcijski server |
 | `VITE_API_URL` | `http://localhost:8082` | `https://178.128.144.139.nip.io` |
-| Frontend build | Lokalni build | Docker Hub image |
 | Nginx | Ne | Da |
 | SSL | Ne | Da (Let's Encrypt) |
  
@@ -275,17 +274,17 @@ Vite ugrađuje `VITE_API_URL` direktno u JavaScript kod u build-time, što znač
 | Servis | URL |
 |---|---|
 | Frontend (web aplikacija) | `https://178.128.144.139.nip.io` |
-| Backend API dokumentacija | `https://178.128.144.139.nip.io/scalar/v1` |
+| API dokumentacija | `https://178.128.144.139.nip.io/scalar/v1` |
  
 ---
  
 ## 12. Poznata ograničenja deploymenta
  
-- VPS server ima 1GB RAM — dodano 2GB swap memorije kao virtuelni RAM da bi se mogli pokrenuti svi servisi istovremeno
+- VPS server ima 1GB RAM — dodano 2GB swap memorije kao virtuelni RAM
 - `ASPNETCORE_ENVIRONMENT` je `Development` i na produkcijskom serveru
-- JWT signing key i DB kredencijali su vidljivi u `docker-compose.prod.yml` — trebalo bi ih premjestiti u GitHub Secrets za finalnu produkciju
+- JWT signing key i DB kredencijali su vidljivi u `docker-compose.prod.yml`
 - Lozinke u seed podacima nisu hashirane
-- VPS server nema direktan pristup internetu tokom Docker build procesa — zbog toga se build vrši na GitHub Actions, a server samo preuzima gotove images sa Docker Hub
+- Frontend image se builda direktno na serveru (ne preuzima sa Docker Hub) jer `VITE_API_URL` mora biti ugrađen u build-time sa produkcijskim URL-om
 ---
  
 ## 13. Najčešći problemi i rješenja
@@ -294,12 +293,11 @@ Vite ugrađuje `VITE_API_URL` direktno u JavaScript kod u build-time, što znač
 |---|---|---|
 | `docker-compose up` ne radi | Docker Desktop nije pokrenut | Pokrenuti Docker Desktop i pričekati da se engine pokrene |
 | Baza se ne pokreće | Port 5432 je zauzet | Zaustaviti lokalni PostgreSQL servis |
-| API ne odgovara | Kontejner se nije pokrenuo | Provjeriti logove: `docker logs conferencemanagement.api` |
+| API ne odgovara | Kontejner se nije pokrenuo | `docker logs conferencemanagement.api` |
 | Migracije padaju | Baza nije zdrava | Pričekati healthcheck, ponoviti `docker-compose up` |
-| Frontend ne može dosegnuti API lokalno | `VITE_API_URL` nije ispravno postavljen | Provjeriti da `docker-compose.yml` ima `VITE_API_URL=http://localhost:8082` |
-| Frontend na serveru ne može dosegnuti API | `VITE_API_URL` u prod buildu nije ispravan | Provjeriti `docker-compose.prod.yml` — `VITE_API_URL` mora biti `https://178.128.144.139.nip.io` |
-| CORS greška u browseru | Frontend URL nije dodan u backend CORS konfiguraciju | Provjeriti CORS konfiguraciju u `Program.cs` |
-| SSH konekcija odbijena | SSH ključ nije dodan u `authorized_keys` | `cat ~/.ssh/id_ed25519.pub >> ~/.ssh/authorized_keys` |
+| Frontend ne može dosegnuti API lokalno | Pogrešan `VITE_API_URL` | Provjeriti da `docker-compose.yml` ima `VITE_API_URL=http://localhost:8082` |
+| Frontend na serveru ne može dosegnuti API | Pogrešan `VITE_API_URL` u prod buildu | Provjeriti `docker-compose.prod.yml` — `VITE_API_URL` mora biti `https://178.128.144.139.nip.io` |
+| CORS greška u browseru | Frontend URL nije dozvoljen u backendu | Provjeriti CORS konfiguraciju u `Program.cs` |
+| SSH konekcija odbijena | SSH ključ nije u `authorized_keys` | `cat ~/.ssh/id_ed25519.pub >> ~/.ssh/authorized_keys` |
 | SSL certifikat ne radi | Certifikat je istekao | Obnoviti Let's Encrypt certifikat na serveru |
 | Deploy pada zbog nedostatka memorije | 1GB RAM nije dovoljno | Provjeriti da je 2GB swap aktivan: `swapon --show` |
-| `npm install` pada tokom Docker builda na serveru | VPS nema pristup internetu tokom builda | Build se vrši na GitHub Actions — ne buildati direktno na serveru |
