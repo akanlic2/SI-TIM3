@@ -14,11 +14,14 @@
 
 - Lozinke korisnika su spašene direktno u bazi, bez ikakvog heširanja
 - Organizatori mogu uređivati određene stavke konferencija koje oni nisu kreirali
+- Nema implementiranog rate limiting-a na login endpoint-u — sistem je ranjiv na brute force napade
+- Nema validacije snage lozinke pri registraciji
 
 ## Nedovršene funkcionalnosti
 
 - Govornici tab nije implementiran
 - Pokušaj preuzimanja PDF materijala izbacuje 404 Stranica nije pronađena grešku
+- Upravljanje kotizacijama nije implementirano
 
 ## Pretpostavke koje sistem pravi
 
