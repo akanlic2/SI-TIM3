@@ -146,6 +146,19 @@ describe('AgendaPage', () => {
     expect(screen.getByText(/Tip stavke/)).toBeInTheDocument()
   })
 
+<<<<<<< HEAD
+=======
+  it.skip('ako je tip Session, prikazuje dropdown za postojecu sesiju', async () => {
+    render(<AgendaPage />)
+
+    await screen.findByText('Keynote')
+    await userEvent.click(screen.getByText('+ Dodaj stavku'))
+
+    expect(await screen.findByText(/Keynote \(/)).toBeInTheDocument()
+    expect(screen.getByText('Odaberite sesiju')).toBeInTheDocument()
+  })
+
+>>>>>>> 955ac0957ae0345a6d233a3f54cb5a8249a8d4f9
   it('ako tip nije Session, omogucava unos naziva i opisa', async () => {
     render(<AgendaPage />)
 
@@ -159,6 +172,38 @@ describe('AgendaPage', () => {
     expect(within(modal).getByPlaceholderText('Opcioni opis')).toBeInTheDocument()
   })
 
+<<<<<<< HEAD
+=======
+  it.skip('submit poziva create agenda API', async () => {
+    render(<AgendaPage />)
+
+    await screen.findByText('Keynote')
+    await userEvent.click(screen.getByText('+ Dodaj stavku'))
+    const modal = getAgendaFormModal('Nova stavka agende')
+    const selects = within(modal).getAllByRole('combobox')
+    await userEvent.selectOptions(selects[0], 'Break')
+    await userEvent.type(within(modal).getByPlaceholderText('Npr. Pauza za kafu'), 'Pauza za kafu')
+    await userEvent.type(within(modal).getByPlaceholderText('Opcioni opis'), 'Kratka pauza')
+    const dateInputs = modal.querySelectorAll('input[type="datetime-local"]')
+    fireEvent.change(dateInputs[0], { target: { value: '2026-06-10T12:00' } })
+    fireEvent.change(dateInputs[1], { target: { value: '2026-06-10T12:30' } })
+    await userEvent.selectOptions(within(modal).getAllByRole('combobox')[1], 'room-1')
+    await userEvent.click(within(modal).getByText('Spasi'))
+
+    await waitFor(() => {
+      expect(agendaApi.createAgendaItem).toHaveBeenCalledWith(
+        'conf-1',
+        expect.objectContaining({
+          type: 'Break',
+          title: 'Pauza za kafu',
+          description: 'Kratka pauza',
+          roomId: 'room-1',
+        })
+      )
+    })
+  })
+
+>>>>>>> 955ac0957ae0345a6d233a3f54cb5a8249a8d4f9
   it('edit otvara formu sa postojecim podacima', async () => {
     render(<AgendaPage />)
 
@@ -211,6 +256,30 @@ describe('AgendaPage', () => {
     expect(await screen.findByText(/Gre.*ka pri u.*itavanju agende/)).toBeInTheDocument()
   })
 
+<<<<<<< HEAD
+=======
+  it.skip('prikazuje error poruku za create ako API odbije zahtjev', async () => {
+    vi.mocked(agendaApi.createAgendaItem).mockRejectedValue({
+      response: { data: { error: 'Create failed' } },
+    })
+
+    render(<AgendaPage />)
+
+    await screen.findByText('Keynote')
+    await userEvent.click(screen.getByText('+ Dodaj stavku'))
+    const modal = getAgendaFormModal('Nova stavka agende')
+    const selects = within(modal).getAllByRole('combobox')
+    await userEvent.selectOptions(selects[0], 'Break')
+    await userEvent.type(within(modal).getByPlaceholderText('Npr. Pauza za kafu'), 'Pauza za kafu')
+    const dateInputs = modal.querySelectorAll('input[type="datetime-local"]')
+    fireEvent.change(dateInputs[0], { target: { value: '2026-06-10T12:00' } })
+    fireEvent.change(dateInputs[1], { target: { value: '2026-06-10T12:30' } })
+    await userEvent.click(within(modal).getByText('Spasi'))
+
+    expect(await screen.findByText('Create failed')).toBeInTheDocument()
+  })
+
+>>>>>>> 955ac0957ae0345a6d233a3f54cb5a8249a8d4f9
   it('prikazuje error poruku za update ako API odbije zahtjev', async () => {
     vi.mocked(agendaApi.updateAgendaItem).mockRejectedValue({
       response: { data: { error: 'Update failed' } },

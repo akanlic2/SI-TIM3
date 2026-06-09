@@ -345,7 +345,11 @@ public class AgendaItemCrudTests
 
     private static Conference CreateConference()
     {
+<<<<<<< HEAD
         var start = DateTime.UtcNow.Date.AddDays(10).AddHours(9);
+=======
+        var start = DateTime.SpecifyKind(DateTime.Now.Date.AddDays(10).AddHours(9), DateTimeKind.Local);
+>>>>>>> 955ac0957ae0345a6d233a3f54cb5a8249a8d4f9
         return new Conference
         {
             ConferenceId = Guid.NewGuid(),

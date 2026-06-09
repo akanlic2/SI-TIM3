@@ -970,6 +970,7 @@ za određenu konferenciju., kao i njihovo filtritanje.
 ### Rizici, problemi ili greške koje su uočene
 - **Presretanje izuzetaka u Debuggeru:** Prilikom testiranja brisanja već obrisanih stavki, Visual Studio debugger je prekidao izvršavanje hvatajući `KeyNotFoundException` prije nego što bi ga middleware obradio. Problem je riješen puštanjem aplikacije u rad čime je potvrđen ispravan `404 Not Found` odgovor na frontendu.
 
+<<<<<<< HEAD
 ## Unos #25
 
 | Polje | Detalji |
@@ -1063,3 +1064,5 @@ AI alat je korišten za provjeru implementacije korisničkih priča iz Sprint 10
 
 - Ownership validacije nisu bile prisutne za sve slučajeve korištenja
 - Potrebne su dodatne validacije za pojedine tipove podataka i poslovna pravila
+=======
+>>>>>>> 955ac0957ae0345a6d233a3f54cb5a8249a8d4f9

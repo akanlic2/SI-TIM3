@@ -594,7 +594,10 @@ Tražena je pomoć pri planiranju i pisanju testova za funkcionalnosti upravljan
 - Pojedini backend kontroleri nisu bili pogodni za potpune Moq unit testove zbog direktnog korištenja `ApplicationDbContext`
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 955ac0957ae0345a6d233a3f54cb5a8249a8d4f9
 ## Unos #16
  
 | Polje | Detalji |
@@ -793,7 +796,10 @@ Claude AI je korišten kao podrška pri kreiranju nove database migracije nakon 
 - Postojala je mogućnost konflikta između lokalno generisane migracije i stanja baze na VPS-u — migracija je testirana lokalno prije primjene na server
 - Nisu uočeni dodatni rizici
 
+<<<<<<< HEAD
 >>>>>>> 45a053007635a63b306e8e620f79ac66e0286cac
+=======
+>>>>>>> 955ac0957ae0345a6d233a3f54cb5a8249a8d4f9
 ---
 
 *Dokument se ažurira tokom trajanja projekta. Svaki novi slučaj korištenja AI dodaje se kao novi unos.*
