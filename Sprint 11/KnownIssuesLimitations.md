@@ -7,9 +7,13 @@
 
 ## Tehnička ograničenja
 
+- Nema validacije tipa fajla kod uploada materijala
+- Upload materijala vjerovatno ima ograničenje veličine fajla koje nije komunicirano korisniku
+
 ## Sigurnosna ograničenja
 
 - Lozinke korisnika su spašene direktno u bazi, bez ikakvog heširanja
+- Organizatori mogu uređivati određene stavke konferencija koje oni nisu kreirali
 
 ## Nedovršene funkcionalnosti
 
@@ -17,6 +21,13 @@
 - Pokušaj preuzimanja PDF materijala izbacuje 404 Stranica nije pronađena grešku
 
 ## Pretpostavke koje sistem pravi
+
+- Pretpostavlja se da postoji samo jedan organizator po konferenciji (ili da je vlasništvo nad konferencijom jednoznačno određeno)
+- Sistem pretpostavlja da svaki novoregistrovani korisnik želi ulogu učesnika — nema mogućnosti odabira uloge pri registraciji
+- Pretpostavlja se da organizator i predavač su međusobno isključive uloge — jedan korisnik ne može biti oboje istovremeno
+- Sistem pretpostavlja da kapacitet konferencije pokriva ukupan broj prijavljenih učesnika, bez razlikovanja po sesijama (učesnik prijavljen na konferenciju može prisustvovati svim sesijama)
+- Sistem pretpostavlja da predavač mora postojati kao registrovani korisnik u sistemu — nije moguće dodati eksternog predavača samo sa imenom/biografijom
+- Sistem pretpostavlja da učesnik može biti prijavljen na neograničen broj konferencija istovremeno
 
 ## Dijelovi sistema koje ne treba predstavljati kao potpuno završene
 
