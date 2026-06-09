@@ -1,6 +1,6 @@
 # 7. Test Summary / QA izvjestaj
 
-Ovaj dokument predstavlja zbirni QA izvjestaj za cijeli projekat **Conference Management**, a ne samo za Sprint 11. Podaci su zasnovani na postojecim backend i frontend testovima, postojecoj projektnoj dokumentaciji i posljednjim validnim rezultatima testiranja projekta.
+Ovaj dokument predstavlja zbirni QA izvjestaj za cijeli projekat **Conference Management**. Podaci su zasnovani na postojecim backend i frontend testovima, postojecoj projektnoj dokumentaciji i posljednjim validnim rezultatima testiranja projekta.
 
 ---
 
@@ -158,4 +158,4 @@ Ovi nedostaci su dokumentovani kroz postojece testove i predstavljaju poznata og
 
 Testiranje projekta je izvrseno nad postojecim backend i frontend testovima bez izmjene produkcijskog koda i bez dodavanja novih testova. Rezultati su dokumentovani na osnovu komandi `dotnet test ConferenceManagement.Tests\ConferenceManagement.Tests.csproj --no-restore` i `npm test`.
 
-Posljednji validni rezultati pokazuju da je proslo 268 backend testova i 104 frontend testa, bez neuspjelih ili preskocenih testova. Ukupno je dokumentovano 372 uspjesno izvrsena automatska testa, a svi navedeni podaci su provjerljivi kroz postojece test fajlove, terminal logove i dokaze testiranja.
+Posljednji validni rezultati pokazuju da je proslo 268 backend testova i 92 frontend testa, bez neuspjelih ili preskocenih testova. Ukupno je dokumentovano 360 uspjesno izvrsena automatska testa, a svi navedeni podaci su provjerljivi kroz postojece test fajlove, terminal logove i dokaze testiranja.
